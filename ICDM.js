@@ -1,6 +1,7 @@
 var listName = "ItemCodeProProcess";
 var returnUrl = "";
 var listItemId;
+var itemAdded="";
 var title = "";
 var tranlistNameArray = [];
 var masterlistNameArray = [];
