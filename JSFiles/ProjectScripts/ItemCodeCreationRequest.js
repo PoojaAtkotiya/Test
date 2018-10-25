@@ -7,45 +7,15 @@ var masterlistNameArray = [];
 var formData = {};
 var tranListData = {};
 var mainListData = {};
-var localApprovalMatrix;
-var currentUser;
-var activeSectionName = "";
 $(document).ready(function () {
     listItemId = getUrlParameter("ID");
     returnUrl = getUrlParameter("Source");
-
-    ////Get Current user details
-    GetCurrentUserDetails();
-
     GetAllMasterData();
-
     if (listItemId != null && listItemId > 0) {
         GetSetFormData();
     }
-    else {
-        activeSectionName = "LUMMARKETINGINCHARGESECTION";
-        $("#" + activeSectionName).removeClass("disabled");
-        $("div .disabled .form-control").attr("disabled", "disabled");
-    }
     //  BindDatePicker('');
 });
-
-function GetCurrentUserDetails() {
-    var url = "https://bajajelect.sharepoint.com/sites/MTDEV/_api/web/currentuser";
-    $.ajax({
-        url: url,
-        headers: {
-            Accept: "application/json;odata=verbose"
-        },
-        async: false,
-        success: function (data) {
-            currentUser = data.d; // Data will have user object      
-        },
-        eror: function (data) {
-            alert("An error occurred. Please try again.");
-        }
-    });
-}
 
 function BindDatePicker(selector) {
     if ($.trim(selector) != "") {
@@ -93,9 +63,9 @@ function fillUserDetails() {
         // 	}
         // }
     },
-        function (sender, args) {
-            console.log(args);
-        });
+		function (sender, args) {
+		    console.log(args);
+		});
 }
 
 function getUrlParameter(name) {
@@ -129,11 +99,11 @@ function GetMasterData(masterlistname) {
                 type: "GET",
                 async: false,
                 headers:
-                    {
-                        "Accept": "application/json;odata=verbose",
-                        "Content-Type": "application/json;odata=verbose",
-                        "X-RequestDigest": $("#__REQUESTDIGEST").val()
-                    },
+                {
+                    "Accept": "application/json;odata=verbose",
+                    "Content-Type": "application/json;odata=verbose",
+                    "X-RequestDigest": $("#__REQUESTDIGEST").val()
+                },
                 success: function (data) {
                     if (data != null && data != undefined && data.d != null && data.d.results != null) {
                         var result = data.d.results;
@@ -207,18 +177,16 @@ function SaveTranData(listname, tranListDataArray, lookupId) {
                 url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + listname + "')/items?$select=Author/Title,*&$expand=Author&$filter=RequestID eq '" + lookupId + "'",
                 type: "GET",
                 async: false,
-                headers:
-                    {
-                        "Accept": "application/json;odata=verbose",
-                        "Content-Type": "application/json;odata=verbose",
-                        "X-RequestDigest": $("#__REQUESTDIGEST").val()
-                    },
+                headers: {
+                    "Accept": "application/json;odata=verbose",
+                    "Content-Type": "application/json;odata=verbose",
+                    "X-RequestDigest": $("#__REQUESTDIGEST").val()
+                },
                 success: function (data) {
                     var item = data.d.results[0];
                     if (item != null && item != '' & item != undefined) {
                         tranListDataArray.ID = item.ID;
                     }
-                    //   cancel();
                 }
             });
         }
@@ -245,7 +213,9 @@ function SaveTranData(listname, tranListDataArray, lookupId) {
             data: JSON.stringify(tranListDataArray),
             headers: headers,
             success: function (data) {
-                alert("Data saved successfully.");
+                if (data != null && data.d != null) {
+                    alert("Data saved successfully.");
+                }
             },
             error: function (data) {
                 console.log(data);
@@ -305,17 +275,15 @@ function GetFormControlsValue(id, elementType, listDataArray) {
 function SaveFormData() {
     var mainListName = $('#divItemCodeForm').attr('mainlistname');
     if (mainListName != undefined && mainListName != '' && mainListName != null) {
-     
-        $('#divItemCodeForm').find('div[section]').not(".disabled").each(function (i, e) {
-            $(e).find('input[listtype=main],select[listtype=main],radio[listtype=main],textarea[listtype=main],label[listtype=main],input[reflisttype=main],select[reflisttype=main],radio[reflisttype=main],textarea[reflisttype=main],label[reflisttype=main]').each(function () {
-                var elementId = $(this).attr('id');
-                var elementType = $(this).attr('controlType');
-                mainListData = GetFormControlsValue(elementId, elementType, mainListData);
-            });
-            SaveData(mainListName, mainListData);
+        $('input[listtype=main],select[listtype=main],radio[listtype=main],textarea[listtype=main],label[listtype=main],input[reflisttype=main],select[reflisttype=main],radio[reflisttype=main],textarea[reflisttype=main],label[reflisttype=main]').each(function () {
+            var elementId = $(this).attr('id');
+            var elementType = $(this).attr('controlType');
+            mainListData = GetFormControlsValue(elementId, elementType, mainListData);
         });
+        SaveData(mainListName, mainListData);
     }
 }
+
 
 function SaveData(listname, listDataArray) {
     var itemType = GetItemTypeForListName(listname);
@@ -355,6 +323,7 @@ function SaveData(listname, listDataArray) {
         });
     }
 }
+
 
 function TranListData(lookupId) {
     tranlistNameArray = [];
@@ -403,24 +372,9 @@ function GetTranData(tranlistname, lookupId) {
                         setFieldValue(elementId, item, elementType, elementId);
                     });
                 }
-                if (tranlistname == "ItemCodeApprovalMatrix") {
-                    localApprovalMatrix = data;
-                    if (listItemId > 0 && localApprovalMatrix != null && localApprovalMatrix != undefined && localApprovalMatrix.d.results.length > 0) {
-                        localApprovalMatrix.d.results.filter(function (i) {
-                            if (i.Status == "Pending" && i.ApproverId.results.indexOf(this.currentUser.Id) >= 0) {
-                                activeSectionName = i.SectionName;
-                                activeSectionName = activeSectionName.replace(/ /g, '').trim().toUpperCase();
-                                $("#" + activeSectionName).removeClass("disabled");
-                                $("div .disabled .form-control").attr("disabled", "disabled");
-                            }
-                        });
-                    }
-                }
             }
 
         });
-
-
     }
 }
 
@@ -433,11 +387,11 @@ function GetSetFormData() {
         type: "GET",
         async: false,
         headers:
-            {
-                "Accept": "application/json;odata=verbose",
-                "Content-Type": "application/json;odata=verbose",
-                "X-RequestDigest": $("#__REQUESTDIGEST").val()
-            },
+               {
+                   "Accept": "application/json;odata=verbose",
+                   "Content-Type": "application/json;odata=verbose",
+                   "X-RequestDigest": $("#__REQUESTDIGEST").val()
+               },
         success: function (data) {
             var item = data.d;
             if (item != null && item != '' & item != undefined) {

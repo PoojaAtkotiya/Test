@@ -306,52 +306,13 @@ function SaveFormData() {
     var mainListName = $('#divItemCodeForm').attr('mainlistname');
     if (mainListName != undefined && mainListName != '' && mainListName != null) {
      
-        $('#divItemCodeForm').find('div[section]').not(".disabled").each(function (i, e) {
+        $('div[section]').not(".disabled").each(function (i, e) {
             $(e).find('input[listtype=main],select[listtype=main],radio[listtype=main],textarea[listtype=main],label[listtype=main],input[reflisttype=main],select[reflisttype=main],radio[reflisttype=main],textarea[reflisttype=main],label[reflisttype=main]').each(function () {
                 var elementId = $(this).attr('id');
                 var elementType = $(this).attr('controlType');
                 mainListData = GetFormControlsValue(elementId, elementType, mainListData);
             });
             SaveData(mainListName, mainListData);
-        });
-    }
-}
-
-function SaveData(listname, listDataArray) {
-    var itemType = GetItemTypeForListName(listname);
-    if (listDataArray != null) {
-        listDataArray["__metadata"] = {
-            "type": itemType
-        };
-        console.log(listDataArray);
-        var url = '', headers = '';
-        if (listItemId != null && listItemId > 0 && listItemId != "") {
-            listDataArray.ID = listItemId;
-            url = _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + listName + "')/items(" + listItemId + ")";
-            headers = { "Accept": "application/json;odata=verbose", "X-RequestDigest": $("#__REQUESTDIGEST").val(), "IF-MATCH": "*", "X-HTTP-Method": "MERGE" };
-        }
-        else {
-            url = _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + listName + "')/items";
-            headers = { "Accept": "application/json;odata=verbose", "X-RequestDigest": $("#__REQUESTDIGEST").val() };
-        }
-
-        $.ajax({
-            url: url,
-            type: "POST",
-            contentType: "application/json;odata=verbose",
-            data: JSON.stringify(listDataArray),
-            headers: headers,
-            success: function (data) {
-                if (data != undefined && data != null && data.d != null) {
-                    SaveTranListData(data.d.ID);
-                }
-                else {
-                    SaveTranListData(listItemId);
-                }
-            },
-            error: function (data) {
-                console.log(data);
-            }
         });
     }
 }
@@ -375,10 +336,6 @@ function GetTranListData(lookupId) {
             GetTranData(tranlistNameArray[i], lookupId);
         });
     }
-}
-
-function IsTranDataExists(tranlistname, lookupId) {
-
 }
 
 function GetTranData(tranlistname, lookupId) {
@@ -458,10 +415,55 @@ function GetSetFormData() {
     });
 }
 
-function cancel() {
-    if (returnUrl == "")
-        returnUrl = location.pathname.substring(0, location.pathname.lastIndexOf("/"));
-    location.href = decodeURIComponent(returnUrl);
+function SaveForm() {
+    var formValid = false;
+    formValid = true;
+    if (formValid) {
+        SaveFormData();
+    } else {
+        alert("Please fill requied fields");
+    }
+}
+
+
+
+function SaveData(listname, listDataArray) {
+    var itemType = GetItemTypeForListName(listname);
+    if (listDataArray != null) {
+        listDataArray["__metadata"] = {
+            "type": itemType
+        };
+        console.log(listDataArray);
+        var url = '', headers = '';
+        if (listItemId != null && listItemId > 0 && listItemId != "") {
+            listDataArray.ID = listItemId;
+            url = _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + listName + "')/items(" + listItemId + ")";
+            headers = { "Accept": "application/json;odata=verbose", "X-RequestDigest": $("#__REQUESTDIGEST").val(), "IF-MATCH": "*", "X-HTTP-Method": "MERGE" };
+        }
+        else {
+            url = _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + listName + "')/items";
+            headers = { "Accept": "application/json;odata=verbose", "X-RequestDigest": $("#__REQUESTDIGEST").val() };
+        }
+
+        $.ajax({
+            url: url,
+            type: "POST",
+            contentType: "application/json;odata=verbose",
+            data: JSON.stringify(listDataArray),
+            headers: headers,
+            success: function (data) {
+                if (data != undefined && data != null && data.d != null) {
+                    listDataArray.ID = data.d.ID;
+                }
+                else {
+                    SaveTranListData(listItemId);
+                }
+            },
+            error: function (data) {
+                console.log(data);
+            }
+        });
+    }
 }
 
 function setFieldValue(controlId, item, fieldType, fieldName) {
@@ -496,15 +498,13 @@ function setFieldValue(controlId, item, fieldType, fieldName) {
     }
 }
 
-function SaveForm() {
-    var formValid = false;
-    formValid = true;
-    if (formValid) {
-        SaveFormData();
-    } else {
-        alert("Please fill requied fields");
-    }
+
+function cancel() {
+    if (returnUrl == "")
+        returnUrl = location.pathname.substring(0, location.pathname.lastIndexOf("/"));
+    location.href = decodeURIComponent(returnUrl);
 }
+
 
 function GetItemTypeForListName(name) {
     return "SP.Data." + name.charAt(0).toUpperCase() + name.split(" ").join("").slice(1) + "ListItem";
