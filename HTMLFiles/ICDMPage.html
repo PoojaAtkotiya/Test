@@ -1,16 +1,27 @@
-﻿
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+﻿<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+
 <head>
     <meta charset="utf-8" />
     <title>ICDM Form</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/bootstrap/3/css/bootstrap.css" />
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
     <script type="text/css" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/CSSFiles/main.css">
     </script>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css" />
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
-    <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/ICDM.js"></script>
+    <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/Constants.js"></script>
+    <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/Common.js"></script>
+    <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/ApprovalMatrix.js"></script>
+    <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/Button.js"></script>
+    <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/master.js"></script>
+    <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/tran.js"></script>
+    <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/ICDMForm.js"></script>
+
     <style>
         .disabled {
             cursor: not-allowed;
@@ -18,9 +29,10 @@
         }
     </style>
     <meta charset="utf-8" />
+
     <title>ICDM Form</title>
     <script type="text/javascript">
-    var formData = {};
+        var formData = {};
         $(document).ready(function () {
             $('.form-control').change(function () {
                 var type = $(this).attr('cfieldType');
@@ -77,175 +89,190 @@
         });
     </script>
 </head>
+
 <body>
     <div class="container" style="padding-top: 50px;">
-        <div id="divItemCodeForm" mainlistname="ItemCodeProProcess">
-            <input type="hidden" class="form-control dynamic-control" listType="tran" listName="ItemCodeApprovalMatrix" id="ItemCodeApprovalMatrix">
-            <div id="LUMMARKETINGINCHARGESECTION" section="FirstSection" class="disabled">
-                <div class="form-horizontal">
-                    <div class="row">
-                        <div class="form-group">
-                            <div class="col-sm-6 col-md-6 col-xs-6">
-                                <div class="col-sm-4 form-Label">Item Code Number:</div>
-                                <div class="col-sm-8">
-                                    <div class="noborder">
-                                        <label class="dynamic-control" id="ICCPNo" listtype="main" controlType="label"></label>
+        <div class="row">
+            <ul class="header-nav header-nav-options nav navbar-nav navbar-right pull-right " id="dynamicButtonli"></ul>
+        </div>
+        <div class="row">
+            <div id="divItemCodeForm" mainlistname="ItemCodeProProcess">
+                <input type="hidden" class="form-control dynamic-control" listType="tran" listName="ItemCodeApprovalMatrix" id="ItemCodeApprovalMatrix">
+                <div id="LUMMARKETINGINCHARGESECTION" section="LUM Marketing Incharge Section" class="disabled">
+                    <div class="form-horizontal">
+                        <div class="row">
+                            <div class="form-group">
+                                <div class="col-xs-12 col-sm-6 col-md-6 ">
+                                    <div class="col-xs-12 col-sm-6 col-md-4 form-Label">Item Code Number:</div>
+                                    <div class="col-xs-12 col-sm-6 col-md-8">
+                                        <div class="noborder">
+                                            <label class="dynamic-control" id="ICCPNo" listtype="main" controlType="label"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-6 col-md-6 ">
+                                    <div class="col-xs-12 col-sm-6 col-md-4 form-Label">Request Date:</div>
+                                    <div class="col-xs-12 col-sm-6 col-md-8 ">
+                                        <div class="noborder">
+                                            <label class="dynamic-control" id="RequestDate" listtype="main" controlType="label"></label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-sm-6 col-md-6 col-xs-6">
-                                <div class="col-sm-4 form-Label">Request Date:</div>
-                                <div class="col-sm-8">
-                                    <div class="noborder">
-                                        <label class="dynamic-control" id="RequestDate" listtype="main" controlType="label"></label>
+                        </div>
+                        <div class="row">
+                            <div class="form-group">
+                                <div class="col-sm-6 col-md-6 col-xs-12">
+                                    <div class="col-sm-4 col-xs-12 form-Label">Proposed By :</div>
+                                    <div class="col-sm-8 col-xs-12">
+                                        <label class="dynamic-control" id="ProposedByName" listtype="main" controlType="label"></label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-md-6 col-xs-12">
+                                    <div class="col-sm-4 col-xs-12 form-Label">Status :</div>
+                                    <div class="col-sm-8 col-xs-12">
+                                        <label class="dynamic-control" id="WorkflowStatus" listtype="main" controlType="label"></label>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="form-group">
-                            <div class="col-sm-6 col-md-6 col-xs-6">
-                                <div class="col-sm-4 form-Label">Proposed By :</div>
-                                <div class="col-sm-8">
-                                    <label class="dynamic-control" id="ProposedByName" listtype="main" controlType="label"></label>
-                                </div>
-                            </div>
-                            <div class="col-sm-6 col-md-6 col-xs-6">
-                                <div class="col-sm-4 form-Label">Status :</div>
-                                <div class="col-sm-8">
-                                    <label class="dynamic-control" id="WorkflowStatus" listtype="main" controlType="label"></label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="form-group">
-                            <div class="col-sm-6 col-md-6 col-xs-6">
-                                <div class="col-sm-4 form-Label">LUM Marketing Delegate User :</div>
-                                <div class="col-sm-8">
-                                </div>
-                            </div>
-                            <div class="col-sm-6 col-md-6 col-xs-6">
-                                <div class="col-sm-4 form-Label">Comment :</div>
-                                <div class="col-sm-8">
-                                    <input class="form-control dynamic-control" type="text" controlType="multitext" listtype="tran" listname="ItemCodeApprovalMatrix" id="Comments" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="form-group">
-                            <div class="col-sm-6 col-md-6 col-xs-6">
-                                <div class="col-sm-4 form-Label">Item Description :</div>
-                                <div class="col-sm-8">
-                                    <input class="form-control dynamic-control" type="text" controlType="multitext" listtype="main" id="ItemDescription" />
-                                </div>
-                            </div>
-                            <div class="col-sm-6 col-md-6 col-xs-6">
-                                <div class="col-sm-4 form-Label">Product Group :</div>
-                                <div class="col-sm-8">
-                                    <select class="form-control dynamic-control" listtype="master" reflisttype="main" listname="ProductGroupMaster" data-selected="ProductGroup" valuebindingcolumn="Title" textbindingcolumnn="Title" id="ProductGroup" controlType="combo"></select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="form-group">
-                            <div class="col-sm-6 col-md-6 col-xs-6">
-                                <div class="col-sm-4 form-Label">Confirmed Order from Customer :</div>
-                                <div class="col-sm-8">
-                                    <select class="form-control dynamic-control" id="ConfirmedOrderFromCustomer" reflisttype="main" data-selected="ConfirmedOrderFromCustomer" valuebindingcolumn="Title" textbindingcolumnn="Title" listname="ConfirmedOrderMaster" listtype="master" controlType="combo"></select>
-                                </div>
-                            </div>
-                            <div class="col-sm-6 col-md-6 col-xs-6">
-                                <div class="col-sm-4 form-Label">Type of Packaging Required :</div>
-                                <div class="col-sm-8">
-                                    <select class="form-control dynamic-control" data-selected="TypeOfPackaging" reflisttype="main" valuebindingcolumn="Title" textbindingcolumnn="Title" listtype="master" listname="TypeOfPackagingMaster" id="TypeOfPackaging" controlType="combo"></select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="form-group">
-                            <div class="col-sm-6 col-md-6 col-xs-6">
-                                <div class="col-sm-4 form-Label">Reference Product :</div>
-                                <div class="col-sm-8">
-                                    <input class="form-control dynamic-control" listtype="main" type="text" controlType="text" id="ReferenceProduct">
-                                </div>
-                            </div>
-                            <div class="col-sm-6 col-md-6 col-xs-6">
-                                <div class="col-sm-4 form-Label">Expected Annual Business Volume (Nos) :</div>
-                                <div class="col-sm-8">
-                                    <input class="form-control dynamic-control" type="text" listtype="main" controlType="text" id="ExpectedAnnualBusinessVolume">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="form-group">
-                            <div class="col-sm-6 col-md-6 col-xs-6">
-                                <div class="col-sm-4 form-Label">Item To Be Phased Out :</div>
-                                <div class="col-sm-8">
-                                    <input class="form-control dynamic-control" listtype="main" type="text" controlType="text" id="ItemToBePhasedOut">
-                                </div>
-                            </div>
-                            <div class="col-sm-6 col-md-6 col-xs-6">
-                                <div class="col-sm-4 form-Label">Item To Be Phased Out With Effect From :</div>
-                                <div class="col-sm-8">
-                                    <div class="input-group date datepicker pastDisabled">
-                                        <input type="text" class="form-control dynamic-control datepicker" listtype="main" id="ItemPhasedOutWithEffectFrom" controlType="date" name="ItemPhasedOutWithEffectFrom">
-                                        <span class="input-group-addon">
-                                            <span class="fa fa-calendar"></span>
-                                        </span>
+                        <div class="row">
+                            <div class="form-group">
+                                <div class="col-sm-6 col-md-6 col-xs-12">
+                                    <div class="col-sm-4 col-xs-12 form-Label">LUM Marketing Delegate User :</div>
+                                    <div class="col-sm-8 col-xs-12">
                                     </div>
+                                </div>
+                                <div class="col-sm-6 col-md-6 col-xs-12">
+                                    <div class="col-sm-4 col-xs-12 form-Label">Comment :</div>
+                                    <div class="col-sm-8 col-xs-12">
+                                        <input class="form-control dynamic-control" type="text" controlType="multitext" listtype="tran" listname="ItemCodeApprovalMatrix"
+                                               id="Comments" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group">
+                                <div class="col-sm-6 col-md-6 col-xs-12">
+                                    <div class="col-sm-4 col-xs-12 form-Label">Item Description :</div>
+                                    <div class="col-sm-8 col-xs-12">
+                                        <input class="form-control dynamic-control" type="text" controlType="multitext" listtype="main" id="ItemDescription" />
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-md-6 col-xs-12">
+                                    <div class="col-sm-4 col-xs-12 form-Label">Product Group :</div>
+                                    <div class="col-sm-8 col-xs-12">
+                                        <select class="form-control dynamic-control" listtype="master" reflisttype="main" listname="ProductGroupMaster" data-selected="ProductGroup"
+                                                valuebindingcolumn="Title" textbindingcolumnn="Title" id="ProductGroup" controlType="combo"></select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group">
+                                <div class="col-sm-6 col-md-6 col-xs-12">
+                                    <div class="col-sm-4 col-xs-12 form-Label">Confirmed Order from Customer :</div>
+                                    <div class="col-sm-8 col-xs-12">
+                                        <select class="form-control dynamic-control" id="ConfirmedOrderFromCustomer" reflisttype="main" data-selected="ConfirmedOrderFromCustomer"
+                                                valuebindingcolumn="Title" textbindingcolumnn="Title" listname="ConfirmedOrderMaster"
+                                                listtype="master" controlType="combo"></select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-md-6 col-xs-12">
+                                    <div class="col-sm-4 col-xs-12 form-Label">Type of Packaging Required :</div>
+                                    <div class="col-sm-8 col-xs-12">
+                                        <select class="form-control dynamic-control" data-selected="TypeOfPackaging" reflisttype="main" valuebindingcolumn="Title"
+                                                textbindingcolumnn="Title" listtype="master" listname="TypeOfPackagingMaster" id="TypeOfPackaging"
+                                                controlType="combo"></select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group">
+                                <div class="col-sm-6 col-md-6 col-xs-12">
+                                    <div class="col-sm-4 col-xs-12 form-Label">Reference Product :</div>
+                                    <div class="col-sm-8 col-xs-12">
+                                        <input class="form-control dynamic-control" listtype="main" type="text" controlType="text" id="ReferenceProduct">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-md-6 col-xs-12">
+                                    <div class="col-sm-4 col-xs-12 form-Label">Expected Annual Business Volume (Nos) :</div>
+                                    <div class="col-sm-8 col-xs-12">
+                                        <input class="form-control dynamic-control" type="text" listtype="main" controlType="text" id="ExpectedAnnualBusinessVolume">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group">
+                                <div class="col-sm-6 col-md-6 col-xs-12">
+                                    <div class="col-sm-4 col-xs-12 form-Label">Item To Be Phased Out :</div>
+                                    <div class="col-sm-8 col-xs-12">
+                                        <input class="form-control dynamic-control" listtype="main" type="text" controlType="text" id="ItemToBePhasedOut">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-md-6 col-xs-12">
+                                    <div class="col-sm-4 col-xs-12 form-Label">Item To Be Phased Out With Effect From :</div>
+                                    <div class="col-sm-8 col-xs-12">
+                                        <div class="input-group date datepicker pastDisabled">
+                                            <input type="text" class="form-control dynamic-control datepicker" listtype="main" id="ItemPhasedOutWithEffectFrom" controlType="date"
+                                                   name="ItemPhasedOutWithEffectFrom">
+                                            <span class="input-group-addon">
+                                                <span class="fa fa-calendar"></span>
+                                            </span>
+                                        </div>
 
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="form-group">
-                            <div class="col-sm-6 col-md-6 col-xs-6">
-                                <div class="col-sm-4 form-Label">ApproverMaster</div>
-                                <div class="col-sm-8">
-                                    <select class="form-control dynamic-control" listtype="master" listname="ApproverMaster" id="Role" controlType="combo"></select>
+                        <div class="row">
+                            <div class="form-group">
+                                <div class="col-sm-6 col-md-6 col-xs-12">
+                                    <div class="col-sm-4 col-xs-12 form-Label">ApproverMaster</div>
+                                    <div class="col-sm-8 col-xs-12">
+                                        <select class="form-control dynamic-control" listtype="master" listname="ApproverMaster" id="Role" controlType="combo"></select>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-sm-6 col-md-6 col-xs-6">
+                                <div class="col-sm-6 col-md-6 col-xs-12">
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div id="TDSINCHARGESECTION" section="SecondSection" class="disabled">
+                <div id="TDSINCHARGESECTION" section="SecondSection" class="disabled">
+                    <div class="row">
+                        <div class="form-group">
+                            <div class="col-sm-6 col-md-6 col-xs-12">
+                                <div class="col-sm-4 col-xs-12 form-Label">TDS Delegate:</div>
+                                <div class="col-sm-8 col-xs-12">
+                                    <input type="text" class="form-control dynamic-control" listtype="main" id="TDSDelegate" controlType="text">
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-6 col-xs-12">
+                                <div class="col-sm-4 col-xs-12 form-Label">Comments:</div>
+                                <div class="col-sm-8 col-xs-12">
+                                    <input type="text" class="form-control dynamic-control" id="Comment" listtype="ItemCodeApprovalMatrix" controlType="multitext">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="form-group">
-                        <div class="col-sm-6 col-md-6 col-xs-6">
-                            <div class="col-sm-4 form-Label">TDS Delegate:</div>
-                            <div class="col-sm-8">
-                                <input type="text" class="form-control dynamic-control" listtype="main" id="TDSDelegate" controlType="text">
-                            </div>
+                        <div class="col-sm-4 col-xs-12"></div>
+                        <div class="col-sm-8 col-xs-12">
+                            <button class="btn btn-primary" type="button" id="btnSave" onclick="SaveForm()">Save</button>
+                            <button class="btn btn-info" type="button" id="btnSave" onclick="SendBack()">SentBack</button>
+                            <button class="btn btn-danger" type="button" onclick="cancel()">Cancel</button>
                         </div>
-                        <div class="col-sm-6 col-md-6 col-xs-6">
-                            <div class="col-sm-4 form-Label">Comments:</div>
-                            <div class="col-sm-8">
-                                <input type="text" class="form-control dynamic-control" id="Comment" listtype="ItemCodeApprovalMatrix" controlType="multitext">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="form-group">
-                    <div class="col-sm-4"></div>
-                    <div class="col-sm-8">
-                        <button class="btn btn-primary" type="button" id="btnSave" onclick="SaveForm()">Save</button>
-                        <button class="btn btn-danger" type="button" onclick="cancel()">Cancel</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </body>
+
 </html>
