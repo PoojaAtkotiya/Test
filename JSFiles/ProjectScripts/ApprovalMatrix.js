@@ -293,42 +293,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
             }              
         });     
     }
-
-
-    for (var i = 0; i < globalApprovalMatrix.length - 1; i++) {
-        if (globalApprovalMatrix[i].FillByRole == "Creator") {
-            if (approverMaster[i] != null && approverMaster[i] != undefined && approverMaster[i].Role != undefined) {
-                if (globalApprovalMatrix[i].Role == approverMaster[i].Role) {
-                    approvers.push(approverMaster[i].UserNameId.results[0]);
-                }
-                if (globalApprovalMatrix[i].Role == "Creator") {
-                    status = "Approved";
-                }
-                else {
-                    status = "Not Assigned";
-                }
-                var row = {
-                    Title: globalApprovalMatrix[i].SectionName.results[0].Label,
-                    Levels: globalApprovalMatrix[i].Levels,
-                    Role: globalApprovalMatrix[i].Role,
-                    IsReminder: globalApprovalMatrix[i].IsReminder,
-                    IsEscalate: globalApprovalMatrix[i].IsEscalate,
-                    FillByRole: globalApprovalMatrix[i].FillByRole,
-                    Status: status,
-                    ApproverId: {
-                        results: [approvers]
-                    },
-                    //ApproveById: vm.getcurrentuser.Id,
-                    Days: globalApprovalMatrix[i].Days,
-                    FormName: globalApprovalMatrix[i].FormName.Label,
-                    SectionName: globalApprovalMatrix[i].SectionName.results[0].Label,
-                    ApplicationName: globalApprovalMatrix[i].ApplicationName.Label,
-                    RequestIDId: requestId
-                }
-                datas.push(row);
-            }
-        }
-    }
+    
     $.ajax({
         url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + approvalMatrixListName + "')/items",
         type: "POST",
