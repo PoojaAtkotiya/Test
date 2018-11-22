@@ -240,7 +240,6 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
             }
         });
     }
-
     if (currentApproverList != null )
     {
         $(approvalMatrix).each(function (i, e) {
