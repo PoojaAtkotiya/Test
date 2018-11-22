@@ -284,15 +284,32 @@ function SaveData(listname, listDataArray,sectionName) {
                 {
                     itemID=data.d.ID;
                 }
+                var web, clientContext;
+                SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
+                    clientContext = new SP.ClientContext.get_current();
+                    web = clientContext.get_web();
+                    oList = web.get_lists().getByTitle(listname);
+                    var oListItem = oList.getItemById(itemID);
 
-                SaveLocalApprovalMatrix(sectionName,itemID, listname, isNewItem, ItemCodeApprovalMatrixListName);
+                    clientContext.load(oListItem, 'FormLevel', 'ProposedBy');
+                    clientContext.load(web);
+                    //clientContext.load(web, 'EffectiveBasePermissions');
+                                                    
+                    clientContext.executeQueryAsync(function () {                       
+
+                        SaveLocalApprovalMatrix(sectionName, itemID, listname, isNewItem, oListItem, ItemCodeApprovalMatrixListName);
+
+                        if (data != undefined && data != null && data.d != null) {
+                            SaveTranListData(itemID);
+                        }
+                        else {
+                            SaveTranListData(itemID);
+                        }
+                    }, function (sender, args) {
+                        console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
+                    });
+                });
                 
-                if (data != undefined && data != null && data.d != null) {
-                    SaveTranListData(itemID);
-                }
-                else {
-                    SaveTranListData(itemID);
-                }
                // GetLocalApprovalMatrix();
             },
             error: function (data) {
