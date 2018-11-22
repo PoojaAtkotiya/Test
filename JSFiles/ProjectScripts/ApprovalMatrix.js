@@ -293,7 +293,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
                 }
             }              
         });     
-
+    }
 
 
     for (var i = 0; i < globalApprovalMatrix.length - 1; i++) {
