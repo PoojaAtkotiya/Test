@@ -292,8 +292,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
                 }
             }              
         });     
-    }
-    
+    }    
     $.ajax({
         url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + approvalMatrixListName + "')/items",
         type: "POST",
