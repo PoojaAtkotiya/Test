@@ -356,5 +356,4 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
             console.log(data);
         }
     });
-
 }
