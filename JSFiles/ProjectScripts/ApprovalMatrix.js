@@ -3,6 +3,7 @@ var currentUserRole;
 var localApprovalMatrixdata;
 var activeSectionName = "";
 var web, clientContext, currentUser, oList, perMask;
+var currentApproverList;
 function GetGlobalApprovalMatrix(id) {
     GetFormDigest().then(function (data) {
         $.ajax({
@@ -127,60 +128,78 @@ function GetEnableSectionNames() {
     });
 }
 
-function SaveLocalApprovalMatrix(sectionName,requestId, mainListName, isNewItem, approvalMatrixListName) {
+function CommonApprovalMatrix(approvalMatrix)
+{
+    $(approvalMatrix).each(function (i, e) {
+        if ($(e)[0].SectionName.results[0] != undefined && $(e)[0].SectionName.results[0].Label != '' && $(e)[0].SectionName.results[0].Label == sectionName) {
+            sectionOwner = $(e)[0].Role;
+        }
+        if ($(e)[0].FillByRole != null && $(e)[0].FillByRole == sectionOwner && $(e)[0].Role != "Viewer") {
+            fillApprovalMatrix.push($(e)[0]);
+        }
+        if ($(e)[0].Role == "Creator") {
+            $(e)[0].ApproverId = proposedBy;
+            $(e)[0].RequestID = requestId;
+        }
+        $(e)[0].Status = "Not Assigned";
+        currentApproverList=  GetCurrentApproverDetails($(e)[0].Role, sectionOwner, $(approvalMatrix))
+    });
+}
+
+function GetCurrentApproverDetails(role,sectionOwner,approverMatrix)
+{ 
+    var approverDetail = null;
+    var roleApprovers=[];
+    $(approverMatrix).each(function (i, e) {
+        if ($(e)[0].Role != undefined && $(e)[0].Role != '' && $(e)[0].FillByRole == sectionOwner &&  $(e)[0].Status != "Approved") {
+            roleApprovers.push($(e)[0]);
+            $(roleApprovers).each(function (i, et) {
+                if (approverDetail == null && (($(e)[0].Levels ==  $(et)[0].Levels && $(e)[0].IsOptional == false && $(e)[0].Status == "Pending") || ($(e)[0].Levels ==  $(et)[0].Levels && $(e)[0].Status == "Approved")))
+                {
+                    if($(e)[0].Role == sectionOwner && $(e)[0].Levels == $(et)[0].Levels)
+                        approverDetail = $(e)[0];
+                }
+            });
+        }
+        else
+        {
+            if($(e)[0].Role != undefined && $(e)[0].Role != '' && $(e)[0].FillByRole == sectionOwner)
+                approverDetail=$(e)[0];
+        }
+    });   
+    return approverDetail;
+}
+
+function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem,mainListItem, approvalMatrixListName) {
     var approvers = [];
     var status;
     var datas = [];
-    var currLevel = 0, nextLevel = 0, previousLevel = 0;
-    var nextApprover = '', formLevel = '', nextApproverRole = '', currentUserRole = '';
-    var web, clientContext;
+ 
+    var nextApprover = '', formLevel = '', nextApproverRole = '';
+  
     var userEmail = "";
-    var proposedBy = "";
+  
     var approvalMatrix;
     var approverList;
-    var fillApprovalMatrix;
-    SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
-        clientContext = new SP.ClientContext.get_current();
-        web = clientContext.get_web();
-        oList = web.get_lists().getByTitle(mainListName);
-        var oListItem = oList.getItemById(requestId);
+   
+    var fillApprovalMatrix = [];
 
-        clientContext.load(oListItem, 'FormLevel', 'CreatedBy');
-        clientContext.load(web);
-        //clientContext.load(web, 'EffectiveBasePermissions');
-
-        clientContext.executeQueryAsync(function () {
-            previousLevel = oListItem.get_item('FormLevel').split("|")[0];
-            currentLevel = oListItem.get_item('FormLevel').split("|")[1];
-            nextLevel = currentLevel;
-            proposedBy = oListItem.get_item('CreatedBy')
-        }, function (sender, args) {
-            console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
-        });
-    });
+    var previousLevel = mainListItem.get_item('FormLevel').split("|")[0];
+    var currentLevel = mainListItem.get_item('FormLevel').split("|")[1];
+    var nextLevel = currentLevel;
+    var proposedBy = mainListItem.get_item('ProposedBy');
 
     if (isNewItem) {
         approvalMatrix = globalApprovalMatrix;
 
         var sectionOwner = currentUserRole;
-        $(approvalMatrix).each(function (i, e) {
-            if ($(e)[i].SectionName.results[0].Label != '' && $(e)[i].SectionName.results[0].Label == sectionName) {
-                sectionOwner = $(e)[i].Role;
-            }
-            if ($(e)[i].FillByRole != null && $(e)[i].FillByRole == sectionOwner && $(e)[i].Role != "Viewer") {
-                fillApprovalMatrix.push($(e)[i]);
-            }
-            if ($(e)[i].Role == "CREATOR") {
-                $(e)[i].Approver = proposedBy;
-                $(e)[i].RequestID = requestId;
-            }
-            $(e)[i].Status = "Not Assigned";
-        });
+        CommonApprovalMatrix(approvalMatrix);
     }
     else {
         GetLocalApprovalMatrixData(requestId, mainListName);
         if (localApprovalMatrixdata != null && localApprovalMatrixdata.length > 0) {
             approvalMatrix = localApprovalMatrixdata;
+            CommonApprovalMatrix(approvalMatrix);
         }
     }
     
@@ -188,19 +207,19 @@ function SaveLocalApprovalMatrix(sectionName,requestId, mainListName, isNewItem,
         approverList = fillApprovalMatrix;
         $(approvalMatrix).each(function (i, e) {
             $(approverList).each(function (j, et) {
-                $(e)[i].RequestIDId = requestId;
-                if ($(et)[j].Role == $(e)[i].Role && $(et)[j].Levels != null && $(et)[j].Levels == $(e).Levels) {
-                    $(e)[i].Approver = ($(et)[j].Approver != '' &&  $(et)[j].Approver != undefined) ?  $(et)[j].Approver : $(e)[i].Approver;
-                    $(e)[i].Status = ($(et)[j].Status != '' && $(et)[j].Status != undefined) ? $(et)[j].Status : $(e)[i].Status;
-                    if ($(et)[j].Role == $(e)[i].Role && $(et)[j].Levels != null && $(et)[j].Levels == $(e).Levels)
-                        $(e)[i].Comments = ($(et)[j].Comments != '' && $(et)[j].Comments != undefined) ? $(et)[j].Comments : $(e)[i].Comments;
+                $(e)[0].RequestIDId = requestId;
+                if ($(et)[0].Role == $(e)[0].Role && $(et)[0].Levels != null && $(et)[0].Levels == $(e).Levels) {
+                    $(e)[0].ApproverId = ($(et)[0].ApproverId != '' && $(et)[0].ApproverId != undefined) ? $(et)[0].ApproverId : $(e)[0].ApproverId;
+                    $(e)[0].Status = ($(et)[0].Status != '' && $(et)[0].Status != undefined) ? $(et)[0].Status : $(e)[0].Status;
+                    if ($(et)[0].Role == $(e)[0].Role && $(et)[0].Levels != null && $(et)[0].Levels == $(e).Levels)
+                        $(e)[0].Comments = ($(et)[0].Comments != '' && $(et)[0].Comments != undefined) ? $(et)[0].Comments : $(e)[0].Comments;
                 }
                 else {
-                    if ($(et)[j].Role == $(e)[i].Role) {
-                        $(e)[i].Approver = ( $(et)[j].Approver != '' &&  $(et)[j].Approver != undefined) ?  $(et)[j].Approver : $(e)[i].Approver;
-                        $(e)[i].Status = ($(et)[j].Status != '' && $(et)[j].Status != undefined) ? $(et)[j].Status : $(e)[i].Status;
-                        if ($(et)[j].Role == $(e)[i].Role && $(et)[j].Levels != null && $(et)[j].Levels == $(e).Levels)
-                            $(e)[i].Comments = ($(et)[j].Status != '' && $(et)[j].Comments != undefined) ? $(et)[j].Comments : $(e)[i].Comments;
+                    if ($(et)[0].Role == $(e)[0].Role) {
+                        $(e)[0].ApproverId = ($(et)[0].ApproverId != '' && $(et)[0].ApproverId != undefined) ? $(et)[0].ApproverId : $(e)[0].ApproverId;
+                        $(e)[0].Status = ($(et)[0].Status != '' && $(et)[0].Status != undefined) ? $(et)[0].Status : $(e)[0].Status;
+                        if ($(et)[0].Role == $(e)[0].Role && $(et)[0].Levels != null && $(et)[0].Levels == $(e).Levels)
+                            $(e)[0].Comments = ($(et)[0].Status != '' && $(et)[0].Comments != undefined) ? $(et)[0].Comments : $(e)[0].Comments;
                     }
                 }
             });
@@ -210,17 +229,72 @@ function SaveLocalApprovalMatrix(sectionName,requestId, mainListName, isNewItem,
     if (approvalMatrix != null) {
         userIDs = currentUser.Id;
         $(approvalMatrix).each(function (i, e) {
-            if ($(e)[i].Role == "Viewer" && (userIDs != '' && userIDs != undefined)) {
-                if ($(e).Approver == '' || $(e)[i].Approver == null || $(e)[i].Approver == undefined) {
-                    $(e)[i].Approver = userIDs;
+            if ($(e)[0].Role == "Viewer" && (userIDs != '' && userIDs != undefined)) {
+                if ($(e).ApproverId == '' || $(e)[0].ApproverId == null || $(e)[0].ApproverId == undefined) {
+                    $(e)[0].ApproverId = userIDs;
                 }
                 else {
-                    $(e)[i].Approver = $(e)[i].Approver + "," + userIDs;
+                    $(e)[0].ApproverId = $(e)[0].ApproverId + "," + userIDs;
                 }
-                $(e)[i].Approver = $(e)[i].Approver.trim(',');
+                $(e)[0].ApproverId = $(e)[0].ApproverId;
             }
         });
     }
+
+    if (currentApproverList != null )
+    {
+        $(approvalMatrix).each(function (i, e) {
+            if ($(e)[0].Role ==currentApproverList[0].Role) {                
+                if(currentApproverList[0].Comments!=undefined && currentApproverList[0].Comments!='')
+                { 
+                    if(currentApproverList[0].Levels!=undefined && currentApproverList[0].Levels!='')
+                    {
+                        if ($(e)[0].Role ==currentApproverList[0].Role && $(e)[0].Levels == currentApproverList[0].Levels) {                
+                            $(e)[0].Comments=currentApproverList[0].Comments;
+                        }                      
+                    }
+                    else
+                    {
+                        if ($(e)[0].Role ==currentApproverList[0].Role) { 
+                            $(e)[0].Comments=currentApproverList[0].Comments;
+                        }                      
+                    } 
+                }
+                if(currentApproverList[0].Approver!=undefined && currentApproverList[0].Approver!='')
+                {
+                    if ($(e)[0].Role ==currentApproverList[0].Role) { 
+                        $(e)[0].Approver=currentApproverList[0].Approver;
+                    }
+                }
+                if(currentApproverList[0].ReasonForChange!=undefined && currentApproverList[0].ReasonForChange!='')
+                {
+                    if ($(e)[0].Role ==currentApproverList[0].Role) { 
+                        $(e)[0].ReasonForChange=currentApproverList[0].ReasonForChange;
+                    }
+                }
+                if(currentApproverList[0].ReasonForDelay!=undefined && currentApproverList[0].ReasonForDelay!='')
+                {
+                    if ($(e)[0].Role ==currentApproverList[0].Role) { 
+                        $(e)[0].ReasonForDelay=currentApproverList[0].ReasonForDelay;
+                    }
+                }
+                if(currentApproverList[0].Files!=undefined && currentApproverList[0].Files!='' && currentApproverList[0].Files!=null && currentApproverList[0].Files.length >0)
+                {
+                    if ($(e)[0].Role ==currentApproverList[0].Role && $(e)[0].Files==null) { 
+                        $(e)[0].Files=[];
+                    }
+                    else
+                    {
+                        if ($(e)[0].Role ==currentApproverList[0].Role)
+                        {
+                            $(e)[0].Files=currentApproverList[0].Files;
+                        }
+                    }
+                }
+            }              
+        });     
+
+
 
     for (var i = 0; i < globalApprovalMatrix.length - 1; i++) {
         if (globalApprovalMatrix[i].FillByRole == "Creator") {
