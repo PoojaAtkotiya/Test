@@ -10,11 +10,11 @@ function GetGlobalApprovalMatrix(id) {
             url: "https://bajajelect.sharepoint.com/sites/WFRootDev" + "/_api/web/lists/getbytitle('" + globalApprovalMatrixName + "')/GetItems(query=@v1)?@v1={\"ViewXml\":\"<View><Query><Where><And><Eq><FieldRef Name='ApplicationName' /><Value Type='TaxonomyFieldType'>" + applicationName + "</Value></Eq><Eq><FieldRef Name='FormName' /><Value Type='Text'>" + formName + "</Value></Eq></And></Where></Query></View>\"}",
             type: "POST",
             headers:
-            {
-                "Accept": "application/json;odata=verbose",
-                "Content-Type": "application/json; odata=verbose",
-                "X-RequestDigest": data.d.GetContextWebInformation.FormDigestValue
-            },
+                {
+                    "Accept": "application/json;odata=verbose",
+                    "Content-Type": "application/json; odata=verbose",
+                    "X-RequestDigest": data.d.GetContextWebInformation.FormDigestValue
+                },
             success: function (data) {
                 globalApprovalMatrix = data.d.results;
                 SetApprovalMatrix(id, '');
@@ -33,11 +33,11 @@ function GetLocalApprovalMatrixData(id, mainListName) {
         type: "GET",
         async: false,
         headers:
-        {
-            "Accept": "application/json;odata=verbose",
-            "Content-Type": "application/json;odata=verbose",
-            "X-RequestDigest": $("#__REQUESTDIGEST").val()
-        },
+            {
+                "Accept": "application/json;odata=verbose",
+                "Content-Type": "application/json;odata=verbose",
+                "X-RequestDigest": $("#__REQUESTDIGEST").val()
+            },
         success: function (data) {
             localApprovalMatrixdata = data.d.results;
             SetApprovalMatrix(id, mainListName);
@@ -128,8 +128,7 @@ function GetEnableSectionNames() {
     });
 }
 
-function CommonApprovalMatrix(approvalMatrix)
-{
+function CommonApprovalMatrix(approvalMatrix) {
     $(approvalMatrix).each(function (i, e) {
         if ($(e)[0].SectionName.results[0] != undefined && $(e)[0].SectionName.results[0].Label != '' && $(e)[0].SectionName.results[0].Label == sectionName) {
             sectionOwner = $(e)[0].Role;
@@ -142,46 +141,43 @@ function CommonApprovalMatrix(approvalMatrix)
             $(e)[0].RequestID = requestId;
         }
         $(e)[0].Status = "Not Assigned";
-        currentApproverList=  GetCurrentApproverDetails($(e)[0].Role, sectionOwner, $(approvalMatrix))
+        currentApproverList = GetCurrentApproverDetails($(e)[0].Role, sectionOwner, $(approvalMatrix))
     });
 }
 
-function GetCurrentApproverDetails(role,sectionOwner,approverMatrix)
-{ 
+function GetCurrentApproverDetails(role, sectionOwner, approverMatrix) {
     var approverDetail = null;
-    var roleApprovers=[];
+    var roleApprovers = [];
     $(approverMatrix).each(function (i, e) {
-        if ($(e)[0].Role != undefined && $(e)[0].Role != '' && $(e)[0].FillByRole == sectionOwner &&  $(e)[0].Status != "Approved") {
+        if ($(e)[0].Role != undefined && $(e)[0].Role != '' && $(e)[0].FillByRole == sectionOwner && $(e)[0].Status != "Approved") {
             roleApprovers.push($(e)[0]);
             $(roleApprovers).each(function (i, et) {
-                if (approverDetail == null && (($(e)[0].Levels ==  $(et)[0].Levels && $(e)[0].IsOptional == false && $(e)[0].Status == "Pending") || ($(e)[0].Levels ==  $(et)[0].Levels && $(e)[0].Status == "Approved")))
-                {
-                    if($(e)[0].Role == sectionOwner && $(e)[0].Levels == $(et)[0].Levels)
+                if (approverDetail == null && (($(e)[0].Levels == $(et)[0].Levels && $(e)[0].IsOptional == false && $(e)[0].Status == "Pending") || ($(e)[0].Levels == $(et)[0].Levels && $(e)[0].Status == "Approved"))) {
+                    if ($(e)[0].Role == sectionOwner && $(e)[0].Levels == $(et)[0].Levels)
                         approverDetail = $(e)[0];
                 }
             });
         }
-        else
-        {
-            if($(e)[0].Role != undefined && $(e)[0].Role != '' && $(e)[0].FillByRole == sectionOwner)
-                approverDetail=$(e)[0];
+        else {
+            if ($(e)[0].Role != undefined && $(e)[0].Role != '' && $(e)[0].FillByRole == sectionOwner)
+                approverDetail = $(e)[0];
         }
-    });   
+    });
     return approverDetail;
 }
 
-function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem,mainListItem, approvalMatrixListName) {
+function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem, mainListItem, approvalMatrixListName) {
     var approvers = [];
     var status;
     var datas = [];
- 
+
     var nextApprover = '', formLevel = '', nextApproverRole = '';
-  
+
     var userEmail = "";
-  
+
     var approvalMatrix;
     var approverList;
-   
+
     var fillApprovalMatrix = [];
 
     var previousLevel = mainListItem.get_item('FormLevel').split("|")[0];
@@ -202,7 +198,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
             CommonApprovalMatrix(approvalMatrix);
         }
     }
-    
+
     if (fillApprovalMatrix != null) {
         approverList = fillApprovalMatrix;
         $(approvalMatrix).each(function (i, e) {
@@ -240,59 +236,49 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
             }
         });
     }
-    if (currentApproverList != null )
-    {
+    if (currentApproverList != null) {
         $(approvalMatrix).each(function (i, e) {
-            if ($(e)[0].Role ==currentApproverList[0].Role) {                
-                if(currentApproverList[0].Comments!=undefined && currentApproverList[0].Comments!='')
-                { 
-                    if(currentApproverList[0].Levels!=undefined && currentApproverList[0].Levels!='')
-                    {
-                        if ($(e)[0].Role ==currentApproverList[0].Role && $(e)[0].Levels == currentApproverList[0].Levels) {                
-                            $(e)[0].Comments=currentApproverList[0].Comments;
-                        }                      
+            if ($(e)[0].Role == currentApproverList[0].Role) {
+                if (currentApproverList[0].Comments != undefined && currentApproverList[0].Comments != '') {
+                    if (currentApproverList[0].Levels != undefined && currentApproverList[0].Levels != '') {
+                        if ($(e)[0].Role == currentApproverList[0].Role && $(e)[0].Levels == currentApproverList[0].Levels) {
+                            $(e)[0].Comments = currentApproverList[0].Comments;
+                        }
                     }
-                    else
-                    {
-                        if ($(e)[0].Role ==currentApproverList[0].Role) { 
-                            $(e)[0].Comments=currentApproverList[0].Comments;
-                        }                      
-                    } 
-                }
-                if(currentApproverList[0].Approver!=undefined && currentApproverList[0].Approver!='')
-                {
-                    if ($(e)[0].Role ==currentApproverList[0].Role) { 
-                        $(e)[0].Approver=currentApproverList[0].Approver;
-                    }
-                }
-                if(currentApproverList[0].ReasonForChange!=undefined && currentApproverList[0].ReasonForChange!='')
-                {
-                    if ($(e)[0].Role ==currentApproverList[0].Role) { 
-                        $(e)[0].ReasonForChange=currentApproverList[0].ReasonForChange;
-                    }
-                }
-                if(currentApproverList[0].ReasonForDelay!=undefined && currentApproverList[0].ReasonForDelay!='')
-                {
-                    if ($(e)[0].Role ==currentApproverList[0].Role) { 
-                        $(e)[0].ReasonForDelay=currentApproverList[0].ReasonForDelay;
-                    }
-                }
-                if(currentApproverList[0].Files!=undefined && currentApproverList[0].Files!='' && currentApproverList[0].Files!=null && currentApproverList[0].Files.length >0)
-                {
-                    if ($(e)[0].Role ==currentApproverList[0].Role && $(e)[0].Files==null) { 
-                        $(e)[0].Files=[];
-                    }
-                    else
-                    {
-                        if ($(e)[0].Role ==currentApproverList[0].Role)
-                        {
-                            $(e)[0].Files=currentApproverList[0].Files;
+                    else {
+                        if ($(e)[0].Role == currentApproverList[0].Role) {
+                            $(e)[0].Comments = currentApproverList[0].Comments;
                         }
                     }
                 }
-            }              
-        });      
-    }    
+                if (currentApproverList[0].Approver != undefined && currentApproverList[0].Approver != '') {
+                    if ($(e)[0].Role == currentApproverList[0].Role) {
+                        $(e)[0].Approver = currentApproverList[0].Approver;
+                    }
+                }
+                if (currentApproverList[0].ReasonForChange != undefined && currentApproverList[0].ReasonForChange != '') {
+                    if ($(e)[0].Role == currentApproverList[0].Role) {
+                        $(e)[0].ReasonForChange = currentApproverList[0].ReasonForChange;
+                    }
+                }
+                if (currentApproverList[0].ReasonForDelay != undefined && currentApproverList[0].ReasonForDelay != '') {
+                    if ($(e)[0].Role == currentApproverList[0].Role) {
+                        $(e)[0].ReasonForDelay = currentApproverList[0].ReasonForDelay;
+                    }
+                }
+                if (currentApproverList[0].Files != undefined && currentApproverList[0].Files != '' && currentApproverList[0].Files != null && currentApproverList[0].Files.length > 0) {
+                    if ($(e)[0].Role == currentApproverList[0].Role && $(e)[0].Files == null) {
+                        $(e)[0].Files = [];
+                    }
+                    else {
+                        if ($(e)[0].Role == currentApproverList[0].Role) {
+                            $(e)[0].Files = currentApproverList[0].Files;
+                        }
+                    }
+                }
+            }
+        });
+    }
 
     $.ajax({
         url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + approvalMatrixListName + "')/items",
@@ -305,11 +291,11 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
                 datas
             }),
         headers:
-        {
-            "Accept": "application/json;odata=verbose",
-            "Content-Type": "application/json;odata=verbose",
-            "X-RequestDigest": $("#__REQUESTDIGEST").val()
-        },
+            {
+                "Accept": "application/json;odata=verbose",
+                "Content-Type": "application/json;odata=verbose",
+                "X-RequestDigest": $("#__REQUESTDIGEST").val()
+            },
         //async: true,
         success: function (data) {
             GetLocalApprovalMatrixData(requestId, mainListName);
