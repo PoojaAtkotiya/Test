@@ -305,7 +305,7 @@ function GetFormControlsValue(id, elementType, listDataArray) {
 function SaveFormData() {
     var mainListName = $('#divItemCodeForm').attr('mainlistname');
     if (mainListName != undefined && mainListName != '' && mainListName != null) {
-     
+
         $('#divItemCodeForm').find('div[section]').not(".disabled").each(function (i, e) {
             $(e).find('input[listtype=main],select[listtype=main],radio[listtype=main],textarea[listtype=main],label[listtype=main],input[reflisttype=main],select[reflisttype=main],radio[reflisttype=main],textarea[reflisttype=main],label[reflisttype=main]').each(function () {
                 var elementId = $(this).attr('id');
@@ -508,4 +508,67 @@ function SaveForm() {
 
 function GetItemTypeForListName(name) {
     return "SP.Data." + name.charAt(0).toUpperCase() + name.split(" ").join("").slice(1) + "ListItem";
+}
+
+function GetGlobalApprovalMatrix() {
+
+    $.ajax({
+        url: "https://bajajelect.sharepoint.com/sites/WFRootDev" + "/_api/contextinfo",
+        method: "POST",
+        headers: { "Accept": "application/json; odata=verbose" },
+        success: function (data) {
+            $.ajax({
+                url: "https://bajajelect.sharepoint.com/sites/WFRootDev" + "/_api/web/lists/getbytitle('ApprovalMatrix')/GetItems(query=@v1)?@v1={\"ViewXml\":\"<View><Query><Where><Eq><FieldRef Name='ApplicationName' /><Value Type='TaxonomyFieldType'>Item Code Creation Preprocess</Value></Eq></Where></Query></View>\"}",
+                type: "POST",
+                headers:
+                    {
+                        "Accept": "application/json;odata=verbose",
+                        "Content-Type": "application/json; odata=verbose",
+                        "X-RequestDigest": data.d.GetContextWebInformation.FormDigestValue
+                        //"X-RequestDigest": $("#__REQUESTDIGEST").val(),  
+                    },
+                success: function (data) {
+                    debugger
+                },
+                error: function (data) {
+                    console.log(data.responseJSON.error);
+                }
+            });
+        },
+        error: function (data) {
+            console.log(data.responseJSON.error);
+        }
+    });
+
+
+}
+
+function GetAllButtons() {
+    $.ajax({
+        url: "https://bajajelect.sharepoint.com/sites/WFRootDev" + "/_api/contextinfo",
+        method: "POST",
+        headers: { "Accept": "application/json; odata=verbose" },
+        success: function (data) {
+            $.ajax({
+                url: "https://bajajelect.sharepoint.com/sites/WFRootDev" + "/_api/web/lists/getbytitle('Buttons')/GetItems(query=@v1)?@v1={\"ViewXml\":\"<View><Query><Where><Eq><FieldRef Name='ApplicationName' /><Value Type='TaxonomyFieldType'>Item Code Creation Preprocess</Value></Eq></Where></Query></View>\"}",
+                type: "POST",
+                headers:
+                    {
+                        "Accept": "application/json;odata=verbose",
+                        "Content-Type": "application/json; odata=verbose",
+                        "X-RequestDigest": data.d.GetContextWebInformation.FormDigestValue
+                        //"X-RequestDigest": $("#__REQUESTDIGEST").val(),  
+                    },
+                success: function (data) {
+                    debugger
+                },
+                error: function (data) {
+                    console.log(data);
+                }
+            });
+        },
+        error: function (data) {
+            console.log(data);
+        }
+    });
 }
