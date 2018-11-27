@@ -139,9 +139,9 @@ function CommonApprovalMatrix(approvalMatrix, sectionName,proposedBy,requestId) 
             $(e)[0].ApproverId = proposedBy;
             $(e)[0].RequestID = requestId;
         }
-        $(e)[0].Status = "Not Assigned";
-        currentApproverList = GetCurrentApproverDetails($(e)[0].Role, sectionOwner, $(approvalMatrix))
+        $(e)[0].Status = "Not Assigned";        
     });
+  
     return fillApprovalMatrix;
 }
 
@@ -197,6 +197,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
             fillApprovalMatrix = CommonApprovalMatrix(approvalMatrix, sectionName,proposedBy,requestId);
         }
     }
+    currentApproverList = GetCurrentApproverDetails(currentUserRole, sectionOwner, $(approvalMatrix))
     if (fillApprovalMatrix != null) {
         approverList = fillApprovalMatrix;
         $(approvalMatrix).each(function (i, e) {
