@@ -186,20 +186,22 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
     var currentLevel = mainListItem.get_item('FormLevel').split("|")[1];
     var nextLevel = currentLevel;
     var proposedBy = mainListItem.get_item('ProposedBy');
-
+  
     if (isNewItem) {
         approvalMatrix = globalApprovalMatrix;
         var sectionOwner = currentUserRole;
+        currentApproverList = GetCurrentApproverDetails(currentUserRole, sectionOwner, $(approvalMatrix));
         fillApprovalMatrix = CommonApprovalMatrix(approvalMatrix, sectionName, proposedBy, requestId);
     }
     else {
         GetLocalApprovalMatrixData(requestId, mainListName);
         if (localApprovalMatrixdata != null && localApprovalMatrixdata.length > 0) {
             approvalMatrix = localApprovalMatrixdata;
+            currentApproverList = GetCurrentApproverDetails(currentUserRole, sectionOwner, $(approvalMatrix));
             fillApprovalMatrix = CommonApprovalMatrix(approvalMatrix, sectionName, proposedBy, requestId);
         }
     }
-    currentApproverList = GetCurrentApproverDetails(currentUserRole, sectionOwner, $(approvalMatrix))
+    
     if (fillApprovalMatrix != null) {
         approverList = fillApprovalMatrix;
         $(approvalMatrix).each(function (i, e) {
