@@ -151,7 +151,6 @@ function GetCurrentApproverDetails(role, sectionOwner, approverMatrix) {
     $(approverMatrix).each(function (i, e) {
         if ($(e)[0].Role != undefined && $(e)[0].Role != '' && $(e)[0].FillByRole == sectionOwner && $(e)[0].Status != "Approved") {
             roleApprovers.push($(e)[0]);
-
         }
         else {
             if ($(e)[0].Role != undefined && $(e)[0].Role != '' && $(e)[0].FillByRole == sectionOwner)
