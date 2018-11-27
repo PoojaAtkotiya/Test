@@ -145,6 +145,23 @@ function CommonApprovalMatrix(approvalMatrix, sectionName, proposedBy, requestId
     return fillApprovalMatrix;
 }
 
+function CommonCurrentApprovalMatrix(approvalMatrix, sectionName) {
+    var fillApprovalMatrix = [];
+    var sectionOwner;
+    $(approvalMatrix).each(function (i, e) {
+        if ($(e)[0].SectionName.results[0] != undefined && $(e)[0].SectionName.results[0].Label != '' && $(e)[0].SectionName.results[0].Label == sectionName) {
+            sectionOwner = $(e)[0].Role;
+        }
+        if ($(e)[0].Role != null && $(e)[0].Role == sectionOwner) {
+            if (currentApproverList != null && currentApproverList[0].Role == sectionOwner) {
+                currentApproverList[0].ApproverId = currentUser.Id;
+            }
+        }
+    });
+
+    return fillApprovalMatrix;
+}
+
 function GetCurrentApproverDetails(role, sectionOwner, approverMatrix) {
     var approverDetail = null;
     var roleApprovers = [];
@@ -186,22 +203,22 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
     var currentLevel = mainListItem.get_item('FormLevel').split("|")[1];
     var nextLevel = currentLevel;
     var proposedBy = mainListItem.get_item('ProposedBy');
-  
+
     if (isNewItem) {
         approvalMatrix = globalApprovalMatrix;
         var sectionOwner = currentUserRole;
-        currentApproverList = GetCurrentApproverDetails(currentUserRole, sectionOwner, $(approvalMatrix));
+        //  currentApproverList = GetCurrentApproverDetails(currentUserRole, sectionOwner, $(approvalMatrix));
         fillApprovalMatrix = CommonApprovalMatrix(approvalMatrix, sectionName, proposedBy, requestId);
     }
     else {
         GetLocalApprovalMatrixData(requestId, mainListName);
         if (localApprovalMatrixdata != null && localApprovalMatrixdata.length > 0) {
             approvalMatrix = localApprovalMatrixdata;
-            currentApproverList = GetCurrentApproverDetails(currentUserRole, sectionOwner, $(approvalMatrix));
+            //  currentApproverList = GetCurrentApproverDetails(currentUserRole, sectionOwner, $(approvalMatrix));
             fillApprovalMatrix = CommonApprovalMatrix(approvalMatrix, sectionName, proposedBy, requestId);
         }
     }
-    
+    currentApproverList = CommonCurrentApprovalMatrix(approvalMatrix, sectionName)
     if (fillApprovalMatrix != null) {
         approverList = fillApprovalMatrix;
         $(approvalMatrix).each(function (i, e) {
@@ -254,9 +271,9 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
                         }
                     }
                 }
-                if (currentApproverList[0].Approver != undefined && currentApproverList[0].Approver != '') {
+                if (currentApproverList[0].ApproverId != undefined && currentApproverList[0].ApproverId != '') {
                     if ($(e)[0].Role == currentApproverList[0].Role) {
-                        $(e)[0].Approver = currentApproverList[0].Approver;
+                        $(e)[0].ApproverId = currentApproverList[0].ApproverId;
                     }
                 }
                 if (currentApproverList[0].ReasonForChange != undefined && currentApproverList[0].ReasonForChange != '') {
@@ -284,7 +301,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
     }
     if (approvalMatrixListName != null) {
         $(approvalMatrix).each(function (i, e) {
-            if ($(e)[0].Role != undefined && $(e)[0].Approver != undefined) {
+            if ($(e)[0].Role != undefined && $(e)[0].ApproverId != undefined) {
                 var userRole = $(e)[0].Role.replace(/\s+/g, '');
                 if ($(e)[0].Levels == currentLevel && $(e)[0].Status == "Not Assigned") {
                     $(e)[0].Status = "Pending";
