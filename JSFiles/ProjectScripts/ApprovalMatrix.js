@@ -126,7 +126,6 @@ function GetEnableSectionNames() {
         }
     });
 }
-
 function CommonApprovalMatrix(approvalMatrix,sectionName) {
     $(approvalMatrix).each(function (i, e) {
         if ($(e)[0].SectionName.results[0] != undefined && $(e)[0].SectionName.results[0].Label != '' && $(e)[0].SectionName.results[0].Label == sectionName) {
