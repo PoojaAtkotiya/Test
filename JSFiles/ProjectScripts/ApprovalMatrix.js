@@ -26,7 +26,6 @@ function GetGlobalApprovalMatrix(id) {
         });
     });
 }
-
 function GetLocalApprovalMatrixData(id, mainListName) {
     $.ajax({
         url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + approverMatrixListName + "')/Items?$select=*,Approver/EMail,Approver/UserName&$expand=Approver&$filter=RequestID eq '" + id + "'&$orderby= Levels asc",
