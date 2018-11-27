@@ -187,7 +187,6 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
 
     if (isNewItem) {
         approvalMatrix = globalApprovalMatrix;
-
         var sectionOwner = currentUserRole;
         CommonApprovalMatrix(approvalMatrix,sectionName);
     }
@@ -198,7 +197,6 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
             CommonApprovalMatrix(approvalMatrix,sectionName);
         }
     }
-
     if (fillApprovalMatrix != null) {
         approverList = fillApprovalMatrix;
         $(approvalMatrix).each(function (i, e) {
