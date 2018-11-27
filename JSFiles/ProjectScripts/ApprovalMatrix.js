@@ -279,26 +279,31 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
             }
         });
     }
+    if (approvalMatrixListName != null) {
+        $(approvalMatrix).each(function (i, e) {
+            if ($(e)[0].Role != undefined && $(e)[0].Approver != undefined) {
+                var userRole = $(e)[0].Role.replace(/\s+/g, '');
+
+                if ($(e)[0].Levels == currentLevel && $(e)[0].Status == "Not Assigned") {
+                    $(e)[0].Status = "Pending";
+                    $(e)[0].DueDate = new Date();
+                    $(e)[0].AssignDate = new Date();
+                }
+            }
+        });
+    }
 
     $.ajax({
-        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + approvalMatrixListName + "')/items",
-        type: "POST",
-        data: JSON.stringify
-            ({
-                __metadata: {
-                    type: GetItemTypeForListName(approvalMatrixListName)
-                },
-                datas
-            }),
+        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + approvalMatrixListName + "')/Items?$select=*,Approver/EMail,Approver/UserName&$expand=Approver&$filter=RequestID eq '" + requestId + "'&$orderby= Levels asc",
+        type: "GET",
+        async: false,
         headers:
             {
                 "Accept": "application/json;odata=verbose",
                 "Content-Type": "application/json;odata=verbose",
                 "X-RequestDigest": $("#__REQUESTDIGEST").val()
             },
-        //async: true,
         success: function (data) {
-            GetLocalApprovalMatrixData(requestId, mainListName);
             SetFormLevel(requestId, mainListName, localApprovalMatrixdata);
         },
         error: function (data) {
