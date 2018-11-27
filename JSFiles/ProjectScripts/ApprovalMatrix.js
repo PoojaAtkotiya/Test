@@ -115,7 +115,6 @@ function GetRoleFromApprovalMatrix(currentLevel) {
         }
     });
 }
-
 function GetEnableSectionNames() {
     //get active section name
     globalApprovalMatrix.filter(function (i) {
