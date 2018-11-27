@@ -125,8 +125,9 @@ function GetEnableSectionNames() {
     });
 }
 
-function CommonApprovalMatrix(approvalMatrix, sectionName) {
+function CommonApprovalMatrix(approvalMatrix, sectionName,proposedBy,requestId) {
     var fillApprovalMatrix = [];
+    var sectionOwner;
     $(approvalMatrix).each(function (i, e) {
         if ($(e)[0].SectionName.results[0] != undefined && $(e)[0].SectionName.results[0].Label != '' && $(e)[0].SectionName.results[0].Label == sectionName) {
             sectionOwner = $(e)[0].Role;
@@ -187,13 +188,13 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
     if (isNewItem) {
         approvalMatrix = globalApprovalMatrix;
         var sectionOwner = currentUserRole;
-        fillApprovalMatrix = CommonApprovalMatrix(approvalMatrix, sectionName);
+        fillApprovalMatrix = CommonApprovalMatrix(approvalMatrix, sectionName,proposedBy,requestId);
     }
     else {
         GetLocalApprovalMatrixData(requestId, mainListName);
         if (localApprovalMatrixdata != null && localApprovalMatrixdata.length > 0) {
             approvalMatrix = localApprovalMatrixdata;
-            fillApprovalMatrix = CommonApprovalMatrix(approvalMatrix, sectionName);
+            fillApprovalMatrix = CommonApprovalMatrix(approvalMatrix, sectionName,proposedBy,requestId);
         }
     }
     if (fillApprovalMatrix != null) {
