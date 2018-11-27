@@ -128,7 +128,7 @@ function GetEnableSectionNames() {
     });
 }
 
-function CommonApprovalMatrix(approvalMatrix) {
+function CommonApprovalMatrix(approvalMatrix,sectionName) {
     $(approvalMatrix).each(function (i, e) {
         if ($(e)[0].SectionName.results[0] != undefined && $(e)[0].SectionName.results[0].Label != '' && $(e)[0].SectionName.results[0].Label == sectionName) {
             sectionOwner = $(e)[0].Role;
@@ -189,13 +189,13 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
         approvalMatrix = globalApprovalMatrix;
 
         var sectionOwner = currentUserRole;
-        CommonApprovalMatrix(approvalMatrix);
+        CommonApprovalMatrix(approvalMatrix,sectionName);
     }
     else {
         GetLocalApprovalMatrixData(requestId, mainListName);
         if (localApprovalMatrixdata != null && localApprovalMatrixdata.length > 0) {
             approvalMatrix = localApprovalMatrixdata;
-            CommonApprovalMatrix(approvalMatrix);
+            CommonApprovalMatrix(approvalMatrix,sectionName);
         }
     }
 
