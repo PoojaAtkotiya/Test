@@ -46,7 +46,6 @@ function GetLocalApprovalMatrixData(id, mainListName) {
         }
     });
 }
-
 function SetApprovalMatrix(id, mainListName) {
     if (id > 0) {
         //set role name from globalApprovalMatrix
