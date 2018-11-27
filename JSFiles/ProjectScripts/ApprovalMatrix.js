@@ -125,7 +125,8 @@ function GetEnableSectionNames() {
     });
 }
 
-function CommonApprovalMatrix(approvalMatrix,sectionName) {
+function CommonApprovalMatrix(approvalMatrix, sectionName) {
+    var fillApprovalMatrix = [];
     $(approvalMatrix).each(function (i, e) {
         if ($(e)[0].SectionName.results[0] != undefined && $(e)[0].SectionName.results[0].Label != '' && $(e)[0].SectionName.results[0].Label == sectionName) {
             sectionOwner = $(e)[0].Role;
@@ -140,6 +141,7 @@ function CommonApprovalMatrix(approvalMatrix,sectionName) {
         $(e)[0].Status = "Not Assigned";
         currentApproverList = GetCurrentApproverDetails($(e)[0].Role, sectionOwner, $(approvalMatrix))
     });
+    return fillApprovalMatrix;
 }
 
 function GetCurrentApproverDetails(role, sectionOwner, approverMatrix) {
@@ -185,13 +187,13 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
     if (isNewItem) {
         approvalMatrix = globalApprovalMatrix;
         var sectionOwner = currentUserRole;
-        CommonApprovalMatrix(approvalMatrix,sectionName);
+        fillApprovalMatrix = CommonApprovalMatrix(approvalMatrix, sectionName);
     }
     else {
         GetLocalApprovalMatrixData(requestId, mainListName);
         if (localApprovalMatrixdata != null && localApprovalMatrixdata.length > 0) {
             approvalMatrix = localApprovalMatrixdata;
-            CommonApprovalMatrix(approvalMatrix,sectionName);
+            fillApprovalMatrix = CommonApprovalMatrix(approvalMatrix, sectionName);
         }
     }
     if (fillApprovalMatrix != null) {
@@ -278,7 +280,6 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
         $(approvalMatrix).each(function (i, e) {
             if ($(e)[0].Role != undefined && $(e)[0].Approver != undefined) {
                 var userRole = $(e)[0].Role.replace(/\s+/g, '');
-
                 if ($(e)[0].Levels == currentLevel && $(e)[0].Status == "Not Assigned") {
                     $(e)[0].Status = "Pending";
                     $(e)[0].DueDate = new Date();
