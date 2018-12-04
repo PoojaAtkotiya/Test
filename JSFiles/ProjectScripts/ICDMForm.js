@@ -234,7 +234,6 @@ $(document).ready(function () {
 //    }
 //    return listDataArray;
 //}
-
 function SaveFormData() {
     var mainListName = $('#divItemCodeForm').attr('mainlistname');
     if (mainListName != undefined && mainListName != '' && mainListName != null) {
