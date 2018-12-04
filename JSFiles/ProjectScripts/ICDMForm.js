@@ -234,6 +234,8 @@ $(document).ready(function () {
 //    }
 //    return listDataArray;
 //}
+
+
 function SaveFormData() {
     var mainListName = $('#divItemCodeForm').attr('mainlistname');
     if (mainListName != undefined && mainListName != '' && mainListName != null) {
@@ -245,7 +247,8 @@ function SaveFormData() {
                 var elementType = $(this).attr('controlType');
                 mainListData = GetFormControlsValue(elementId, elementType, mainListData);
             });
-            var formList = $(e);
+            var formid = "frm" + $(e).attr('id').toLowerCase();
+            var formList = $('#' + formid);
             var isValid = true;
             formList.each(function () {
                 if (!$(this).valid()) {
