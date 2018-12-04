@@ -234,7 +234,6 @@ $(document).ready(function () {
 //    }
 //    return listDataArray;
 //}
-
 function SaveFormData() {
     var mainListName = $('#divItemCodeForm').attr('mainlistname');
     if (mainListName != undefined && mainListName != '' && mainListName != null) {
@@ -246,12 +245,30 @@ function SaveFormData() {
                 var elementType = $(this).attr('controlType');
                 mainListData = GetFormControlsValue(elementId, elementType, mainListData);
             });
-            SaveData(mainListName, mainListData, sectionName);
+            var formList = $(e);
+            var isValid = true;
+            formList.each(function () {
+                if (!$(this).valid()) {
+                    isValid = false;
+                    try {
+                        var validator = $(this).validate();
+                        $(validator.errorList).each(function (i, errorItem) {
+                            console.log("{ '" + errorItem.element.id + "' : '" + errorItem.message + "'}");
+                        });
+                    }
+                    catch (e1) {
+                        console.log(e1.message);
+                    }
+                }
+            });
+            if (isValid) {
+                SaveData(mainListName, mainListData, sectionName);
+            }
         });
     }
 }
 
-function SaveData(listname, listDataArray,sectionName) {
+function SaveData(listname, listDataArray, sectionName) {
     var itemType = GetItemTypeForListName(listname);
     var isNewItem = true;
     if (listDataArray != null) {
@@ -279,10 +296,9 @@ function SaveData(listname, listDataArray,sectionName) {
             headers: headers,
             success: function (data) {
                 listData = data.d;
-                var itemID=listItemId;
-                if (data != undefined && data != null && data.d != null) 
-                {
-                    itemID=data.d.ID;
+                var itemID = listItemId;
+                if (data != undefined && data != null && data.d != null) {
+                    itemID = data.d.ID;
                 }
                 var web, clientContext;
                 SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
@@ -294,8 +310,8 @@ function SaveData(listname, listDataArray,sectionName) {
                     clientContext.load(oListItem, 'FormLevel', 'ProposedBy');
                     clientContext.load(web);
                     //clientContext.load(web, 'EffectiveBasePermissions');
-                                                    
-                    clientContext.executeQueryAsync(function () {                       
+
+                    clientContext.executeQueryAsync(function () {
 
                         SaveLocalApprovalMatrix(sectionName, itemID, listname, isNewItem, oListItem, ItemCodeApprovalMatrixListName);
 
@@ -309,8 +325,8 @@ function SaveData(listname, listDataArray,sectionName) {
                         console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
                     });
                 });
-                
-               // GetLocalApprovalMatrix();
+
+                // GetLocalApprovalMatrix();
             },
             error: function (data) {
                 console.log(data);
@@ -396,11 +412,11 @@ function GetSetFormData() {
         type: "GET",
         async: false,
         headers:
-        {
-            "Accept": "application/json;odata=verbose",
-            "Content-Type": "application/json;odata=verbose",
-            "X-RequestDigest": $("#__REQUESTDIGEST").val()
-        },
+            {
+                "Accept": "application/json;odata=verbose",
+                "Content-Type": "application/json;odata=verbose",
+                "X-RequestDigest": $("#__REQUESTDIGEST").val()
+            },
         success: function (data) {
             mainListData = data.d;
             var item = data.d;
