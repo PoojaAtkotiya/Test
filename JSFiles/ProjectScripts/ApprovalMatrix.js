@@ -17,6 +17,7 @@ function GetGlobalApprovalMatrix(id) {
                 },
             success: function (data) {
                 globalApprovalMatrix = data.d.results;
+                SetSectionWiseRoles(globalApprovalMatrix);
                 SetApprovalMatrix(id, '');
                 GetButtons(id, currentUserRole, 'New');
             },
@@ -330,4 +331,21 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
             console.log(data);
         }
     });
+}
+
+function SetSectionWiseRoles(globalApprovalMatrix) {
+    if (globalApprovalMatrix != null && globalApprovalMatrix != undefined && globalApprovalMatrix.length > 0) {
+        ////Compare by Section Name
+        globalApprovalMatrix.filter(function (g) {
+            $('#divItemCodeForm div').each(function () {
+                var divSection = $(this).attr('section');
+                if (divSection != undefined && g.SectionName != undefined && g.SectionName.results[0] != undefined && g.SectionName.results[0].Label != undefined && g.SectionName.results[0].Label == divSection) {
+                    //// if section name are same, get role name and fill by role
+                    $(this).attr('sectionOwner',g.Role);
+                    $(this).attr('FillByRole',g.FillByRole);
+                }
+            });
+        });
+    }
+
 }
