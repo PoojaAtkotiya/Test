@@ -24,10 +24,6 @@ $(document).ready(function () {
         GetSetFormData();
     }
     else {
-        // activeSectionName = "LUMMARKETINGINCHARGESECTION";
-        // $("#" + activeSectionName).removeClass("disabled");
-        // $("div .disabled .form-control").attr("disabled", "disabled");
-
         GetGlobalApprovalMatrix(listItemId);
     }
 

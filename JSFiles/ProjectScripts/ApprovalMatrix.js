@@ -4,6 +4,7 @@ var localApprovalMatrixdata;
 var activeSectionName = "";
 var web, clientContext, currentUser, oList, perMask;
 var currentApproverList;
+var tempApproverMatrix;
 function GetGlobalApprovalMatrix(id) {
     GetFormDigest().then(function (data) {
         $.ajax({
@@ -17,7 +18,7 @@ function GetGlobalApprovalMatrix(id) {
                 },
             success: function (data) {
                 globalApprovalMatrix = data.d.results;
-                SetSectionWiseRoles(globalApprovalMatrix);
+                SetSectionWiseRoles(id = 0);
                 SetApprovalMatrix(id, '');
                 GetButtons(id, currentUserRole, 'New');
             },
@@ -40,6 +41,7 @@ function GetLocalApprovalMatrixData(id, mainListName) {
             },
         success: function (data) {
             localApprovalMatrixdata = data.d.results;
+            SetSectionWiseRoles(id);
             SetApprovalMatrix(id, mainListName);
         },
         error: function (data) {
@@ -48,15 +50,37 @@ function GetLocalApprovalMatrixData(id, mainListName) {
     });
 }
 function SetApprovalMatrix(id, mainListName) {
+    debugger;
     if (id > 0) {
         //set role name from globalApprovalMatrix
         GetCurrentUserRole(id, mainListName);
+        GetEnableSectionNames(id);
+        tempApproverMatrix = localApprovalMatrixdata;
     } else {
         currentUserRole = "Creator";
         //get active/inactive section name from globalApprovalMatrix
-        GetEnableSectionNames();
+        GetEnableSectionNames(id = 0);
+        tempApproverMatrix = globalApprovalMatrix;
     }
-    //set status(of all levels) and approver(current) from globalApprovalMatrix
+
+    var approverMaster = GetMasterData(ApproverMasterListName);
+    //set status(of all levels) and approver(current)
+    if (tempApproverMatrix != null && tempApproverMatrix != undefined && tempApproverMatrix.length > 0) {
+        ////Get all roles which have FillByRole = currentUserRole
+        tempApproverMatrix.filter(function (t) {
+            if (t.FillByRole != undefined && t.FillByRole != null && currentUserRole != undefined && t.FillByRole == currentUserRole) {
+               if(approverMaster != null && approverMaster != undefined && approverMaster.length >0){
+                   approverMaster.filter(function (a) {
+                        if(t.Role == a.Role && t.UserSelection == true){
+                            t.ApproverId = a.UserNameId;
+                        }
+                   });
+               }
+            }
+        });
+    }
+
+
 }
 
 function GetCurrentUserRole(id, mainListName) {
@@ -114,16 +138,29 @@ function GetRoleFromApprovalMatrix(currentLevel) {
         }
     });
 }
-function GetEnableSectionNames() {
-    //get active section name
-    globalApprovalMatrix.filter(function (i) {
-        if (i.ApplicationName.Label == applicationName && i.FormName.Label == formName && i.Role == currentUserRole) {
-            activeSectionName = i.SectionName;
-            activeSectionName = activeSectionName.results[0].Label.replace(/ /g, '').trim().toUpperCase();
-            $("#" + activeSectionName).removeClass("disabled");
-            $("div .disabled .form-control").attr("disabled", "disabled");
-        }
-    });
+function GetEnableSectionNames(id) {
+    if (id == 0) {
+        //get active section name
+        globalApprovalMatrix.filter(function (i) {
+            if (i.ApplicationName.Label == applicationName && i.FormName.Label == formName && i.Role == currentUserRole) {
+                activeSectionName = i.SectionName;
+                activeSectionName = activeSectionName.results[0].Label.replace(/ /g, '').trim().toUpperCase();
+                $("#" + activeSectionName).removeClass("disabled");
+                $("div .disabled .form-control").attr("disabled", "disabled");
+            }
+        });
+    }
+    else if (id > 0) {
+        //get active section name
+        localApprovalMatrixdata.filter(function (l) {
+            if (l.ApplicationName == applicationName && l.FormName == formName && l.Role == currentUserRole) {
+                activeSectionName = l.SectionName;
+                activeSectionName = activeSectionName.results[0].Label.replace(/ /g, '').trim().toUpperCase();
+                $("#" + activeSectionName).removeClass("disabled");
+                $("div .disabled .form-control").attr("disabled", "disabled");
+            }
+        });
+    }
 }
 
 function CommonApprovalMatrix(approvalMatrix, sectionName, proposedBy, requestId) {
@@ -333,19 +370,36 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
     });
 }
 
-function SetSectionWiseRoles(globalApprovalMatrix) {
-    if (globalApprovalMatrix != null && globalApprovalMatrix != undefined && globalApprovalMatrix.length > 0) {
-        ////Compare by Section Name
-        globalApprovalMatrix.filter(function (g) {
-            $('#divItemCodeForm div').each(function () {
-                var divSection = $(this).attr('section');
-                if (divSection != undefined && g.SectionName != undefined && g.SectionName.results[0] != undefined && g.SectionName.results[0].Label != undefined && g.SectionName.results[0].Label == divSection) {
-                    //// if section name are same, get role name and fill by role
-                    $(this).attr('sectionOwner',g.Role);
-                    $(this).attr('FillByRole',g.FillByRole);
-                }
+function SetSectionWiseRoles(id) {
+    if (id == 0) {
+        ////Get data from global approval matrix
+        if (globalApprovalMatrix != null && globalApprovalMatrix != undefined && globalApprovalMatrix.length > 0) {
+            ////Compare by Section Name
+            globalApprovalMatrix.filter(function (g) {
+                $('#divItemCodeForm div').each(function () {
+                    var divSection = $(this).attr('section');
+                    if (divSection != undefined && g.SectionName != undefined && g.SectionName.results[0] != undefined && g.SectionName.results[0].Label != undefined && g.SectionName.results[0].Label == divSection) {
+                        //// if section name are same, get Role and FillByRole
+                        $(this).attr('sectionOwner', g.Role);
+                        $(this).attr('FillByRole', g.FillByRole);
+                    }
+                });
             });
-        });
+        }
+    } else if (id > 0) {
+        ////Get data from local approval matrix
+        if (localApprovalMatrixdata != null && localApprovalMatrixdata != undefined && localApprovalMatrixdata.length > 0) {
+            ////Compare by Section Name
+            localApprovalMatrixdata.filter(function (l) {
+                $('#divItemCodeForm div').each(function () {
+                    var divSection = $(this).attr('section');
+                    if (divSection != undefined && l.SectionName != undefined && l.SectionName.results[0] != undefined && l.SectionName.results[0].Label != undefined && l.SectionName.results[0].Label == divSection) {
+                        //// if section name are same, get Role and FillByRole
+                        $(this).attr('sectionOwner', l.Role);
+                        $(this).attr('FillByRole', l.FillByRole);
+                    }
+                });
+            });
+        }
     }
-
 }

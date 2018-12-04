@@ -54,6 +54,7 @@ function GetMasterData(masterlistname) {
                                     break;
                             }
                         });
+                        return result;
                     }
 
                 },
