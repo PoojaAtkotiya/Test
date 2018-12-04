@@ -245,7 +245,8 @@ function SaveFormData() {
                 var elementType = $(this).attr('controlType');
                 mainListData = GetFormControlsValue(elementId, elementType, mainListData);
             });
-            var formList = $('#frm'+sectionName);
+            var formid = "frm" + $(e).attr('id').toLowerCase();
+            var formList = $('#' + formid);
             var isValid = true;
             formList.each(function () {
                 if (!$(this).valid()) {
