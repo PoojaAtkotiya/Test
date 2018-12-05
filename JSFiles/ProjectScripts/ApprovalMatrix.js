@@ -64,7 +64,7 @@ function SetApprovalMatrix(id, mainListName) {
     }
 
     GetMasterData(ApproverMasterListName);
-    var approverMaster = masterDataArray; 
+    var approverMaster = masterDataArray;
     //set status(of all levels) and approver(current)
     if (tempApproverMatrix != null && tempApproverMatrix != undefined && tempApproverMatrix.length > 0) {
         ////Get all roles which have FillByRole = currentUserRole
@@ -73,21 +73,19 @@ function SetApprovalMatrix(id, mainListName) {
                 if (approverMaster != null && approverMaster != undefined && approverMaster.length > 0) {
                     approverMaster.filter(function (a) {
                         if (t.Role == a.Role && a.UserSelection == true) {
-                            if(a.UserNameId.results.length > 0){
+                            if (a.UserNameId.results.length > 0) {
                                 a.UserNameId.results.forEach(userId => {
-                                    t.ApproverId = t.ApproverId +   userId + ",";
+                                    t.ApproverId = t.ApproverId + userId + ",";
                                 });
                             }
-                            t.ApproverId;
-                            
+                            ////Trim , from last in approverId -- Pending
+                            t.ApproverId.trim(",");
                         }
                     });
                 }
             }
         });
     }
-
-
 }
 
 function GetCurrentUserRole(id, mainListName) {
@@ -252,17 +250,28 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
     if (isNewItem) {
         approvalMatrix = globalApprovalMatrix;
         var sectionOwner = currentUserRole;
+        ////Save CurrentApprover as Creator in tempApprovalMatrix
+
+        ////and for all other approver's status= "Not Assigned" in tempApprovalMatrix
+
         //  currentApproverList = GetCurrentApproverDetails(currentUserRole, sectionOwner, $(approvalMatrix));
-        fillApprovalMatrix = CommonApprovalMatrix(approvalMatrix, sectionName, proposedBy, requestId);
+        //fillApprovalMatrix = CommonApprovalMatrix(approvalMatrix, sectionName, proposedBy, requestId);
     }
     else {
-        GetLocalApprovalMatrixData(requestId, mainListName);
+        //GetLocalApprovalMatrixData(requestId, mainListName);
+        debugger;
         if (localApprovalMatrixdata != null && localApprovalMatrixdata.length > 0) {
             approvalMatrix = localApprovalMatrixdata;
-            //  currentApproverList = GetCurrentApproverDetails(currentUserRole, sectionOwner, $(approvalMatrix));
-            fillApprovalMatrix = CommonApprovalMatrix(approvalMatrix, sectionName, proposedBy, requestId);
+            //currentApproverList = GetCurrentApproverDetails(currentUserRole, sectionOwner, $(approvalMatrix));
+            //fillApprovalMatrix = CommonApprovalMatrix(approvalMatrix, sectionName, proposedBy, requestId);
         }
     }
+
+    ////Update status of all approvers in tempapprovalmatrix
+    UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previousLevel, param, actionperformed);
+
+
+
     currentApproverList = CommonCurrentApprovalMatrix(approvalMatrix, sectionName)
     if (fillApprovalMatrix != null) {
         approverList = fillApprovalMatrix;
@@ -409,4 +418,28 @@ function SetSectionWiseRoles(id) {
             });
         }
     }
+}
+
+function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previousLevel, param, actionperformed) {
+    if (tempApproverMatrix != null && tempApproverMatrix != undefined && tempApproverMatrix.length > 0 && currentUser.Id != undefined) {
+
+        if (currentLevel != previousLevel) {
+            debugger;
+            var currentUserId = currentUser.Id;
+            var nextLevel = currentLevel;
+
+            switch (actionperformed) {
+                case buttonActionStatus.Delegate:
+                case buttonActionStatus.NextApproval:
+                    tempApproverMatrix.filter(function (temp) {
+                        if (temp.ApproverId != null && temp.ApproverId != undefined && temp.Levels == currentLevel && temp.ApproverId.indexOf(currentUserId) != -1) {
+
+                        }
+
+                    });
+            }
+        }
+    }
+
+    ////filter on tempApproverMatrix ==> temp.Level = currentLevel && temp.ApproverId.contains(currentApprover)
 }
