@@ -56,15 +56,11 @@ function GetButtonsByRole(id, currentUserRole,formStatus) {
 }
 
 
-function SubmitNoRedirect(ele) {
-
-    ValidateCollapseForm();
+function SubmitNoRedirect(ele) {  
     var formList = $("form[data-ajax='true']:visible").not(".disabled");
-
     var isValid = true;
     var dataAction = $(ele).attr("data-action");
     formList.each(function () {
-
         if ($(this).find(".amount").length > 0) {
             $(this).find(".amount").each(function (i, e) {
                 $(e).val($(e).val().replace(/,/g, ''));
