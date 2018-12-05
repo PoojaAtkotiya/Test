@@ -145,7 +145,6 @@ function Alphabet(objTextbox, event) {
     }
     var key = event.which || event.keyCode;
 }
-
 function PositiveNumeric(objTextbox, event) {
     var keyCode = (event.which) ? event.which : (window.event) ? window.event.keyCode : -1;
     if (keyCode >= 48 && keyCode <= 57 || keyCode == 46) {
