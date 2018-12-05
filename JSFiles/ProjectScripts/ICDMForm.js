@@ -244,24 +244,7 @@ function SaveFormData() {
                 var elementType = $(this).attr('controlType');
                 mainListData = GetFormControlsValue(elementId, elementType, mainListData);
             });
-            var formid = "frm" + $(e).attr('id').toLowerCase();
-            var formList = $('#' + formid);
-            var isValid = true;
-            formList.each(function () {
-                if (!$(this).valid()) {
-                    isValid = false;
-                    try {
-                        var validator = $(this).validate();
-                        $(validator.errorList).each(function (i, errorItem) {
-                            console.log("{ '" + errorItem.element.id + "' : '" + errorItem.message + "'}");
-                        });
-                    }
-                    catch (e1) {
-                        console.log(e1.message);
-                    }
-                }
-            });
-            if (isValid) {
+            if (ValidateFormControls('LUMMARKETINGINCHARGESECTION', false)) {
                 SaveData(mainListName, mainListData, sectionName);
             }
         });

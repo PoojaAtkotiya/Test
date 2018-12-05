@@ -2,6 +2,233 @@ var returnUrl = "";
 var currentUser;
 var approverMaster;
 var securityToken;
+jQuery(document).ready(function () {   
+    KeyPressNumericValidation();   
+});
+
+function KeyPressNumericValidation() {
+    jQuery('input[data="integer"]').keypress(function (event) {
+        return Integer(this, event);
+    }).bind('paste', function (e) {
+        return false;
+    });
+
+    jQuery('input[data="digit"]').keypress(function (event) {
+        return Digit(this, event);
+    }).bind('paste', function (e) {
+        return false;
+    });
+
+    jQuery('input[data="numeric"]').keypress(function (event) {
+        return Numeric(this, event);
+    }).bind('paste', function (e) {
+        return false;
+    });
+
+    jQuery('input[data="PositiveNumeric"]').keypress(function (event) {
+        return PositiveNumeric(this, event);
+    }).bind('paste', function (e) {
+        return false;
+    });
+
+    jQuery('input[data="AlphaNumeric"]').keypress(function (event) {
+        return AlphaNumeric(this, event);
+    }).bind('paste', function (e) {
+        return false;
+    });
+
+    jQuery('input[data="Alphabet"]').keypress(function (event) {
+        return Alphabet(this, event);
+    }).bind('paste', function (e) {
+        return true;
+    });
+
+    jQuery('input[data="AlphaNumericSpecial"]').keypress(function (event) {
+        return AlphaNumericSpecial(this, event);
+    }).bind('paste', function (e) {
+        return true;
+    });
+}
+
+function Digit(objTextbox, event) {
+    var keyCode = (event.which) ? event.which : (window.event) ? window.event.keyCode : -1;
+    if (keyCode >= 48 && keyCode <= 57) {
+        return true;
+    }
+    if (keyCode == 8 || keyCode == -1) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+function Integer(objTextbox, event) {
+    var keyCode = (event.which) ? event.which : (window.event) ? window.event.keyCode : -1;
+    if (keyCode >= 48 && keyCode <= 57 || keyCode == 45) {
+        if (keyCode == 45) {
+            if (objTextbox.value.indexOf("-") == -1)
+                return true;
+            else
+                return false;
+        }
+        else
+            return true;
+    }
+    if (keyCode == 8 || keyCode == -1) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+function Numeric(objTextbox, event) {
+    var keyCode = (event.which) ? event.which : (window.event) ? window.event.keyCode : -1;
+    if (keyCode >= 48 && keyCode <= 57 || keyCode == 46 || keyCode == 45) {
+        if (keyCode == 46) {
+            if (objTextbox.value.indexOf(".") == -1)
+                return true;
+            else
+                return false;
+        }
+        else if (keyCode == 45) {
+            if (objTextbox.value.indexOf("-") == -1)
+                return true;
+            else
+                return false;
+        }
+        else
+            return true;
+    }
+    if (keyCode == 8 || keyCode == -1) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+function AlphaNumericSpecial(objTextbox, event) {
+    if (event.charCode != 0) {
+        var regex = new RegExp("[^']+");
+        var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+        if (!regex.test(key)) {
+            event.preventDefault();
+            return false;
+        }
+    }
+    var key = event.which || event.keyCode;
+}
+
+function AlphaNumeric(objTextbox, event) {
+
+    if (event.charCode != 0) {
+        var regex = new RegExp("^[a-zA-Z0-9]+$");
+        var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+        if (!regex.test(key)) {
+            event.preventDefault();
+            return false;
+        }
+    }
+    var key = event.which || event.keyCode;
+}
+function Alphabet(objTextbox, event) {
+
+    if (event.charCode != 0) {
+        var regex = new RegExp("^[a-zA-Z]+$");
+        var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+        if (!regex.test(key)) {
+            event.preventDefault();
+            return false;
+        }
+    }
+    var key = event.which || event.keyCode;
+}
+function PositiveNumeric(objTextbox, event) {
+    var keyCode = (event.which) ? event.which : (window.event) ? window.event.keyCode : -1;
+    if (keyCode >= 48 && keyCode <= 57 || keyCode == 46) {
+
+        if (keyCode == 46) {
+            if (objTextbox.value.indexOf(".") == -1)
+                return true;
+            else
+                return false;
+        }
+        else
+            return true;
+    }
+    if (keyCode == 8 || keyCode == -1) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+function ValidateFormControls(divObjectId, IgnoreBlankValues) {
+    if (IgnoreBlankValues == undefined)
+        IgnoreBlankValues = true;
+    jQuery('#' + divObjectId + ' input:text, #' + divObjectId + ' select, #' + divObjectId + ' textarea').removeClass('input-validation-error');
+    var noerror = true;
+    jQuery('#' + divObjectId).each(function (i, e) {
+        var totalElement = 0;
+        var blanckValueCount = 0;
+        totalElement = jQuery('input:text,select,textarea', e).length;
+        jQuery('input:text,select,textarea', e).each(function (index, control) {
+            if (jQuery.trim(jQuery(control).val()) == '') {
+                blanckValueCount += 1;
+            }
+        });
+
+        if (jQuery(e).is(':visible') && ((totalElement != blanckValueCount && IgnoreBlankValues) || !IgnoreBlankValues)) {
+            jQuery('input:text,select,textarea', e).each(function (index, control) {
+                //Check for valid email text 
+                if (jQuery(control).attr('data-type') != undefined && jQuery(control).attr('data-type').toLowerCase() == 'email') {
+                    var emailfilter = /^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+                    if (!(emailfilter.test(jQuery(control).val())) && jQuery(control).val() != '') {
+                        jQuery(control).addClass('input-validation-error');
+                        noerror = false;
+                    }
+                }
+                if (jQuery(control).attr('required') != undefined) {
+                    //check numeric data type validation
+                    if (jQuery(control).attr('data') != undefined) {
+                        if (parseFloat(jQuery.trim(jQuery(control).val())) == 0) {
+                            jQuery(control).addClass('input-validation-error');
+                            noerror = false;
+                        }
+                    }
+
+                    //check string data type validation
+                    if (jQuery.trim(jQuery(control).val()) == '') {
+                        jQuery(control).addClass('input-validation-error');
+                        noerror = false;
+                    }
+                }
+
+                //numericdatarequired attribute allows 0.00 incase of numeric data
+                if (jQuery(control).attr('numericdatarequired') != undefined) {
+
+                    //check numeric data type validation
+                    if (jQuery(control).attr('data') != undefined) {
+                        if (jQuery.trim(jQuery(control).val()) == '') {
+                            jQuery(control).addClass('input-validation-error');
+                            noerror = false;
+                        }
+
+                    }
+                }
+            });
+        }
+    });
+    //Display validation message
+    if (!noerror) {
+        // AlertModal(getMessage("error"), getMessage("ParameterValidationMessage"), function () { })        
+        // AlertModal("Error", "Please enter appropriate data.");
+    }
+    return noerror;
+}
+
 function GetCurrentUserDetails() {
     var url = "https://bajajelect.sharepoint.com/sites/MTDEV/_api/web/currentuser";
     $.ajax({
