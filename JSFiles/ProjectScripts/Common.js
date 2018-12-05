@@ -226,7 +226,6 @@ function ValidateFormControls(divObjectId, IgnoreBlankValues) {
         // AlertModal(getMessage("error"), getMessage("ParameterValidationMessage"), function () { })        
         // AlertModal("Error", "Please enter appropriate data.");
     }
-
     return noerror;
 }
 

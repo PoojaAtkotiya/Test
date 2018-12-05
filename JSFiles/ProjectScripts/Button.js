@@ -2,9 +2,6 @@ var allButtons;
 var formStatus;
 var currentRoleButtons = [];
 
-
-
-
 function GetButtons(id, currentUserRole,formStatus) {
     GetFormDigest().then(function (data) {
         $.ajax({
