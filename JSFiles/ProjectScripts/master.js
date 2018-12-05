@@ -1,4 +1,5 @@
 var masterlistNameArray = [];
+
 function GetAllMasterData() {
     $('input[listtype*=master],select[listtype*=master]').each(function () {
         var listType = $(this).attr('listtype');
@@ -15,6 +16,7 @@ function GetAllMasterData() {
 }
 
 function GetMasterData(masterlistname) {
+    masterDataArray = null;
     if (masterlistname != undefined && masterlistname != '' && masterlistname != null) {
         $.ajax
             ({
@@ -22,14 +24,15 @@ function GetMasterData(masterlistname) {
                 type: "GET",
                 async: false,
                 headers:
-                {
-                    "Accept": "application/json;odata=verbose",
-                    "Content-Type": "application/json;odata=verbose",
-                    "X-RequestDigest": $("#__REQUESTDIGEST").val()
-                },
+                    {
+                        "Accept": "application/json;odata=verbose",
+                        "Content-Type": "application/json;odata=verbose",
+                        "X-RequestDigest": $("#__REQUESTDIGEST").val()
+                    },
                 success: function (data) {
                     if (data != null && data != undefined && data.d != null && data.d.results != null) {
                         var result = data.d.results;
+                        masterDataArray = result;
                         $('input[listname*=' + masterlistname + '],select[listname*=' + masterlistname + ']').each(function () {
                             var elementId = $(this).attr('id');
                             var elementType = $(this).attr('controlType');
@@ -54,7 +57,8 @@ function GetMasterData(masterlistname) {
                                     break;
                             }
                         });
-                        return result;
+                        
+                        return masterDataArray;
                     }
 
                 },

@@ -63,19 +63,26 @@ function SetApprovalMatrix(id, mainListName) {
         tempApproverMatrix = globalApprovalMatrix;
     }
 
-    var approverMaster = GetMasterData(ApproverMasterListName);
+    GetMasterData(ApproverMasterListName);
+    var approverMaster = masterDataArray; 
     //set status(of all levels) and approver(current)
     if (tempApproverMatrix != null && tempApproverMatrix != undefined && tempApproverMatrix.length > 0) {
         ////Get all roles which have FillByRole = currentUserRole
         tempApproverMatrix.filter(function (t) {
             if (t.FillByRole != undefined && t.FillByRole != null && currentUserRole != undefined && t.FillByRole == currentUserRole) {
-               if(approverMaster != null && approverMaster != undefined && approverMaster.length >0){
-                   approverMaster.filter(function (a) {
-                        if(t.Role == a.Role && t.UserSelection == true){
-                            t.ApproverId = a.UserNameId;
+                if (approverMaster != null && approverMaster != undefined && approverMaster.length > 0) {
+                    approverMaster.filter(function (a) {
+                        if (t.Role == a.Role && a.UserSelection == true) {
+                            if(a.UserNameId.results.length > 0){
+                                a.UserNameId.results.forEach(userId => {
+                                    t.ApproverId = t.ApproverId +   userId + ",";
+                                });
+                            }
+                            t.ApproverId;
+                            
                         }
-                   });
-               }
+                    });
+                }
             }
         });
     }

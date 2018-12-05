@@ -1,6 +1,7 @@
 var listName = ItemCodeProProcessListName;
 var appName = applicationName;
 var formName = "Item Code Preprocess Form";
+var masterDataArray;
 
 var listItemId;
 var formData = {};
