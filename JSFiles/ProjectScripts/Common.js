@@ -166,8 +166,7 @@ function PositiveNumeric(objTextbox, event) {
         return false;
     }
 }
-
-function ValidateFormRecords(divObjectId, IgnoreBlankValues) {
+function ValidateFormControls(divObjectId, IgnoreBlankValues) {
     if (IgnoreBlankValues == undefined)
         IgnoreBlankValues = true;
     jQuery('#' + divObjectId + ' input:text, #' + divObjectId + ' select, #' + divObjectId + ' textarea').removeClass('input-validation-error');
