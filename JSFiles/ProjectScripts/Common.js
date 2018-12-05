@@ -167,6 +167,71 @@ function PositiveNumeric(objTextbox, event) {
     }
 }
 
+function ValidateFormRecords(divObjectId, IgnoreBlankValues) {
+    if (IgnoreBlankValues == undefined)
+        IgnoreBlankValues = true;
+    jQuery('#' + divObjectId + ' input:text, #' + divObjectId + ' select, #' + divObjectId + ' textarea').removeClass('input-validation-error');
+    var noerror = true;
+    jQuery('#' + divObjectId).each(function (i, e) {
+        var totalElement = 0;
+        var blanckValueCount = 0;
+        totalElement = jQuery('input:text,select,textarea', e).length;
+        jQuery('input:text,select,textarea', e).each(function (index, control) {
+            if (jQuery.trim(jQuery(control).val()) == '') {
+                blanckValueCount += 1;
+            }
+        });
+
+        if (jQuery(e).is(':visible') && ((totalElement != blanckValueCount && IgnoreBlankValues) || !IgnoreBlankValues)) {
+            jQuery('input:text,select,textarea', e).each(function (index, control) {
+                //Check for valid email text 
+                if (jQuery(control).attr('data-type') != undefined && jQuery(control).attr('data-type').toLowerCase() == 'email') {
+                    var emailfilter = /^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+                    if (!(emailfilter.test(jQuery(control).val())) && jQuery(control).val() != '') {
+                        jQuery(control).addClass('input-validation-error');
+                        noerror = false;
+                    }
+                }
+                if (jQuery(control).attr('required') != undefined) {
+                    //check numeric data type validation
+                    if (jQuery(control).attr('data') != undefined) {
+                        if (parseFloat(jQuery.trim(jQuery(control).val())) == 0) {
+                            jQuery(control).addClass('input-validation-error');
+                            noerror = false;
+                        }
+                    }
+
+                    //check string data type validation
+                    if (jQuery.trim(jQuery(control).val()) == '') {
+                        jQuery(control).addClass('input-validation-error');
+                        noerror = false;
+                    }
+                }
+
+                //numericdatarequired attribute allows 0.00 incase of numeric data
+                if (jQuery(control).attr('numericdatarequired') != undefined) {
+
+                    //check numeric data type validation
+                    if (jQuery(control).attr('data') != undefined) {
+                        if (jQuery.trim(jQuery(control).val()) == '') {
+                            jQuery(control).addClass('input-validation-error');
+                            noerror = false;
+                        }
+
+                    }
+                }
+            });
+        }
+    });
+    //Display validation message
+    if (!noerror) {
+        // AlertModal(getMessage("error"), getMessage("ParameterValidationMessage"), function () { })        
+        // AlertModal("Error", "Please enter appropriate data.");
+    }
+
+    return noerror;
+}
+
 function GetCurrentUserDetails() {
     var url = "https://bajajelect.sharepoint.com/sites/MTDEV/_api/web/currentuser";
     $.ajax({
