@@ -1,11 +1,11 @@
-var applicationName="Item Code Creation Preprocess";
-var formName="Item Code Preprocess Form";
-var globalApprovalMatrixName='ApprovalMatrix';
-var approverMatrixListName='WorkflowTestApprovalMatrix';
+var applicationName = "Item Code Creation Preprocess";
+var formName = "Item Code Preprocess Form";
+var globalApprovalMatrixName = 'ApprovalMatrix';
+var approverMatrixListName = 'WorkflowTestApprovalMatrix';
 var ItemCodeProProcessListName = "ItemCodeProProcess";
 var ItemCodeApprovalMatrixListName = "ItemCodeApprovalMatrix";
 var ApproverMasterListName = "ApproverMaster";
-var buttonListName='Buttons';
+var buttonListName = 'Buttons';
 var buttonActionStatus = {
     None: 1,
     SaveAsDraft: 2,
@@ -54,4 +54,32 @@ var jsFunctionValue = {
     OnResume: 29,
     OnDelete: 30,
     ConfirmSubmitNoRedirect: 31
+}
+
+var ApproverStatus = {
+    NOTASSIGNED = "Not Assigned",
+    PENDING = "Pending",
+    APPROVED = "Approved",
+    COMPLETED = "Completed",
+    SENDBACK = "Send Back",
+    SENDFORWARD = "Send Forward",
+    NOTREQUIRED = "Not Required"
+}
+
+var DayOfWeek = {
+
+    Sunday = 0,
+
+    Monday = 1,
+
+    Tuesday = 2,
+
+    Wednesday = 3,
+
+    Thursday = 4,
+
+    Friday = 5,
+
+    Saturday = 6
+
 }

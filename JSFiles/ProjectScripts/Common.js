@@ -2,8 +2,8 @@ var returnUrl = "";
 var currentUser;
 var approverMaster;
 var securityToken;
-jQuery(document).ready(function () {   
-    KeyPressNumericValidation();   
+jQuery(document).ready(function () {
+    // KeyPressNumericValidation();   
 });
 
 function KeyPressNumericValidation() {
@@ -331,7 +331,7 @@ function GetItemTypeForListName(name) {
     return "SP.Data." + name.charAt(0).toUpperCase() + name.split(" ").join("").slice(1) + "ListItem";
 }
 
-function SetFormLevel(requestId, mainListName, localApprovalMatrixData) {
+function SetFormLevel(requestId, mainListName, tempApproverMatrix) {
     var web, clientContext;
     var previousLevel;
     var currentLevel;
@@ -340,227 +340,55 @@ function SetFormLevel(requestId, mainListName, localApprovalMatrixData) {
     var nextApprover = "";
     var nextApproverRole = "";
     var userEmail = "";
-    SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
-        clientContext = new SP.ClientContext.get_current();
-        web = clientContext.get_web();
-        oList = web.get_lists().getByTitle(mainListName);
-        var oListItem = oList.getItemById(requestId);
+    // SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
+    //     clientContext = new SP.ClientContext.get_current();
+    //     web = clientContext.get_web();
+    //     oList = web.get_lists().getByTitle(mainListName);
+    //     var oListItem = oList.getItemById(requestId);
 
-        clientContext.load(oListItem, 'FormLevel');
-        clientContext.load(web);
-        //clientContext.load(web, 'EffectiveBasePermissions');
+    //     clientContext.load(oListItem, 'FormLevel');
+    //     clientContext.load(web);
+    //     //clientContext.load(web, 'EffectiveBasePermissions');
 
-        clientContext.executeQueryAsync(function () {
-            previousLevel = oListItem.get_item('FormLevel').split("|")[0];
-            currentLevel = oListItem.get_item('FormLevel').split("|")[1];
-        }, function (sender, args) {
-            console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
-        });
-    });
+    //     clientContext.executeQueryAsync(function () {
+    //         previousLevel = oListItem.get_item('FormLevel').split("|")[0];
+    //         currentLevel = oListItem.get_item('FormLevel').split("|")[1];
+    //     }, function (sender, args) {
+    //         console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
+    //     });
+    // });
 
-    localApprovalMatrixData.filter(function (i) {
-        //console.log(i);
-        if (i.Status == "Pending" && i.ApproverId.results[0] != "" && buttonActionStatus != "SendBack" &&
-            buttonActionStatus != "SendForward" && i.Levels > currentLevel) {
-            nextLevel = i.Levels;
-            if (nextApprover == "") {
-                nextApproverRole = i.Role;
-                nextApprover = i.ApproverId.results[0];
-                userEmail = i.Approver.results[0].EMail;
-            }
-            else {
-                if (!(nextApprover == localApprovalMatrixData[i].Approver)) {
-                    nextApproverRole = nextApproverRole.Trim(',') + "," + localApprovalMatrixData[i].Role;
-                    nextApprover = nextApprover.Trim(',') + "," + localApprovalMatrixData[i].Approver;
-                }
-            }
-
-        }
-
-        if (buttonActionStatus == "SendBack" && sendToLevel != "") {
-            nextLevel = sendToLevel;
-            if (i.Levels == nextLevel) {
-                if (nextApprover == "") {
-                    nextApproverRole = i.Role;
-                    nextApprover = i.ApproverId.results[0];
-                }
-                else {
-                    if (!(nextApprover == localApprovalMatrixData[i].Approver)) {
-                        nextApproverRole = nextApproverRole.Trim(',') + "," + localApprovalMatrixData[i].Role;
-                        nextApprover = nextApprover.Trim(',') + "," + localApprovalMatrixData[i].Approver;
-                    }
-                }
-            }
-
-        }
-        if (buttonActionStatus == "SendForward" && sendToLevel != "") {
-            nextLevel = sendToLevel;
-            if (i.Levels == nextLevel) {
-                if (nextApprover == "") {
-                    nextApproverRole = i.Role;
-                    nextApprover = i.ApproverId.results[0];
-                }
-                else {
-                    if (!(nextApprover == localApprovalMatrixData[i].Approver)) {
-                        nextApproverRole = nextApproverRole.Trim(',') + "," + localApprovalMatrixData[i].Role;
-                        nextApprover = nextApprover.Trim(',') + "," + localApprovalMatrixData[i].Approver;
-                    }
-                }
-            }
-
-        }
-    });
-
-    // for (var i = 0; i <= localApprovalMatrixData.length - 1; i++) {
-    //     if (!(localApprovalMatrixData[i].Approver != "" &&
-    //         localApprovalMatrixData[i].IsOptional == false &&
-    //         localApprovalMatrixData[i].Status != "Approved" &&
-    //         localApprovalMatrixData[i].Levels == currentLevel) &&
-    //         buttonActionStatus != "SendBack" &&
-    //         buttonActionStatus != "SendForward") {
-    //         if (localApprovalMatrixData[i].Levels > currentLevel && localApprovalMatrixData[i].Approver != "" && localApprovalMatrixData[i].Status != "Not Required") {
-
-    //             nextLevel = localApprovalMatrixData[i].Levels;
-
-    //             if(localApprovalMatrixData[i].Approver != null && localApprovalMatrixData[i].Approver != ""){
-
-    //                 if(nextApprover == null && nextApprover == ""){
-    //                     nextApproverRole = localApprovalMatrixData[i].Role;
-    //                     nextApprover = localApprovalMatrixData[i].Approver;
-    //                 }
-    //                 else{
-    //                     if(!(nextApprover == localApprovalMatrixData[i].Approver))
-    //                     {
-    //                         nextApproverRole = nextApproverRole.Trim(',') + "," + localApprovalMatrixData[i].Role;
-    //                         nextApprover = nextApprover.Trim(',') + "," + localApprovalMatrixData[i].Approver;
-    //                     }
-    //                 }
-
+    // $.ajax({
+    //     url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + mainListName + "')/items(" + requestId + ")",
+    //     type: "MERGE",
+    //     data: JSON.stringify
+    //         ({
+    //             __metadata: {
+    //                 type: GetItemTypeForListName(mainListName)
+    //             },
+    //             FormLevel: formLevel,
+    //             NextApproverId: {
+    //                 results: [nextApprover]
     //             }
-    //             break;
-    //         }
-    //         else{
-    //             if(buttonActionStatus == "NextApproval" || buttonActionStatus == "Delegate"){
-
-    //             }
-    //         }
+    //         }),
+    //     headers:
+    //     {
+    //         "Accept": "application/json;odata=verbose",
+    //         "Content-Type": "application/json;odata=verbose",
+    //         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+    //         "IF-MATCH": "*"
+    //     },
+    //     success: function (data) {
+    //         console.log("Item saved Successfully");
+    //     },
+    //     error: function (data) {
+    //         console.log(data);
     //     }
-
-
-    //   console.log(vm.GetGlobalApprovalMatrix[i].Levels);
-    //}
-
-    // if (buttonActionStatus == "SendBack" && SendToLevel != "") {
-    //     nextLevel = SendToLevel;
-    // }
-
-    // if (buttonActionStatus == "SendForward" && SendToLevel != "") {
-    //     nextLevel = SendToLevel;
-    // }
-
-    switch (buttonActionStatus) {
-        case buttonActionStatus = "SaveAsDraft":
-            nextLevel = currentLevel;
-            currentLevel = previousLevel;
-            break;
-        case buttonActionStatus = "SaveAndStatusUpdate":
-        case buttonActionStatus = "SaveAndStatusUpdateWithEmail":
-        case buttonActionStatus = "ConfirmSave":
-            break;
-        case buttonActionStatus = "Save":
-            break;
-        case buttonActionStatus = "Submit":
-            nextLevel = currentLevel;
-            currentLevel = previousLevel;
-            break;
-        case buttonActionStatus = "Hold":
-            break;
-        case buttonActionStatus = "Resume":
-            break;
-        case buttonActionStatus = "UpdateAndRepublish":
-            nextLevel = currentLevel;
-            currentLevel = previousLevel;
-            break;
-        case buttonActionStatus = "Reschedule":
-            nextLevel = currentLevel;
-            currentLevel = previousLevel;
-            break;
-        case buttonActionStatus = "ReadyToPublish":
-            nextLevel = currentLevel;
-            currentLevel = previousLevel;
-            break;
-        case buttonActionStatus = "Delegate":
-        case buttonActionStatus = "NextApproval":
-            if (nextApprover != "" && nextApprover != null) {
-                formLevel = currentLevel + "|" + nextLevel
-            }
-            else {
-                nextLevel = currentLevel;
-                formLevel = currentLevel + "|" + currentLevel;
-            }
-            break;
-        case buttonActionStatus = "BackToCreator":
-            formLevel = currentLevel + "|" + nextLevel;
-            break;
-        case buttonActionStatus = "Cancel":
-            nextLevel = currentLevel;
-            currentLevel = previousLevel;
-            break;
-        case buttonActionStatus = "Rejected":
-            nextLevel = currentLevel;
-            currentLevel = previousLevel;
-            break;
-        case buttonActionStatus = "Complete":
-            formLevel = currentLevel + "|" + currentLevel;
-            break;
-        case buttonActionStatus = "SendBack":
-            formLevel = currentLevel + "|" + nextLevel;
-            break;
-        case buttonActionStatus = "SendForward":
-            if (!string.IsNullOrEmpty(nextApprover)) {
-                formLevel = currentLevel + "|" + nextLevel;
-            }
-            else {
-                formLevel = currentLevel + "|" + currentLevel;
-            }
-            break;
-        default:
-            nextLevel = currentLevel;
-            currentLevel = previousLevel;
-            break;
-    }
-
-    $.ajax({
-        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + mainListName + "')/items(" + requestId + ")",
-        type: "MERGE",
-        data: JSON.stringify
-            ({
-                __metadata: {
-                    type: GetItemTypeForListName(mainListName)
-                },
-                FormLevel: formLevel,
-                NextApproverId: {
-                    results: [nextApprover]
-                }
-            }),
-        headers:
-        {
-            "Accept": "application/json;odata=verbose",
-            "Content-Type": "application/json;odata=verbose",
-            "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-            "IF-MATCH": "*"
-        },
-        success: function (data) {
-            console.log("Item saved Successfully");
-        },
-        error: function (data) {
-            console.log(data);
-        }
-    });
+    // });
 
     //ISALluserViewer logic pending
-    localApprovalMatrixData.filter(function (i) {
-        if (i.Approver.results != undefined) {
+    tempApproverMatrix.filter(function (i) {
+        if (i.ApproverId != undefined) {
             if (i.Levels == nextLevel && (i.Status == "Pending" || i.Status == "Hold" || i.Status == "Resume")) {
                 SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
                     var clientContext = new SP.ClientContext.get_current();
@@ -591,7 +419,7 @@ function SetFormLevel(requestId, mainListName, localApprovalMatrixData) {
                     var oList = clientContext.get_web().get_lists().getByTitle(listName);
 
                     var oListItem = oList.getItemById(listData.ID);
-                    var oUser = clientContext.get_web().ensureUser(i.Approver.results[0].EMail);
+                    var oUser = clientContext.get_web().ensureUser(i.ApproverId.EMail);
                     //this.oUser = clientContext.get_web().get_siteUsers().getByLoginName('DOMAIN\\alias');
 
                     oListItem.breakRoleInheritance(false, true); // break role inheritance first!
@@ -641,7 +469,11 @@ function GetFormControlsValue(id, elementType, listDataArray) {
             listDataArray[id] = $(obj).val();
             break;
         case "date":
-            listDataArray[id] = $(obj).val();
+            var month = $(obj).datepicker('getDate').getMonth() + 1;
+            var date = $(obj).datepicker('getDate').getDate();
+            var year = $(obj).datepicker('getDate').getFullYear();
+            listDataArray[id] = new Date(year.toString() + "-" + month.toString() + "-" + date.toString()).format("yyyy-MM-ddTHH:mm:ssZ")
+            //$(obj).val().format("yyyy-MM-ddTHH:mm:ssZ");
             break;
         case "checkbox":
             listDataArray[id] = $(obj)[0]['checked'];
@@ -674,11 +506,11 @@ function GetApproverMaster() {
             type: "GET",
             async: false,
             headers:
-            {
-                "Accept": "application/json;odata=verbose",
-                "Content-Type": "application/json;odata=verbose",
-                "X-RequestDigest": $("#__REQUESTDIGEST").val()
-            },
+                {
+                    "Accept": "application/json;odata=verbose",
+                    "Content-Type": "application/json;odata=verbose",
+                    "X-RequestDigest": $("#__REQUESTDIGEST").val()
+                },
             success: function (data) {
                 approverMaster = data.d.results;
             },
