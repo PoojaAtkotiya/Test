@@ -331,113 +331,113 @@ function GetItemTypeForListName(name) {
     return "SP.Data." + name.charAt(0).toUpperCase() + name.split(" ").join("").slice(1) + "ListItem";
 }
 
-function SetFormLevel(requestId, mainListName, tempApproverMatrix) {
-    var web, clientContext;
-    var previousLevel;
-    var currentLevel;
-    var nextLevel = "";
-    var formLevel = "";
-    var nextApprover = "";
-    var nextApproverRole = "";
-    var userEmail = "";
-    // SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
-    //     clientContext = new SP.ClientContext.get_current();
-    //     web = clientContext.get_web();
-    //     oList = web.get_lists().getByTitle(mainListName);
-    //     var oListItem = oList.getItemById(requestId);
+// function SetFormLevel(requestId, mainListName, tempApproverMatrix) {
+//     var web, clientContext;
+//     var previousLevel;
+//     var currentLevel;
+//     var nextLevel = "";
+//     var formLevel = "";
+//     var nextApprover = "";
+//     var nextApproverRole = "";
+//     var userEmail = "";
+//     // SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
+//     //     clientContext = new SP.ClientContext.get_current();
+//     //     web = clientContext.get_web();
+//     //     oList = web.get_lists().getByTitle(mainListName);
+//     //     var oListItem = oList.getItemById(requestId);
 
-    //     clientContext.load(oListItem, 'FormLevel');
-    //     clientContext.load(web);
-    //     //clientContext.load(web, 'EffectiveBasePermissions');
+//     //     clientContext.load(oListItem, 'FormLevel');
+//     //     clientContext.load(web);
+//     //     //clientContext.load(web, 'EffectiveBasePermissions');
 
-    //     clientContext.executeQueryAsync(function () {
-    //         previousLevel = oListItem.get_item('FormLevel').split("|")[0];
-    //         currentLevel = oListItem.get_item('FormLevel').split("|")[1];
-    //     }, function (sender, args) {
-    //         console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
-    //     });
-    // });
+//     //     clientContext.executeQueryAsync(function () {
+//     //         previousLevel = oListItem.get_item('FormLevel').split("|")[0];
+//     //         currentLevel = oListItem.get_item('FormLevel').split("|")[1];
+//     //     }, function (sender, args) {
+//     //         console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
+//     //     });
+//     // });
 
-    // $.ajax({
-    //     url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + mainListName + "')/items(" + requestId + ")",
-    //     type: "MERGE",
-    //     data: JSON.stringify
-    //         ({
-    //             __metadata: {
-    //                 type: GetItemTypeForListName(mainListName)
-    //             },
-    //             FormLevel: formLevel,
-    //             NextApproverId: {
-    //                 results: [nextApprover]
-    //             }
-    //         }),
-    //     headers:
-    //     {
-    //         "Accept": "application/json;odata=verbose",
-    //         "Content-Type": "application/json;odata=verbose",
-    //         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-    //         "IF-MATCH": "*"
-    //     },
-    //     success: function (data) {
-    //         console.log("Item saved Successfully");
-    //     },
-    //     error: function (data) {
-    //         console.log(data);
-    //     }
-    // });
+//     // $.ajax({
+//     //     url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + mainListName + "')/items(" + requestId + ")",
+//     //     type: "MERGE",
+//     //     data: JSON.stringify
+//     //         ({
+//     //             __metadata: {
+//     //                 type: GetItemTypeForListName(mainListName)
+//     //             },
+//     //             FormLevel: formLevel,
+//     //             NextApproverId: {
+//     //                 results: [nextApprover]
+//     //             }
+//     //         }),
+//     //     headers:
+//     //     {
+//     //         "Accept": "application/json;odata=verbose",
+//     //         "Content-Type": "application/json;odata=verbose",
+//     //         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+//     //         "IF-MATCH": "*"
+//     //     },
+//     //     success: function (data) {
+//     //         console.log("Item saved Successfully");
+//     //     },
+//     //     error: function (data) {
+//     //         console.log(data);
+//     //     }
+//     // });
 
-    //ISALluserViewer logic pending
-    tempApproverMatrix.filter(function (i) {
-        if (i.ApproverId != undefined) {
-            if (i.Levels == nextLevel && (i.Status == "Pending" || i.Status == "Hold" || i.Status == "Resume")) {
-                SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
-                    var clientContext = new SP.ClientContext.get_current();
-                    var oList = clientContext.get_web().get_lists().getByTitle(mainListName);
+//     //ISALluserViewer logic pending
+//     tempApproverMatrix.filter(function (i) {
+//         if (i.ApproverId != undefined) {
+//             if (i.Levels == nextLevel && (i.Status == "Pending" || i.Status == "Hold" || i.Status == "Resume")) {
+//                 SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
+//                     var clientContext = new SP.ClientContext.get_current();
+//                     var oList = clientContext.get_web().get_lists().getByTitle(mainListName);
 
-                    var oListItem = oList.getItemById(requestId);
-                    var oUser = clientContext.get_web().ensureUser(i.Approver.results[0].EMail);
-                    //this.oUser = clientContext.get_web().get_siteUsers().getByLoginName('DOMAIN\\alias');
+//                     var oListItem = oList.getItemById(requestId);
+//                     var oUser = clientContext.get_web().ensureUser(i.Approver.results[0].EMail);
+//                     //this.oUser = clientContext.get_web().get_siteUsers().getByLoginName('DOMAIN\\alias');
 
-                    oListItem.breakRoleInheritance(false, true); // break role inheritance first!
+//                     oListItem.breakRoleInheritance(false, true); // break role inheritance first!
 
-                    var roleDefBindingColl = SP.RoleDefinitionBindingCollection.newObject(clientContext);
-                    roleDefBindingColl.add(clientContext.get_web().get_roleDefinitions().getByType(SP.RoleType.contributor));
-                    oListItem.get_roleAssignments().add(oUser, roleDefBindingColl);
+//                     var roleDefBindingColl = SP.RoleDefinitionBindingCollection.newObject(clientContext);
+//                     roleDefBindingColl.add(clientContext.get_web().get_roleDefinitions().getByType(SP.RoleType.contributor));
+//                     oListItem.get_roleAssignments().add(oUser, roleDefBindingColl);
 
-                    clientContext.load(oUser);
-                    clientContext.load(oListItem);
+//                     clientContext.load(oUser);
+//                     clientContext.load(oListItem);
 
-                    clientContext.executeQueryAsync(Function.createDelegate(this, this.onQuerySucceeded), Function.createDelegate(this, this.onQueryFailed));
-                });
-            }
+//                     clientContext.executeQueryAsync(Function.createDelegate(this, this.onQuerySucceeded), Function.createDelegate(this, this.onQueryFailed));
+//                 });
+//             }
 
-            else if (i.Status != "Pending") {
+//             else if (i.Status != "Pending") {
 
-                SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
-                    //alert('test');
-                    var clientContext = new SP.ClientContext.get_current();
-                    var oList = clientContext.get_web().get_lists().getByTitle(listName);
+//                 SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
+//                     //alert('test');
+//                     var clientContext = new SP.ClientContext.get_current();
+//                     var oList = clientContext.get_web().get_lists().getByTitle(listName);
 
-                    var oListItem = oList.getItemById(listData.ID);
-                    var oUser = clientContext.get_web().ensureUser(i.ApproverId.EMail);
-                    //this.oUser = clientContext.get_web().get_siteUsers().getByLoginName('DOMAIN\\alias');
+//                     var oListItem = oList.getItemById(listData.ID);
+//                     var oUser = clientContext.get_web().ensureUser(i.ApproverId.EMail);
+//                     //this.oUser = clientContext.get_web().get_siteUsers().getByLoginName('DOMAIN\\alias');
 
-                    oListItem.breakRoleInheritance(false, true); // break role inheritance first!
+//                     oListItem.breakRoleInheritance(false, true); // break role inheritance first!
 
-                    var roleDefBindingColl = SP.RoleDefinitionBindingCollection.newObject(clientContext);
-                    roleDefBindingColl.add(clientContext.get_web().get_roleDefinitions().getByType(SP.RoleType.reader));
-                    oListItem.get_roleAssignments().add(oUser, roleDefBindingColl);
+//                     var roleDefBindingColl = SP.RoleDefinitionBindingCollection.newObject(clientContext);
+//                     roleDefBindingColl.add(clientContext.get_web().get_roleDefinitions().getByType(SP.RoleType.reader));
+//                     oListItem.get_roleAssignments().add(oUser, roleDefBindingColl);
 
-                    clientContext.load(oUser);
-                    clientContext.load(oListItem);
+//                     clientContext.load(oUser);
+//                     clientContext.load(oListItem);
 
-                    clientContext.executeQueryAsync(Function.createDelegate(this, this.onQuerySucceeded), Function.createDelegate(this, this.onQueryFailed));
-                });
-            }
-        }
+//                     clientContext.executeQueryAsync(Function.createDelegate(this, this.onQuerySucceeded), Function.createDelegate(this, this.onQueryFailed));
+//                 });
+//             }
+//         }
 
-    });
-}
+//     });
+// }
 
 function onQuerySucceeded(sender, args) {
     console.log("Success");
@@ -519,6 +519,17 @@ function GetApproverMaster() {
             }
         });
 }
+
+// function IsNullOrUndefined(obj){
+//     debugger;
+//     var isNullOrUndefined = true;
+//     if(obj != null && obj != undefined){
+//         isNullOrUndefined = false; 
+//     }
+//     return isNullOrUndefined;
+// }
+
+
 //function ValidateCollapseForm() {
 //    $(".card-body").each(function () {
 //        if ($(this).hasClass("collapse")) {

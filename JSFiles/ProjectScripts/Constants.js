@@ -57,29 +57,26 @@ var jsFunctionValue = {
 }
 
 var ApproverStatus = {
-    NOTASSIGNED = "Not Assigned",
-    PENDING = "Pending",
-    APPROVED = "Approved",
-    COMPLETED = "Completed",
-    SENDBACK = "Send Back",
-    SENDFORWARD = "Send Forward",
-    NOTREQUIRED = "Not Required"
+    NOTASSIGNED: "Not Assigned",
+    PENDING: "Pending",
+    APPROVED: "Approved",
+    COMPLETED: "Completed",
+    SENDBACK: "Send Back",
+    SENDFORWARD: "Send Forward",
+    NOTREQUIRED: "Not Required"
 }
 
 var DayOfWeek = {
+    Sunday: 0,
+    Monday: 1,
+    Tuesday: 2,
+    Wednesday: 3,
+    Thursday: 4,
+    Friday: 5,
+    Saturday: 6
+}
 
-    Sunday = 0,
-
-    Monday = 1,
-
-    Tuesday = 2,
-
-    Wednesday = 3,
-
-    Thursday = 4,
-
-    Friday = 5,
-
-    Saturday = 6
-
+var SharePointPermission = {
+    READER: "Read",
+    CONTRIBUTOR: "Contribute"
 }

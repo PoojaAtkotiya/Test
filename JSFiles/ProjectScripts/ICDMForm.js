@@ -27,14 +27,7 @@ $(document).ready(function () {
     else {
         GetGlobalApprovalMatrix(listItemId);
     }
-
-    //get buttons using appname, formname, rolename and status
-
 });
-
-
-
-
 //function GetFormControlsValue(id, elementType, listDataArray) {
 //    var obj = '#' + id;
 //    switch (elementType) {
@@ -147,9 +140,11 @@ function SaveData(listname, listDataArray, sectionName) {
 
                     clientContext.executeQueryAsync(function () {
 
+                        ///Pending
                         var param = [
                             SendToLevel = 0
                         ]
+
                         SaveLocalApprovalMatrix(sectionName, itemID, listname, isNewItem, oListItem, ItemCodeApprovalMatrixListName, param);
 
                         if (data != undefined && data != null && data.d != null) {
@@ -158,12 +153,14 @@ function SaveData(listname, listDataArray, sectionName) {
                         else {
                             SaveTranListData(itemID);
                         }
+                        alert("Data saved successfully");
+
                     }, function (sender, args) {
                         console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
                     });
                 });
 
-                // GetLocalApprovalMatrix();
+
             },
             error: function (data) {
                 console.log(data);
@@ -325,150 +322,37 @@ function SaveForm() {
     }
 }
 
-// function SaveLocalApprovalMatrix() {
-//     var approvers = [];
-//     var status;
-
-//     for (var i = 0; i < globalApprovalMatrix.length - 1; i++) {
-
-//         if (globalApprovalMatrix[i].FillByRole == "Creator") {
-//             if (globalApprovalMatrix[i].Role == approverMaster[i].Role) {
-//                 approvers = approverMaster[i].UserNameId.results[0];
-//             }
-//             if (globalApprovalMatrix[i].Role == "Creator") {
-//                 status = "Approved";
-//             }
-//             else {
-//                 status = "Not Assigned";
-//             }
-//             $.ajax({
-//                 url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('ItemCodeApprovalMatrix')/items",
-//                 type: "POST",
-//                 data: JSON.stringify
-//                     ({
-//                         __metadata: {
-//                             type: "SP.Data.ItemCodeApprovalMatrixListItem"
-//                         },
-//                         Title: globalApprovalMatrix[i].SectionName.results[0].Label,
-//                         Levels: globalApprovalMatrix[i].Levels,
-//                         Role: globalApprovalMatrix[i].Role,
-//                         IsReminder: globalApprovalMatrix[i].IsReminder,
-//                         IsEscalate: globalApprovalMatrix[i].IsEscalate,
-//                         FillByRole: globalApprovalMatrix[i].FillByRole,
-//                         Status: status,
-//                         ApproverId: {
-//                             results: [approvers]
-//                         },
-//                         //ApproveById: vm.getcurrentuser.Id,
-//                         Days: globalApprovalMatrix[i].Days,
-//                         FormName: globalApprovalMatrix[i].FormName.Label,
-//                         SectionName: globalApprovalMatrix[i].SectionName.results[0].Label,
-//                         ApplicationName: globalApprovalMatrix[i].ApplicationName.Label,
-//                         RequestIDId: listData.ID
-//                     }),
-//                 headers:
-//                 {
-//                     "Accept": "application/json;odata=verbose",
-//                     "Content-Type": "application/json;odata=verbose",
-//                     "X-RequestDigest": $("#__REQUESTDIGEST").val()
-//                 },
-//                 //async: true,
-//                 success: function (data) {
-//                     console.log("Item Successfully Created");
-//                 },
-//                 error: function (data) {
-
-//                     console.log(data);
-//                 }
-//             });
-
-//         }
-//     }
-// }
-
-//,IsHold,Comments,Title,Levels,Role,IsReminder,IsEscalate,DueDate,FillByRole,Status,ApproveBy,AssignDate,ApprovalDate,Division,SubDivision,IsAutoApproval,FormName,ApplicationName,IsOptional,RequestID
-//function GetLocalApprovalMatrix() {
-//    console.log(globalApprovalMatrix);
-//    $.ajax({
-//        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('WorkflowTestApprovalMatrix')/Items?$select=*,Approver/EMail,Approver/UserName&$expand=Approver&$filter=RequestID eq '" + 110 + "'&$orderby= Levels asc",
-//        type: "GET",
-//        async: false,
-//        headers:
-//        {
-//            "Accept": "application/json;odata=verbose",
-//            "Content-Type": "application/json;odata=verbose",
-//            "X-RequestDigest": $("#__REQUESTDIGEST").val()
-//        },
-//        success: function (data) {
-//            console.log(data);
-//            var localApprovalMatrixData = data.d.results;
-//            SetFormLevel(localApprovalMatrixData);
-//        },
-//        error: function (data) {
-//            console.log(data);
-//        }
-//    });
-//}
 
 function SendBack() {
     buttonActionStatus = "SendBack";
     SaveFormData();
 }
 
-
-// function GetButtons() {
-
-//     GetFormDigest().then(function (data) {
-//         $.ajax({
-//             url: "https://bajajelect.sharepoint.com/sites/WFRootDev" + "/_api/web/lists/getbytitle('Buttons')/GetItems(query=@v1)?@v1={\"ViewXml\":\"<View><Query><Where><Eq><FieldRef Name='ApplicationName' /><Value Type='TaxonomyFieldType'>Item Code Creation Preprocess</Value></Eq></Where></Query></View>\"}",
-//             type: "POST",
-//             headers:
-//             {
-//                 "Accept": "application/json;odata=verbose",
-//                 "Content-Type": "application/json; odata=verbose",
-//                 "X-RequestDigest": data.d.GetContextWebInformation.FormDigestValue
-//                 //"X-RequestDigest": $("#__REQUESTDIGEST").val(),  
-//             },
-//             success: function (data) {
-//                 allButtons = data.d.results;
-//                 GetButtonsByRole();
-//             },
-//             error: function (data) {
-//                 console.log(data.responseJSON.error);
-//             }
-//         });
-//     });
-// }
-
-// function GetButtonsByRole() {
-//     if(listItemId > 0 && listItemId != null)
-//     {
-//         formStatus = mainListData.Status
-//     }
-//     else{
-//         formStatus = "New";
-//     }
-//     var a = 0;
-//     for (i = 0; i <= allButtons.length - 1; i++) {
-//         if (allButtons[i].FormName.results[0].Label == formName && allButtons[i].Role.includes(currentUserRole) && allButtons[i].FormStatus.includes(formStatus)) {
-//             currentRoleButtons[a] = allButtons[i];
-//             a++;
-//         }
-//     }
-
-//     var btnli = "";
-//     var buttonCount = 1;
-
-//     for (i = 0; i <= currentRoleButtons.length - 1; i++) {
-//         var jsFuncName = Object.keys(jsFunctionValue).find(k => jsFunctionValue[k] === currentRoleButtons[i].JsFunctionNameId);
-//         var jsFunc = "onClick=" + jsFuncName + "(this);";
-
-//         var status = Object.keys(buttonActionStatus).find(k => buttonActionStatus[k] === currentRoleButtons[i].ButtonActionValueId);
-//         var isVisible = currentRoleButtons[i].IsVisible ? "" : "class=hide";
-//         btnli = btnli + '<li class="pull-left"><a id="btn' + (buttonCount++) + '" ' + isVisible + ' onClick="' + jsFuncName + '(this);"' + ' data-action="' + status + '" data-sendbackto="' + currentRoleButtons[i].SendBackTo + '" data-sendtorole="' + currentRoleButtons[i].SendToRole + '" class="btn btn-default" title="' + currentRoleButtons[i].ToolTip + '" data-placement="bottom"><i class="' + currentRoleButtons[i].Icon + '"></i>&nbsp;' + currentRoleButtons[i].Title + '</a></li>'
-//     }
-
-//     btnli = btnli + '<li class="pull-left"><a id="btnExit" class="btn btn-default" onclick="Exit(this);" title="Exit without saving any data"  data-placement="bottom"><i class="fa fa-sign-out"></i>&nbsp;Home</a></li>';
-
-//     $('#dynamicli').html(btnli);
-// }
+function setCustomApprovers(tempApproverMatrix) {
+    if (!IsNullOrUndefined(tempApproverMatrix) && tempApproverMatrix.length != -1) {
+        var smsIncharge = null;
+        var smsDelegate = null;
+        tempApproverMatrix.filter(function (temp) {
+            if (temp.Role == "SMS Incharge" && !IsNullOrUndefined(temp.ApproverId)) {
+                smsIncharge = temp.ApproverId;
+            }
+            else if (temp.Role == "SMS Delegate" && !IsNullOrUndefined(temp.ApproverId)) {
+                smsDelegate = temp.ApproverId;
+            }
+        });
+        if (smsIncharge != null) {
+            tempApproverMatrix.filter(function (temp) {
+                if (temp.Role == "Final SMS Incharge" && temp.Status != "Not Required") {
+                    temp.ApproverId = smsIncharge;
+                }
+            });
+        }
+        if (smsDelegate != null) {
+            tempApproverMatrix.filter(function (temp) {
+                if (temp.Role == "Final SMS Delegate" && temp.Status != "Not Required") {
+                    temp.ApproverId = smsDelegate;
+                }
+            });
+        }
+    }
+}

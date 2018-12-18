@@ -20,6 +20,7 @@ function GetGlobalApprovalMatrix(id) {
                 globalApprovalMatrix = data.d.results;
                 SetSectionWiseRoles(id = 0);
                 SetApprovalMatrix(id, '');
+                setCustomApprovers(tempApproverMatrix);
                 GetButtons(id, currentUserRole, 'New');
             },
             error: function (data) {
@@ -43,6 +44,7 @@ function GetLocalApprovalMatrixData(id, mainListName) {
             localApprovalMatrixdata = data.d.results;
             SetSectionWiseRoles(id);
             SetApprovalMatrix(id, mainListName);
+            setCustomApprovers(tempApproverMatrix);
         },
         error: function (data) {
             console.log(data);
@@ -50,12 +52,12 @@ function GetLocalApprovalMatrixData(id, mainListName) {
     });
 }
 function SetApprovalMatrix(id, mainListName) {
-    debugger;
     if (id > 0) {
         //set role name from globalApprovalMatrix
         GetCurrentUserRole(id, mainListName);
         GetEnableSectionNames(id);
         tempApproverMatrix = localApprovalMatrixdata;
+       
     } else {
         currentUserRole = "Creator";
         //get active/inactive section name from globalApprovalMatrix
@@ -75,6 +77,7 @@ function SetApprovalMatrix(id, mainListName) {
             temp.ReasonForChange = "";
             temp.IsHOLD = "";
         });
+        
     }
 
     GetMasterData(ApproverMasterListName);
@@ -101,6 +104,7 @@ function SetApprovalMatrix(id, mainListName) {
             t.Status = "Not Assigned";
         });
     }
+
 }
 
 function GetCurrentUserRole(id, mainListName) {
@@ -574,7 +578,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
             currentLevel = previousLevel;
             break;
     }
-    debugger;
+
     if (formFieldValues != null && formFieldValues != undefined) {
         if (formFieldValues["Status"] != undefined && formFieldValues["Status"] != null && formFieldValues["Status"] != '') {
             UpdateWorkflowStatus(formFieldValues);
@@ -582,46 +586,166 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
 
         ////saveFormFields in Main List
         SaveFormFields(formFieldValues, requestId);
-
-        ////save attachment
-
-        ////save activity log
-
-        ////save approval matrix
-        ////set permission
-
-        ////send mail
     }
 
+    ////save attachment
+
+    ////save activity log
+
     ////set permission 
+    var userWithRoles = GetPermissionDictionary(tempApproverMatrix, nextLevel, makeAllUsersViewer);
+    SetItemPermission(requestId, ItemCodeProProcessListName, userWithRoles);
+
 
     ////save approval matrix in list
     SaveApprovalMatrixInList(tempApproverMatrix, approvalMatrixListName, isNewItem);
 
-    $.ajax({
-        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + approvalMatrixListName + "')/Items?$select=*,Approver/EMail,Approver/UserName&$expand=Approver&$filter=RequestID eq '" + requestId + "'&$orderby= Levels asc",
-        type: "GET",
-        async: false,
-        headers:
-            {
-                "Accept": "application/json;odata=verbose",
-                "Content-Type": "application/json;odata=verbose",
-                "X-RequestDigest": $("#__REQUESTDIGEST").val()
-            },
-        success: function (data) {
-            SetFormLevel(requestId, mainListName, tempApproverMatrix);
-        },
-        error: function (data) {
+    ////send mail
 
-            console.log(data);
+}
+
+function SetItemPermission(requestId, ItemCodeProProcessListName, userWithRoles) {
+    debugger
+    var permissionAssigned = false;
+    if (userWithRoles != null && userWithRoles != undefined) {
+        SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
+            var clientContext = new SP.ClientContext.get_current();
+            var oList = clientContext.get_web().get_lists().getByTitle(ItemCodeProProcessListName);
+
+            var oListItem = oList.getItemById(requestId);
+            //var oUser = clientContext.get_web().ensureUser(i.Approver.results[0].EMail);
+            //this.oUser = clientContext.get_web().get_siteUsers().getByLoginName('DOMAIN\\alias');
+
+            oListItem.resetRoleInheritance();
+            oListItem.breakRoleInheritance(false, true); // break role inheritance first!
+
+            var roleDefBindingColl = null;
+
+            userWithRoles.forEach((element) => {
+                try {
+                    roleDefBindingColl = SP.RoleDefinitionBindingCollection.newObject(clientContext);
+                    var userIds = element.user;
+                    var permission = element.permission;
+                    if (userIds != '' && userIds != null && userIds != undefined && permission != null && permission != '' && permission != undefined) {
+
+                        //split users and remove ,
+                        if (userIds.toString().indexOf(',') == 0) {
+                            userIds = userIds.substring(1);
+                            if (userIds.toString().indexOf(',') != -1 && userIds.toString().lastIndexOf(',') == userIds.toString().length - 1) {
+                                userIds = userIds.substring(userIds.toString().lastIndexOf(','))[0];
+                            }
+                        }
+                        var users = [];
+                        if (userIds != null && userIds != undefined && userIds != '') {
+                            var a = (userIds.toString().indexOf(',') != -1) ? userIds.split(',') : parseInt(userIds);
+
+                            if (a != null && a != undefined) {
+                                if (a.length == undefined) {
+                                    users.push(a);
+                                } else {
+                                    a.forEach(element => {
+                                        users.push(parseInt(element));
+                                    });
+                                }
+                            }
+                        }
+
+                        users.forEach(user => {
+                            this.oUser = clientContext.get_web().getUserById(user);
+                            // if (permission == "Read") {
+                            roleDefBindingColl.add(clientContext.get_web().get_roleDefinitions().getByName(permission));
+                            // }
+                            // else if (permission == "Contribute") {
+                            //     roleDefBindingColl.add(clientContext.get_web().get_roleDefinitions().getByType(SP.RoleType.contributor));
+                            // }
+                            oListItem.get_roleAssignments().add(this.oUser, roleDefBindingColl);
+                            clientContext.load(oUser);
+                            clientContext.load(oListItem);
+                            clientContext.executeQueryAsync(Function.createDelegate(this, this.onQuerySucceeded), Function.createDelegate(this, this.onQueryFailed));
+                        });
+                    }
+
+                } catch (exc) {
+                    debugger
+                    console.log(exc);
+                }
+            });
+
+
+        });
+    }
+
+}
+
+
+function GetPermissionDictionary(tempApproverMatrix, nextLevel, isAllUserViewer) {
+
+
+    var permissions = [];
+    if (tempApproverMatrix != null && tempApproverMatrix != undefined && tempApproverMatrix.length > 0) {
+        var strReader = '';
+        var strContributer = '';
+        tempApproverMatrix.forEach(temp => {
+            if (temp.ApproverId != null && temp.ApproverId != undefined) {
+                // if (permissions.filter(k = k.key == temp.ApproverId).length == 0) {
+                if (temp.Levels == nextLevel && temp.Status == "Pending") //ApproverStatus.PENDING)
+                {
+                    /* All users 
+                     * 1) who are pending on current level
+                     */
+                    if (strContributer.indexOf(temp.ApproverId) == -1) {
+                        // strContributer = strContributer.Trim(',') + "," + p.Approver;
+                        strContributer = strContributer.trim() + "," + temp.ApproverId;
+                    }
+                }
+                ////Phase 2 :All members who will be in the DCR Process should be able to know the status of all DCR/DCN. 
+                //// else if (Convert.ToInt32(p.Levels) <= preLevel || (p.Levels == curLevel.ToString() && p.Status != ApproverStatus.PENDING))
+                else if (temp.Status != "Pending")//ApproverStatus.PENDING)
+                {
+                    /* All users 
+                     * 1) who are less then previous level
+                     * 2) who are not pending on current level
+                     */
+                    if (strReader.indexOf(temp.ApproverId) == -1) {
+                        strReader = strReader.trim() + "," + temp.ApproverId;
+                    }
+                }
+                // }
+            }
+        });
+
+        if (strReader.trim() == strContributer.trim()) {
+            // permissions.push(strContributer.trim(), isAllUserViewer ? SharePointPermission.READER : SharePointPermission.CONTRIBUTOR);
+            var user = strContributer.trim();
+            var permission = isAllUserViewer ? 'Read' : 'Contribute';
+            // var array = [{user: "21,22", permission : "Read"}]
+
+            permissions.push({ user: user, permission: permission });
         }
-    });
+        else {
+            if (isAllUserViewer) {
+                //permissions.Add(strReader.Trim(',') + "," + strContributer.Trim(','), SharePointPermission.READER);
+                var user = strReader.trim() + "," + strContributer.trim();
+                var permission = 'Read';
+                permissions.push({ user: user, permission: permission });
+            }
+            else {
+                var user = strReader.trim();
+                var permission = 'Read';
+                permissions.push({ user: user, permission: permission });
+
+                var user1 = strContributer.trim();
+                var permission1 = isAllUserViewer ? 'Read' : 'Contribute';
+                permissions.push({ user: user1, permission: permission1 });
+            }
+        }
+    }
+    return permissions;
 }
 
 function SaveApprovalMatrixInList(tempApproverMatrix, approvalMatrixListName, isNewItem) {
     if (isNewItem) {
         tempApproverMatrix.forEach(temp => {
-            debugger
             ////For multiUser field of sharepoint list
             var approverResults = [];
             if (temp.ApproverId != null && temp.ApproverId != undefined && temp.ApproverId != '') {
@@ -647,7 +771,7 @@ function SaveApprovalMatrixInList(tempApproverMatrix, approvalMatrixListName, is
                         },
                         ApplicationName: temp.ApplicationName.Label,
                         FormName: temp.FormName.Label,
-                        SectionName: (temp.SectionName != IsNullOrUndefined && temp.SectionName.results != IsNullOrUndefined && temp.SectionName.results.length > 0) ? temp.SectionName.results[0].Label : '',
+                        SectionName: (temp.SectionName != null && temp.SectionName != undefined && temp.SectionName.results != null && temp.SectionName.results != undefined && temp.SectionName.results.length > 0) ? temp.SectionName.results[0].Label : '',
                         //HiddenSection : temp.HiddenSection.results[0],
                         Levels: parseInt(temp.Levels),
                         Role: temp.Role,
@@ -816,7 +940,6 @@ function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previous
     if (tempApproverMatrix != null && tempApproverMatrix != undefined && tempApproverMatrix.length > 0 && currentUser.Id != undefined) {
 
         if (currentLevel != previousLevel) {
-            debugger;
             var currentUserId = currentUser.Id;
             var nextLevel = currentLevel;
 
@@ -861,7 +984,6 @@ function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previous
 }
 
 function GetDueDate(startDate, days) {
-    debugger
     ////Count from Next Day
     startDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000);
     for (var i = 0; i < days; i++) {

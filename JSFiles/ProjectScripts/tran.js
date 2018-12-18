@@ -134,7 +134,7 @@ function SaveTranData(listname, tranListDataArray, lookupId) {
             data: JSON.stringify(tranListDataArray),
             headers: headers,
             success: function (data) {
-                alert("Data saved successfully.");
+                console.log("Data saved successfully in tran list.");
             },
             error: function (data) {
                 console.log(data);
