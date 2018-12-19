@@ -28,54 +28,6 @@ $(document).ready(function () {
         GetGlobalApprovalMatrix(listItemId);
     }
 });
-//function GetFormControlsValue(id, elementType, listDataArray) {
-//    var obj = '#' + id;
-//    switch (elementType) {
-//        case "text":
-//            listDataArray[id] = $(obj).val();
-//            break;
-//        case "terms":
-//            var metaObject = {
-//                __metadata: { "type": "SP.Taxonomy.TaxonomyFieldValue" },
-//                Label: $("select#" + id + ">option:selected").text(),
-//                TermGuid: $(obj).val(),
-//                WssId: -1
-//            }
-//            listDataArray[id] = metaObject;
-//            break;
-//        case "combo":
-//            listDataArray[id] = $(obj).val();
-//            break;
-//        case "multitext":
-//            listDataArray[id] = $(obj).val();
-//            break;
-//        case "date":
-//            listDataArray[id] = $(obj).val();
-//            break;
-//        case "checkbox":
-//            listDataArray[id] = $(obj)[0]['checked'];
-//            break;
-//        case "multicheckbox":
-//            var parenType = $(obj).attr('cParent');
-//            if (listDataArray[parenType] == undefined)
-//                listDataArray[parenType] = { "__metadata": { "type": "Collection(Edm.String)" }, "results": [] };
-
-//            var isChecked = $(obj)[0]['checked'];
-//            var choiceName = $(obj)[0].id;
-//            var idx = listDataArray[parenType].results.indexOf(choiceName);
-//            if (isChecked && idx == -1)
-//                listDataArray[parenType].results.push(choiceName);
-//            else if (idx > -1)
-//                listDataArray[parenType].results.splice(idx, 1);
-//            break;
-//        case "radiogroup":
-//            var parenType = $(obj).attr('cParent');
-//            listDataArray[parenType] = $(obj)[0].id;
-//            break;
-//    }
-//    return listDataArray;
-//}
-
 
 function SaveFormData() {
     var mainListName = $('#divItemCodeForm').attr('mainlistname');
@@ -272,44 +224,6 @@ function GetSetFormData() {
         }
     });
 }
-
-// function cancel() {
-//     if (returnUrl == "")
-//         returnUrl = location.pathname.substring(0, location.pathname.lastIndexOf("/"));
-//     location.href = decodeURIComponent(returnUrl);
-// }
-
-// function setFieldValue(controlId, item, fieldType, fieldName) {
-//     if (!fieldName || fieldName == "")
-//         fieldName = controlId;
-
-//     switch (fieldType) {
-//         case "text":
-//             $("#" + controlId).val(item[fieldName]).change();
-//             break;
-//         case "label":
-//             $("#" + controlId).text(item[fieldName]);
-//             break;
-//         case "terms":
-//             if (item[fieldName]) {
-//                 $("#" + controlId).val(item[fieldName].TermGuid).change()
-//             }
-//             break;
-//         case "combo":
-//             $("#" + controlId).val(item[fieldName]).change();
-//             break;
-//         case "multitext":
-//             $("#" + controlId).val(item[fieldName]).change();
-//             break;
-//         case "date":
-//             var dt = "";
-//             if (item[fieldName] && item[fieldName] != null) {
-//                 dt = new Date(item[fieldName]).format("dd-MM-yyyy");
-//                 $("#" + controlId).val(dt).change();
-//             }
-//             break;
-//     }
-// }
 
 function SaveForm() {
     var formValid = false;
