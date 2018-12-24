@@ -9,6 +9,7 @@ var mainListData = {};
 var listData = [];
 
 var sendToLevel = 0;
+var collListItem = null;
 
 $(document).ready(function () {
     listItemId = getUrlParameter("ID");
@@ -21,6 +22,9 @@ $(document).ready(function () {
     //For Temporary
     GetApproverMaster();
 
+    //Get username in LUM Delegate Dropdown
+    GetUserName();
+
     if (listItemId != null && listItemId > 0) {
         GetSetFormData();
     }
@@ -28,6 +32,55 @@ $(document).ready(function () {
         GetGlobalApprovalMatrix(listItemId);
     }
 });
+
+function GetUserName() {
+    SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
+        var clientContext = new SP.ClientContext.get_current();
+        var oList = clientContext.get_web().get_lists().getByTitle('ApproverMaster');
+        var camlQuery = new SP.CamlQuery();
+        camlQuery.set_viewXml(
+            '<View><Query><Where><Eq><FieldRef Name=\'Role\'/>' +
+            '<Value Type=\'Text\'>' + "LUM Marketing Delegate" + '</Value></Eq></Where></Query>' +
+            '<RowLimit>5000</RowLimit></View>'
+        );
+        collListItem = oList.getItems(camlQuery);
+        clientContext.load(collListItem);
+        clientContext.executeQueryAsync(
+            Function.createDelegate(this, onQuerySucceeded),
+            Function.createDelegate(this, onQueryFailed)
+        );
+    });
+}
+
+function onQuerySucceeded(sender, args) {
+
+    var listItemInfo = '';
+    var allUsers = [];
+    if (!IsNullOrUndefined(collListItem)) {
+        var listItemEnumerator = collListItem.getEnumerator();
+        while (listItemEnumerator.moveNext()) {
+            var oListItem = listItemEnumerator.get_current();
+            debugger
+            var users = oListItem.get_item('UserName');
+            if(!IsNullOrUndefined(users) && users.length != -1 ){
+                users.forEach(user => {
+                    allUsers.push({userId :user.get_lookupId(), userName : user.get_lookupValue() ,userEmail : user.get_email() })
+                });
+            }
+
+        }
+        if(!IsNullOrUndefined(allUsers) && allUsers.length >0 ){
+            allUsers.forEach(element => {
+                
+            });
+        }
+    }
+}
+
+function onQueryFailed(sender, args) {
+    alert('Request failed. ' + args.get_message() +
+        '\n' + args.get_stackTrace());
+}
 
 function SaveFormData() {
     var mainListName = $('#divItemCodeForm').attr('mainlistname');
