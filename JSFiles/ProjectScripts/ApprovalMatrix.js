@@ -20,6 +20,7 @@ function GetGlobalApprovalMatrix(id) {
                 globalApprovalMatrix = data.d.results;
                 SetSectionWiseRoles(id = 0);
                 SetApprovalMatrix(id, '');
+                setCustomApprovers(tempApproverMatrix);
                 GetButtons(id, currentUserRole, 'New');
             },
             error: function (data) {
@@ -28,6 +29,7 @@ function GetGlobalApprovalMatrix(id) {
         });
     });
 }
+
 function GetLocalApprovalMatrixData(id, mainListName) {
     $.ajax({
         url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + approverMatrixListName + "')/Items?$select=*,Approver/EMail,Approver/UserName&$expand=Approver&$filter=RequestID eq '" + id + "'&$orderby= Levels asc",
@@ -43,50 +45,67 @@ function GetLocalApprovalMatrixData(id, mainListName) {
             localApprovalMatrixdata = data.d.results;
             SetSectionWiseRoles(id);
             SetApprovalMatrix(id, mainListName);
+            setCustomApprovers(tempApproverMatrix);
         },
         error: function (data) {
             console.log(data);
         }
     });
 }
+
 function SetApprovalMatrix(id, mainListName) {
-    debugger;
     if (id > 0) {
         //set role name from globalApprovalMatrix
         GetCurrentUserRole(id, mainListName);
         GetEnableSectionNames(id);
         tempApproverMatrix = localApprovalMatrixdata;
+
     } else {
         currentUserRole = "Creator";
         //get active/inactive section name from globalApprovalMatrix
         GetEnableSectionNames(id = 0);
         tempApproverMatrix = globalApprovalMatrix;
+        tempApproverMatrix.forEach(temp => {
+            temp.RequestIDId = null;
+            temp.Status = "";
+            temp.Comments = "";
+            temp.AssignDate = null;
+            temp.DueDate = null;
+            temp.ApprovalDate = null;
+            temp.EscalationToId = null;
+            temp.EscalationOn = null;
+            temp.ApproveById = null;
+            temp.ReasonForDelay = "";
+            temp.ReasonForChange = "";
+            temp.IsHOLD = "";
+        });
+
     }
 
     GetMasterData(ApproverMasterListName);
-    var approverMaster = masterDataArray; 
+    var approverMaster = masterDataArray;
     //set status(of all levels) and approver(current)
-    if (tempApproverMatrix != null && tempApproverMatrix != undefined && tempApproverMatrix.length > 0) {
+    if (!IsNullOrUndefined(tempApproverMatrix) && tempApproverMatrix.length > 0) {
         ////Get all roles which have FillByRole = currentUserRole
         tempApproverMatrix.filter(function (t) {
-            if (t.FillByRole != undefined && t.FillByRole != null && currentUserRole != undefined && t.FillByRole == currentUserRole) {
-                if (approverMaster != null && approverMaster != undefined && approverMaster.length > 0) {
+            if (!IsNullOrUndefined(t.FillByRole) && !IsNullOrUndefined(currentUserRole) && t.FillByRole == currentUserRole) {
+                if (!IsNullOrUndefined(approverMaster) && approverMaster.length > 0) {
                     approverMaster.filter(function (a) {
                         if (t.Role == a.Role && a.UserSelection == true) {
-                            if(a.UserNameId.results.length > 0){
+                            if (a.UserNameId.results.length > 0) {
                                 a.UserNameId.results.forEach(userId => {
-                                    t.ApproverId = t.ApproverId +   userId + ",";
+                                    t.ApproverId = t.ApproverId + userId + ",";
                                 });
                             }
-                            t.ApproverId;
-                            
+                            ////Trim , from last in approverId --------Pending
+                            t.ApproverId = t.ApproverId.trim().substring(0, t.ApproverId.lastIndexOf(','));
                         }
                     });
                 }
             }
+            t.Status = "Not Assigned";
         });
     }
-
 
 }
 
@@ -133,7 +152,6 @@ function GetCurrentUserRole(id, mainListName) {
     });
 }
 
-
 function GetRoleFromApprovalMatrix(currentLevel) {
     localApprovalMatrixdata.filter(function (i) {
         if (i.ApplicationName == applicationName && i.FormName == formName && i.Levels == currentLevel) {
@@ -145,6 +163,7 @@ function GetRoleFromApprovalMatrix(currentLevel) {
         }
     });
 }
+
 function GetEnableSectionNames(id) {
     if (id == 0) {
         //get active section name
@@ -174,10 +193,10 @@ function CommonApprovalMatrix(approvalMatrix, sectionName, proposedBy, requestId
     var fillApprovalMatrix = [];
     var sectionOwner;
     $(approvalMatrix).each(function (i, e) {
-        if ($(e)[0].SectionName.results[0] != undefined && $(e)[0].SectionName.results[0].Label != '' && $(e)[0].SectionName.results[0].Label == sectionName) {
+        if (!IsNullOrUndefined($(e)[0].SectionName.results[0]) && !IsNullOrUndefined($(e)[0].SectionName.results[0].Label) && $(e)[0].SectionName.results[0].Label == sectionName) {
             sectionOwner = $(e)[0].Role;
         }
-        if ($(e)[0].FillByRole != null && $(e)[0].FillByRole == sectionOwner && $(e)[0].Role != "Viewer") {
+        if (!IsNullOrUndefined($(e)[0].FillByRole) && $(e)[0].FillByRole == sectionOwner && $(e)[0].Role != "Viewer") {
             fillApprovalMatrix.push($(e)[0]);
         }
         if ($(e)[0].Role == "Creator") {
@@ -194,11 +213,11 @@ function CommonCurrentApprovalMatrix(approvalMatrix, sectionName) {
     var fillApprovalMatrix = [];
     var sectionOwner;
     $(approvalMatrix).each(function (i, e) {
-        if ($(e)[0].SectionName.results[0] != undefined && $(e)[0].SectionName.results[0].Label != '' && $(e)[0].SectionName.results[0].Label == sectionName) {
+        if (!IsNullOrUndefined($(e)[0].SectionName.results[0]) && !IsStrNullOrEmpty($(e)[0].SectionName.results[0].Label) && $(e)[0].SectionName.results[0].Label == sectionName) {
             sectionOwner = $(e)[0].Role;
         }
-        if ($(e)[0].Role != null && $(e)[0].Role == sectionOwner) {
-            if (currentApproverList != null && currentApproverList[0].Role == sectionOwner) {
+        if (!IsNullOrUndefined($(e)[0].Role) && $(e)[0].Role == sectionOwner) {
+            if (!IsNullOrUndefined(currentApproverList) && currentApproverList[0].Role == sectionOwner) {
                 currentApproverList[0].ApproverId = currentUser.Id;
             }
         }
@@ -211,17 +230,17 @@ function GetCurrentApproverDetails(role, sectionOwner, approverMatrix) {
     var approverDetail = null;
     var roleApprovers = [];
     $(approverMatrix).each(function (i, e) {
-        if ($(e)[0].Role != undefined && $(e)[0].Role != '' && $(e)[0].FillByRole == sectionOwner && $(e)[0].Status != "Approved") {
+        if (!IsNullOrUndefined($(e)[0].Role) && $(e)[0].FillByRole == sectionOwner && $(e)[0].Status != "Approved") {
             roleApprovers.push($(e)[0]);
         }
         else {
-            if ($(e)[0].Role != undefined && $(e)[0].Role != '' && $(e)[0].FillByRole == sectionOwner)
+            if (!IsNullOrUndefined($(e)[0].Role) && $(e)[0].FillByRole == sectionOwner)
                 approverDetail = $(e)[0];
         }
     });
     $(approverMatrix).each(function (i, e) {
         $(roleApprovers).each(function (i, et) {
-            if (approverDetail == null && (($(e)[0].Levels == $(et)[0].Levels && $(e)[0].IsOptional == false && $(e)[0].Status == "Pending") || ($(e)[0].Levels == $(et)[0].Levels && $(e)[0].Status == "Approved"))) {
+            if (!IsNullOrUndefined(approverDetail) && (($(e)[0].Levels == $(et)[0].Levels && $(e)[0].IsOptional == false && $(e)[0].Status == "Pending") || ($(e)[0].Levels == $(et)[0].Levels && $(e)[0].Status == "Approved"))) {
                 if ($(e)[0].Role == sectionOwner && $(e)[0].Levels == $(et)[0].Levels)
                     approverDetail = $(e)[0];
             }
@@ -230,12 +249,12 @@ function GetCurrentApproverDetails(role, sectionOwner, approverMatrix) {
     return approverDetail;
 }
 
-function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem, mainListItem, approvalMatrixListName) {
+function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem, mainListItem, approvalMatrixListName, param) {
     var approvers = [];
     var status;
     var datas = [];
 
-    var nextApprover = '', formLevel = '', nextApproverRole = '';
+    var nextApprover = [], formLevel = '', nextApproverRole = '';
 
     var userEmail = "";
 
@@ -249,143 +268,649 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
     var nextLevel = currentLevel;
     var proposedBy = mainListItem.get_item('ProposedBy');
 
+    var sendToLevel = (!IsNullOrUndefined(param) && !IsNullOrUndefined(param["SendToLevel"])) ? param["SendToLevel"] : null;
+    var formFieldValues = [];
+
     if (isNewItem) {
-        approvalMatrix = globalApprovalMatrix;
         var sectionOwner = currentUserRole;
+        formFieldValues["ProposedBy"] = currentUser.Id;
+        ////Save CurrentApprover as Creator in tempApprovalMatrix
+        tempApproverMatrix.filter(function (temp) {
+            if (temp.Role == "Creator") {
+                temp.ApproverId = currentUser.Id;
+                temp.RequestIDId = requestId;
+            }
+        });
+
+        ////and for all other approver's status= "Not Assigned" in tempApprovalMatrix ------------ Done
+
         //  currentApproverList = GetCurrentApproverDetails(currentUserRole, sectionOwner, $(approvalMatrix));
-        fillApprovalMatrix = CommonApprovalMatrix(approvalMatrix, sectionName, proposedBy, requestId);
+        //fillApprovalMatrix = CommonApprovalMatrix(approvalMatrix, sectionName, proposedBy, requestId);
     }
     else {
-        GetLocalApprovalMatrixData(requestId, mainListName);
-        if (localApprovalMatrixdata != null && localApprovalMatrixdata.length > 0) {
-            approvalMatrix = localApprovalMatrixdata;
-            //  currentApproverList = GetCurrentApproverDetails(currentUserRole, sectionOwner, $(approvalMatrix));
-            fillApprovalMatrix = CommonApprovalMatrix(approvalMatrix, sectionName, proposedBy, requestId);
-        }
+        //GetLocalApprovalMatrixData(requestId, mainListName);
+        //if (localApprovalMatrixdata != null && localApprovalMatrixdata.length > 0) {
+        //approvalMatrix = localApprovalMatrixdata;
+        //currentApproverList = GetCurrentApproverDetails(currentUserRole, sectionOwner, $(approvalMatrix));
+        //fillApprovalMatrix = CommonApprovalMatrix(approvalMatrix, sectionName, proposedBy, requestId);
+        //}
     }
-    currentApproverList = CommonCurrentApprovalMatrix(approvalMatrix, sectionName)
-    if (fillApprovalMatrix != null) {
-        approverList = fillApprovalMatrix;
-        $(approvalMatrix).each(function (i, e) {
-            $(approverList).each(function (j, et) {
-                $(e)[0].RequestIDId = requestId;
-                if ($(et)[0].Role == $(e)[0].Role && $(et)[0].Levels != null && $(et)[0].Levels == $(e).Levels) {
-                    $(e)[0].ApproverId = ($(et)[0].ApproverId != '' && $(et)[0].ApproverId != undefined) ? $(et)[0].ApproverId : $(e)[0].ApproverId;
-                    $(e)[0].Status = ($(et)[0].Status != '' && $(et)[0].Status != undefined) ? $(et)[0].Status : $(e)[0].Status;
-                    if ($(et)[0].Role == $(e)[0].Role && $(et)[0].Levels != null && $(et)[0].Levels == $(e).Levels)
-                        $(e)[0].Comments = ($(et)[0].Comments != '' && $(et)[0].Comments != undefined) ? $(et)[0].Comments : $(e)[0].Comments;
-                }
-                else {
-                    if ($(et)[0].Role == $(e)[0].Role) {
-                        $(e)[0].ApproverId = ($(et)[0].ApproverId != '' && $(et)[0].ApproverId != undefined) ? $(et)[0].ApproverId : $(e)[0].ApproverId;
-                        $(e)[0].Status = ($(et)[0].Status != '' && $(et)[0].Status != undefined) ? $(et)[0].Status : $(e)[0].Status;
-                        if ($(et)[0].Role == $(e)[0].Role && $(et)[0].Levels != null && $(et)[0].Levels == $(e).Levels)
-                            $(e)[0].Comments = ($(et)[0].Status != '' && $(et)[0].Comments != undefined) ? $(et)[0].Comments : $(e)[0].Comments;
+
+    ////Update status of all approvers in tempapprovalmatrix
+    var actionperformed = buttonActionStatus;
+    UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previousLevel, actionperformed);
+
+    ////Set NextApprover and NextApproverRole
+    if (!IsNullOrUndefined(tempApproverMatrix) && tempApproverMatrix.length > 0) {
+        ////set RequestID for all Roles
+        tempApproverMatrix.forEach(t => {
+            t.RequestIDId = requestId;
+        });
+
+        if (actionperformed != "Send Back" && actionperformed != "Forward" && tempApproverMatrix.some(t => t.Levels != currentLevel)) {
+            ////Get Next Level
+            var nextLevelRow = tempApproverMatrix.sort(t => t.Levels).filter(function (temp) {
+                return (temp.Status != "Not Required" && !IsNullOrUndefined(temp.ApproverId) && temp.Levels > currentLevel);
+            })[0];
+            nextLevel = (!IsNullOrUndefined(nextLevelRow)) ? nextLevelRow.Levels : nextLevel;
+
+            var listofNextApprovers = tempApproverMatrix.filter(temp => temp.Levels == nextLevel);
+
+            listofNextApprovers.forEach(next => {
+                if (!IsNullOrUndefined(next.ApproverId) && !IsStrNullOrEmpty(next.ApproverId)) {
+                    if (nextApprover == '') {
+                        nextApproverRole = next.Role;
+                        nextApprover = next.ApproverId;
+                    } else {
+                        if (nextApprover.indexOf(next.ApproverId) == -1) // !Contains
+                        {
+                            nextApproverRole = nextApproverRole.trim() + "," + next.Role;
+                            nextApprover = nextApprover.trim() + "," + next.ApproverId;
+                        }
                     }
                 }
             });
-        });
+        }
+        else {
+            if (actionPerformed == "NextApproval" || actionPerformed == "Delegate") {
+                var approvers = tempApproverMatrix.sort(a => a.Levels).filter(a => a.Levels > currentLevel && !IsStrNullOrEmpty(a.ApproverId) && !IsNullOrUndefined(a.ApproverId) && a.Status != "Not Required")[0];
+                if (!IsNullOrUndefined(approvers)) {
+                    var listofNextApprovers = tempApproverMatrix.filter(temp => (temp.Levels == nextLevel && temp.Status == "Pending"));
+
+                    listofNextApprovers.forEach(next => {
+                        if (!IsNullOrUndefined(next.ApproverId) && !IsStrNullOrEmpty(next.ApproverId)) {
+                            if (nextApprover == '') {
+                                nextApproverRole = next.Role;
+                                nextApprover = next.ApproverId;
+                            }
+                            else {
+                                if (nextApprover.indexOf(next.ApproverId) == -1) {
+
+                                    debugger;
+                                    if (nextApproverRole.lastIndexOf(',') != -1) {
+                                        nextApproverRole = nextApproverRole.trim().substring(0, nextApproverRole.lastIndexOf(','))
+                                    }
+                                    if (nextApproverRole.lastIndexOf(',') != -1) {
+                                        nextApprover = nextApprover.trim().substring(0, nextApprover.lastIndexOf(','))
+                                    }
+
+                                    ///////////// TRIM is PENDING
+                                    nextApproverRole = nextApproverRole.trim() + "," + next.Role;
+                                    nextApprover = nextApprover.trim() + "," + next.ApproverId;
+                                }
+                            }
+                        }
+                    });
+                }
+                currentLevel = previousLevel;
+            }
+        }
+        if (actionperformed == "SendBack" && !IsNullOrUndefined(sendToLevel)) {
+            nextLevel = sendToLevel;
+            var listofNextApprovers = tempApproverMatrix.filter(temp => (temp.Levels == nextLevel && temp.Status == "Pending"));
+            nextApprover = '';
+            listofNextApprovers.each(next => {
+                if (!IsNullOrUndefined(next.ApproverId) && !IsStrNullOrEmpty(next.ApproverId)) {
+                    if (nextApprover == []) {
+                        nextApproverRole = next.Role;
+                        nextApprover = next.ApproverId;
+                    }
+                    else {
+                        if (nextApprover.indexOf(next.ApproverId) == -1) {
+                            debugger;
+                            if (nextApproverRole.lastIndexOf(',') != -1) {
+                                nextApproverRole = nextApproverRole.trim().substring(0, nextApproverRole.lastIndexOf(','))
+                            }
+                            if (nextApproverRole.lastIndexOf(',') != -1) {
+                                nextApprover = nextApprover.trim().substring(0, nextApprover.lastIndexOf(','))
+                            }
+                            ///////////// TRIM is PENDING
+                            nextApproverRole = nextApproverRole.trim(',') + "," + next.Role;
+                            nextApprover = nextApprover.trim(',') + "," + next.ApproverId;
+                        }
+                    }
+                }
+
+            });
+        }
+        if (actionperformed == "SendForward" && !IsNullOrUndefined(sendToLevel)) {
+            nextLevel = sendToLevel;
+            var approvers = tempApproverMatrix.sort(a => a.Levels).filter(a => a.Levels >= nextLevel && !IsStrNullOrEmpty(a.ApproverId) && !IsNullOrUndefined(a.ApproverId))[0];
+            if (!IsNullOrUndefined(approvers)) {
+                nextLevel = approvers.Levels;
+                var listofNextApprovers = tempApproverMatrix.filter(temp => !IsNullOrUndefined(temp.ApproverId) && !IsStrNullOrEmpty(temp.ApproverId) && temp.Levels == nextLevel);
+                nextApprover = '';
+                listofNextApprovers.forEach(next => {
+                    if (!IsNullOrUndefined(next.ApproverId) && !IsStrNullOrEmpty(next.ApproverId)) {
+                        if (nextApprover == '') {
+                            nextApproverRole = next.Role;
+                            nextApprover = next.ApproverId;
+                        }
+                        else {
+                            if (nextApprover.indexOf(next.ApproverId) == -1) {
+
+                                ///////////// TRIM is PENDING
+                                nextApproverRole = nextApproverRole + "," + next.Role;
+                                nextApprover = nextApprover.trim() + "," + next.ApproverId;
+                            }
+                        }
+                    }
+                });
+            }
+        }
     }
 
-    if (approvalMatrix != null) {
-        userIDs = currentUser.Id;
-        $(approvalMatrix).each(function (i, e) {
-            if ($(e)[0].Role == "Viewer" && (userIDs != '' && userIDs != undefined)) {
-                if ($(e).ApproverId == '' || $(e)[0].ApproverId == null || $(e)[0].ApproverId == undefined) {
-                    $(e)[0].ApproverId = userIDs;
+    var makeAllUsersViewer = false;
+    var isTaskAssignMailSend = false;
+    switch (actionperformed) {
+        case "SaveAsDraft":
+            nextLevel = currentLevel;
+            currentLevel = previousLevel;
+            formFieldValues['Status'] = "Draft";
+            formFieldValues['NextApprover'] = currentUserId;
+            break;
+        case "SaveAndStatusUpdate":
+        case "SaveAndStatusUpdateWithEmail":
+        case "ConfirmSave":
+            formFieldValues['Status'] = "Save";
+            break;
+        case "Save":
+            formFieldValues['Status'] = "Save";
+            makeAllUsersViewer = true;
+            break;
+        case "Submit":
+            nextLevel = currentLevel;
+            currentLevel = previousLevel;
+            formFieldValues['Status'] = "Submitted";
+            makeAllUsersViewer = true;
+            break;
+        case "Hold":
+            formFieldValues['Status'] = "Hold";
+            formFieldValues['HoldDate'] = new Date().toLocaleDateString();
+            formFieldValues['LastActionBy'] = currentUser.Id;
+            formFieldValues['LastActionByRole'] = currentUserRole;
+            formFieldValues['PendingWith'] = currentUserRole;
+            break;
+        case "Resume":
+            formFieldValues['Status'] = "Submitted";
+            formFieldValues['LastActionBy'] = currentUser.Id;
+            formFieldValues['LastActionByRole'] = currentUserRole;
+            formFieldValues['PendingWith'] = currentUserRole;
+            break;
+        case "UpdateAndRepublish":
+            nextLevel = currentLevel;
+            currentLevel = previousLevel;
+            formFieldValues['Status'] = "Update & Republish";
+            break;
+        case "Reschedule":
+            nextLevel = currentLevel;
+            currentLevel = previousLevel;
+            formFieldValues['Status'] = "Re-Scheduled";
+            formFieldValues['IsReschedule'] = false;
+            break;
+        case "ReadyToPublish":
+            nextLevel = currentLevel;
+            currentLevel = previousLevel;
+            formFieldValues['Status'] = "Ready to Publish";
+            break;
+        case "Delegate":
+        case "NextApproval":
+            formFieldValues['LastActionPerformed'] = actionperformed;
+            formFieldValues['LastActionBy'] = currentUser.Id;
+            formFieldValues['LastActionByRole'] = currentUserRole;
+            formFieldValues['PendingWith'] = nextApproverRole;
+            if (!IsNullOrUndefined(nextApprover) && !IsStrNullOrEmpty(nextApprover)) {
+                formFieldValues['NextApprover'] = nextApprover;
+                formFieldValues['FormLevel'] = currentLevel + "|" + nextLevel;
+                formFieldValues['ApprovalStatus'] = "In Progress";
+                formFieldValues['Status'] = "Submitted";
+            }
+            else {
+                nextLevel = currentLevel;
+                formFieldValues['NextApprover'] = '';
+                formFieldValues['FormLevel'] = currentLevel + "|" + currentLevel;
+                formFieldValues['ApprovalStatus'] = "Completed";
+                formFieldValues['Status'] = "Completed";
+                makeAllUsersViewer = true;
+                isTaskAssignMailSend = true;
+            }
+            break;
+        case "BackToCreator":
+            formFieldValues['LastActionPerformed'] = actionperformed;
+            formFieldValues['LastActionBy'] = currentUser.Id;
+            formFieldValues['LastActionByRole'] = currentUserRole;
+            formFieldValues['PendingWith'] = nextApproverRole;
+            formFieldValues['NextApprover'] = '';
+            formFieldValues['FormLevel'] = currentLevel + "|" + nextLevel;
+            formFieldValues['Status'] = "Sent Back";
+            break;
+        case "Cancel":
+            nextLevel = currentLevel;
+            currentLevel = previousLevel;
+            makeAllUsersViewer = true;
+            formFieldValues['NextApprover'] = '';
+            formFieldValues['PendingWith'] = '';
+            formFieldValues['Status'] = "Cancelled";
+            break;
+        case "Rejected":
+            nextLevel = currentLevel;
+            currentLevel = previousLevel;
+            makeAllUsersViewer = true;
+            formFieldValues['Status'] = "Rejected";
+            formFieldValues['NextApprover'] = '';
+            formFieldValues['PendingWith'] = '';
+            break;
+        case "Complete":
+            formFieldValues['ApprovalStatus'] = "Completed";
+            formFieldValues['Status'] = "Completed";
+            formFieldValues['FormLevel'] = currentLevel + "|" + currentLevel;
+            formFieldValues['NextApprover'] = '';
+            formFieldValues['PendingWith'] = '';
+            makeAllUsersViewer = true;
+            isTaskAssignMailSend = true;
+            break;
+        case "SendBack":
+            formFieldValues['LastActionPerformed'] = actionperformed;
+            if (!IsNullOrUndefined(sendToLevel)) {
+                formFieldValues['NextApprover'] = nextApprover;
+                formFieldValues['LastActionBy'] = currentUser.Id;
+                formFieldValues['LastActionByRole'] = currentUserRole;
+                formFieldValues['PendingWith'] = nextApproverRole;
+                formFieldValues['FormLevel'] = currentLevel + "|" + nextLevel;
+                formFieldValues['Status'] = "Sent Back";
+            }
+            break;
+        case "RestartToUpdate":
+            // Since it is restart case so we need to reset currlevel = 0 ;
+            currentLevel = 0;
+            formFieldValues['LastActionPerformed'] = actionPerformed;
+            formFieldValues['NextApprover'] = nextApprover;
+            formFieldValues['LastActionBy'] = currentUser.Id;
+            formFieldValues['LastActionByRole'] = currentUserRole;
+            formFieldValues['PendingWith'] = nextApproverRole;
+            formFieldValues['FormLevel'] = currentLevel + "|" + nextLevel;
+            formFieldValues['Status'] = "Submitted";
+            break;
+        case "SendForward":
+            formFieldValues = { 'LastActionPerformed': actionPerformed };
+            if (!IsNullOrUndefined(sendToLevel)) {
+                nextLevel = sendToLevel;
+                formFieldValues['LastActionBy'] = currentUser.Id;
+                formFieldValues['LastActionByRole'] = currentUserRole;
+                formFieldValues['PendingWith'] = nextApproverRole;
+                if (!IsNullOrUndefined(nextApprover) && !IsStrNullOrEmpty(nextApprover)) {
+                    formFieldValues['NextApprover'] = nextApprover;
+                    formFieldValues['FormLevel'] = currentLevel + "|" + nextLevel;
+                    formFieldValues['ApprovalStatus'] = "In Progress";
+                    formFieldValues['Status'] = "Submitted";
                 }
                 else {
-                    $(e)[0].ApproverId = $(e)[0].ApproverId + "," + userIDs;
+                    //Complete if no approver found
+                    formFieldValues['NextApprover'] = nextApprover;
+                    formFieldValues['FormLevel'] = currentLevel + "|" + nextLevel;
+                    formFieldValues['ApprovalStatus'] = "In Progress";
+                    formFieldValues['Status'] = "Submitted";
+                    makeAllUsersViewer = true;
+                    isTaskAssignMailSend = true;
                 }
-                $(e)[0].ApproverId = $(e)[0].ApproverId;
             }
-        });
+            break;
+        default:
+            nextLevel = currentLevel;
+            currentLevel = previousLevel;
+            break;
     }
-    if (currentApproverList != null) {
-        $(approvalMatrix).each(function (i, e) {
-            if ($(e)[0].Role == currentApproverList[0].Role) {
-                if (currentApproverList[0].Comments != undefined && currentApproverList[0].Comments != '') {
-                    if (currentApproverList[0].Levels != undefined && currentApproverList[0].Levels != '') {
-                        if ($(e)[0].Role == currentApproverList[0].Role && $(e)[0].Levels == currentApproverList[0].Levels) {
-                            $(e)[0].Comments = currentApproverList[0].Comments;
-                        }
-                    }
-                    else {
-                        if ($(e)[0].Role == currentApproverList[0].Role) {
-                            $(e)[0].Comments = currentApproverList[0].Comments;
-                        }
-                    }
-                }
-                if (currentApproverList[0].ApproverId != undefined && currentApproverList[0].ApproverId != '') {
-                    if ($(e)[0].Role == currentApproverList[0].Role) {
-                        $(e)[0].ApproverId = currentApproverList[0].ApproverId;
-                    }
-                }
-                if (currentApproverList[0].ReasonForChange != undefined && currentApproverList[0].ReasonForChange != '') {
-                    if ($(e)[0].Role == currentApproverList[0].Role) {
-                        $(e)[0].ReasonForChange = currentApproverList[0].ReasonForChange;
-                    }
-                }
-                if (currentApproverList[0].ReasonForDelay != undefined && currentApproverList[0].ReasonForDelay != '') {
-                    if ($(e)[0].Role == currentApproverList[0].Role) {
-                        $(e)[0].ReasonForDelay = currentApproverList[0].ReasonForDelay;
-                    }
-                }
-                if (currentApproverList[0].Files != undefined && currentApproverList[0].Files != '' && currentApproverList[0].Files != null && currentApproverList[0].Files.length > 0) {
-                    if ($(e)[0].Role == currentApproverList[0].Role && $(e)[0].Files == null) {
-                        $(e)[0].Files = [];
-                    }
-                    else {
-                        if ($(e)[0].Role == currentApproverList[0].Role) {
-                            $(e)[0].Files = currentApproverList[0].Files;
-                        }
-                    }
-                }
-            }
-        });
+
+    if (!IsNullOrUndefined(formFieldValues)) {
+        if (!IsNullOrUndefined(formFieldValues["Status"]) && !IsStrNullOrEmpty(formFieldValues["Status"])) {
+            UpdateWorkflowStatus(formFieldValues);
+        }
+
+        ////saveFormFields in Main List
+        SaveFormFields(formFieldValues, requestId);
     }
-    if (approvalMatrixListName != null) {
-        $(approvalMatrix).each(function (i, e) {
-            if ($(e)[0].Role != undefined && $(e)[0].ApproverId != undefined) {
-                var userRole = $(e)[0].Role.replace(/\s+/g, '');
-                if ($(e)[0].Levels == currentLevel && $(e)[0].Status == "Not Assigned") {
-                    $(e)[0].Status = "Pending";
-                    $(e)[0].DueDate = new Date();
-                    $(e)[0].AssignDate = new Date();
+
+    ////save attachment
+
+    ////save activity log
+
+    ////set permission 
+    var userWithRoles = GetPermissionDictionary(tempApproverMatrix, nextLevel, makeAllUsersViewer);
+    SetItemPermission(requestId, ItemCodeProProcessListName, userWithRoles);
+
+
+    ////save approval matrix in list
+    SaveApprovalMatrixInList(tempApproverMatrix, approvalMatrixListName, isNewItem);
+
+    ////send mail
+
+}
+
+function SetItemPermission(requestId, ItemCodeProProcessListName, userWithRoles) {
+    debugger
+    var permissionAssigned = false;
+    if (!IsNullOrUndefined(userWithRoles)) {
+        SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
+            var clientContext = new SP.ClientContext.get_current();
+            var oList = clientContext.get_web().get_lists().getByTitle(ItemCodeProProcessListName);
+
+            var oListItem = oList.getItemById(requestId);
+            //var oUser = clientContext.get_web().ensureUser(i.Approver.results[0].EMail);
+            //this.oUser = clientContext.get_web().get_siteUsers().getByLoginName('DOMAIN\\alias');
+
+            oListItem.resetRoleInheritance();
+            oListItem.breakRoleInheritance(false, true); // break role inheritance first!
+
+            var roleDefBindingColl = null;
+
+            userWithRoles.forEach((element) => {
+                try {
+                    roleDefBindingColl = SP.RoleDefinitionBindingCollection.newObject(clientContext);
+                    var userIds = element.user;
+                    var permission = element.permission;
+                    if (!IsNullOrUndefined(userIds) && !IsStrNullOrEmpty(userIds) && !IsNullOrUndefined(permission) && !IsStrNullOrEmpty(permission)) {
+
+                        //split users and remove ,
+                        if (userIds.toString().indexOf(',') == 0) {
+                            userIds = userIds.substring(1);
+                            if (userIds.toString().indexOf(',') != -1 && userIds.toString().lastIndexOf(',') == userIds.toString().length - 1) {
+                                userIds = userIds.substring(userIds.toString().lastIndexOf(','))[0];
+                            }
+                        }
+                        var users = [];
+                        if (!IsNullOrUndefined(userIds) && !IsStrNullOrEmpty(userIds)) {
+                            var a = (userIds.toString().indexOf(',') != -1) ? userIds.split(',') : parseInt(userIds);
+
+                            if (!IsNullOrUndefined(a)) {
+                                if (a.length == undefined) {
+                                    users.push(a);
+                                } else {
+                                    a.forEach(element => {
+                                        users.push(parseInt(element));
+                                    });
+                                }
+                            }
+                        }
+
+                        users.forEach(user => {
+                            this.oUser = clientContext.get_web().getUserById(user);
+                            // if (permission == "Read") {
+                            roleDefBindingColl.add(clientContext.get_web().get_roleDefinitions().getByName(permission));
+                            // }
+                            // else if (permission == "Contribute") {
+                            //     roleDefBindingColl.add(clientContext.get_web().get_roleDefinitions().getByType(SP.RoleType.contributor));
+                            // }
+                            oListItem.get_roleAssignments().add(this.oUser, roleDefBindingColl);
+                            clientContext.load(oUser);
+                            clientContext.load(oListItem);
+                            clientContext.executeQueryAsync(Function.createDelegate(this, this.onQuerySucceeded), Function.createDelegate(this, this.onQueryFailed));
+                        });
+                    }
+
+                } catch (exc) {
+                    debugger
+                    console.log(exc);
                 }
-            }
+            });
+
+
         });
     }
 
+}
+
+
+function GetPermissionDictionary(tempApproverMatrix, nextLevel, isAllUserViewer) {
+    var permissions = [];
+    if (!IsNullOrUndefined(tempApproverMatrix) && tempApproverMatrix.length > 0) {
+        var strReader = '';
+        var strContributer = '';
+        tempApproverMatrix.forEach(temp => {
+            if (!IsNullOrUndefined(temp.ApproverId)) {
+                // if (permissions.filter(k = k.key == temp.ApproverId).length == 0) {
+                if (temp.Levels == nextLevel && temp.Status == "Pending") //ApproverStatus.PENDING)
+                {
+                    /* All users 
+                     * 1) who are pending on current level
+                     */
+                    if (strContributer.indexOf(temp.ApproverId) == -1) {
+                        // strContributer = strContributer.Trim(',') + "," + p.Approver;
+                        strContributer = strContributer.trim() + "," + temp.ApproverId;
+                    }
+                }
+                ////Phase 2 :All members who will be in the DCR Process should be able to know the status of all DCR/DCN. 
+                //// else if (Convert.ToInt32(p.Levels) <= preLevel || (p.Levels == curLevel.ToString() && p.Status != ApproverStatus.PENDING))
+                else if (temp.Status != "Pending")//ApproverStatus.PENDING)
+                {
+                    /* All users 
+                     * 1) who are less then previous level
+                     * 2) who are not pending on current level
+                     */
+                    if (strReader.indexOf(temp.ApproverId) == -1) {
+                        strReader = strReader.trim() + "," + temp.ApproverId;
+                    }
+                }
+                // }
+            }
+        });
+
+        if (strReader.trim() == strContributer.trim()) {
+            // permissions.push(strContributer.trim(), isAllUserViewer ? SharePointPermission.READER : SharePointPermission.CONTRIBUTOR);
+            var user = strContributer.trim();
+            var permission = isAllUserViewer ? 'Read' : 'Contribute';
+            // var array = [{user: "21,22", permission : "Read"}]
+
+            permissions.push({ user: user, permission: permission });
+        }
+        else {
+            if (isAllUserViewer) {
+                //permissions.Add(strReader.Trim(',') + "," + strContributer.Trim(','), SharePointPermission.READER);
+                var user = strReader.trim() + "," + strContributer.trim();
+                var permission = 'Read';
+                permissions.push({ user: user, permission: permission });
+            }
+            else {
+                var user = strReader.trim();
+                var permission = 'Read';
+                permissions.push({ user: user, permission: permission });
+
+                var user1 = strContributer.trim();
+                var permission1 = isAllUserViewer ? 'Read' : 'Contribute';
+                permissions.push({ user: user1, permission: permission1 });
+            }
+        }
+    }
+    return permissions;
+}
+
+function SaveApprovalMatrixInList(tempApproverMatrix, approvalMatrixListName, isNewItem) {
+    if (isNewItem) {
+        tempApproverMatrix.forEach(temp => {
+            ////For multiUser field of sharepoint list
+            var approverResults = [];
+            if (!IsNullOrUndefined(temp.ApproverId) && !IsStrNullOrEmpty(temp.ApproverId)) {
+                var a = (temp.ApproverId.toString().indexOf(',') != -1) ? temp.ApproverId.split(',') : parseInt(temp.ApproverId);
+
+                if (!IsNullOrUndefined(a)) {
+                    if (a.length == undefined) {
+                        approverResults.push(a);
+                    } else {
+                        a.forEach(element => {
+                            approverResults.push(parseInt(element));
+                        });
+                    }
+                }
+            }
+            $.ajax({
+                url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + approvalMatrixListName + "')/items",
+                type: "POST",
+                data: JSON.stringify
+                    ({
+                        __metadata: {
+                            type: GetItemTypeForListName(approvalMatrixListName)
+                        },
+                        ApplicationName: temp.ApplicationName.Label,
+                        FormName: temp.FormName.Label,
+                        SectionName: (!IsNullOrUndefined(temp.SectionName) && !IsNullOrUndefined(temp.SectionName.results) && temp.SectionName.results.length > 0) ? temp.SectionName.results[0].Label : '',
+                        //HiddenSection : temp.HiddenSection.results[0],
+                        Levels: parseInt(temp.Levels),
+                        Role: temp.Role,
+                        Days: parseInt(temp.Days),
+                        IsAutoApproval: temp.IsAutoApproval,
+                        FillByRole: temp.FillByRole,
+                        Division: temp.Division,
+                        //SubDivision : 
+                        ApproverId: { "results": approverResults },
+                        Status: temp.Status.toString(),
+                        Comments: temp.Comments.toString(),
+                        AssignDate: temp.AssignDate,
+                        DueDate: temp.DueDate,
+                        ApprovalDate: temp.ApprovalDate,
+                        IsEscalate: temp.IsEscalate,
+                        //EscalationToId: temp.EscalationToId,
+                        //EscalationOn: temp.EscalationOn,
+                        ApproveById: temp.ApproveById,
+                        IsOptional: temp.IsOptional,
+                        FormType: temp.FormType,
+                        ReasonForDelay: temp.ReasonForDelay.toString(),
+                        ReasonForChange: temp.ReasonForChange.toString(),
+                        IsReminder: temp.IsReminder,
+                        IsHOLD: temp.IsHOLD.toString(),
+                        RequestIDId: parseInt(temp.RequestIDId),
+
+                        //ApproverStringId:,
+                        //Attachments: false,
+                        //EscalationDays: temp.EscalationDays,
+                        //EscalationToId: temp.EscalationToId,
+                        //IsAutoRejection: temp.IsAutoRejection,
+                        //Reminder: null,
+                    }),
+                headers:
+                    {
+                        "Accept": "application/json;odata=verbose",
+                        "Content-Type": "application/json;odata=verbose",
+                        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+                        "X-HTTP-Method": "POST"
+                    },
+                success: function (data, status, xhr) {
+                    console.log("Item saved Successfully");
+                },
+                error: function (data, status, error) {
+                    debugger
+                    console.log(data);
+                }
+            });
+        });
+
+    }
+    else {
+
+    }
+}
+
+function SaveFormFields(formFieldValues, requestId) {
+
+    //For multiUser field of sharepoint list
+    var nextResults = [];
+    if (!IsNullOrUndefined(formFieldValues["NextApprover"]) && formFieldValues["NextApprover"].length > 0) {
+        var a = (formFieldValues["NextApprover"].indexOf(',') != -1 ? formFieldValues["NextApprover"].split(',') : formFieldValues["NextApprover"]);
+
+        if (!IsNullOrUndefined(a)) {
+            a.forEach(element => {
+                nextResults.push(parseInt(element));
+            });
+        }
+    }
+
+
     $.ajax({
-        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + approvalMatrixListName + "')/Items?$select=*,Approver/EMail,Approver/UserName&$expand=Approver&$filter=RequestID eq '" + requestId + "'&$orderby= Levels asc",
-        type: "GET",
-        async: false,
+        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ItemCodeProProcessListName + "')/items(" + requestId + ")",
+        type: "POST",
+        data: JSON.stringify
+            ({
+                __metadata: {
+                    type: GetItemTypeForListName(ItemCodeProProcessListName)
+                },
+                FormLevel: formFieldValues["FormLevel"].toString(),
+                NextApproverId: { "results": nextResults },
+                LastActionBy: formFieldValues["LastActionBy"].toString(),
+                LastActionByRole: formFieldValues["LastActionByRole"].toString(),
+                PendingWith: formFieldValues["PendingWith"].toString(),
+                Status: formFieldValues["Status"].toString(),
+                WorkflowStatus: formFieldValues["WorkflowStatus"].toString()
+                //ApprovalStatus : formFieldValues["ApprovalStatus"],
+                //LastActionPerformed : formFieldValues["LastActionPerformed"],
+                //IsReschedule: formFieldValues["IsReschedule"],
+            }),
         headers:
             {
                 "Accept": "application/json;odata=verbose",
                 "Content-Type": "application/json;odata=verbose",
-                "X-RequestDigest": $("#__REQUESTDIGEST").val()
-            },
-        success: function (data) {
-            SetFormLevel(requestId, mainListName, localApprovalMatrixdata);
-        },
-        error: function (data) {
+                "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+                "IF-MATCH": "*",
+                "X-Http-Method": "MERGE", //PATCH
 
+            },
+        success: function (data, status, xhr) {
+            console.log("Item saved Successfully");
+        },
+        error: function (data, status, error) {
+            debugger
             console.log(data);
         }
     });
 }
 
+function UpdateWorkflowStatus(formFieldValues) {
+    var wfStatus = '';
+    var formStatus = formFieldValues["Status"];
+    var pendingWithRole = (!IsNullOrUndefined(formFieldValues["PendingWith"])) ? formFieldValues["PendingWith"] : '';
+    var lastActionByRole = (!IsNullOrUndefined(formFieldValues["LastActionByRole"])) ? formFieldValues["LastActionByRole"] : '';
+    if (!IsNullOrUndefined(formStatus) && !IsStrNullOrEmpty(formStatus)) {
+        switch (formStatus) {
+            case "Submitted":
+                wfStatus = "Pending With " + pendingWithRole;
+                break;
+            case "Sent Back":
+                wfStatus = "Sent back by " + lastActionByRole;
+                break;
+            default:
+                wfStatus = formStatus;
+                break;
+        }
+    }
+    formFieldValues['WorkflowStatus'] = wfStatus;
+}
+
 function SetSectionWiseRoles(id) {
     if (id == 0) {
         ////Get data from global approval matrix
-        if (globalApprovalMatrix != null && globalApprovalMatrix != undefined && globalApprovalMatrix.length > 0) {
+        if (!IsNullOrUndefined(globalApprovalMatrix) && globalApprovalMatrix.length > 0) {
             ////Compare by Section Name
             globalApprovalMatrix.filter(function (g) {
                 $('#divItemCodeForm div').each(function () {
                     var divSection = $(this).attr('section');
-                    if (divSection != undefined && g.SectionName != undefined && g.SectionName.results[0] != undefined && g.SectionName.results[0].Label != undefined && g.SectionName.results[0].Label == divSection) {
+                    if (!IsNullOrUndefined(divSection) && !IsNullOrUndefined(g.SectionName) && !IsNullOrUndefined(g.SectionName.results[0]) && !IsNullOrUndefined(g.SectionName.results[0].Label) && g.SectionName.results[0].Label == divSection) {
                         //// if section name are same, get Role and FillByRole
                         $(this).attr('sectionOwner', g.Role);
                         $(this).attr('FillByRole', g.FillByRole);
@@ -395,12 +920,12 @@ function SetSectionWiseRoles(id) {
         }
     } else if (id > 0) {
         ////Get data from local approval matrix
-        if (localApprovalMatrixdata != null && localApprovalMatrixdata != undefined && localApprovalMatrixdata.length > 0) {
+        if (!IsNullOrUndefined(localApprovalMatrixdata) && localApprovalMatrixdata.length > 0) {
             ////Compare by Section Name
             localApprovalMatrixdata.filter(function (l) {
                 $('#divItemCodeForm div').each(function () {
                     var divSection = $(this).attr('section');
-                    if (divSection != undefined && l.SectionName != undefined && l.SectionName.results[0] != undefined && l.SectionName.results[0].Label != undefined && l.SectionName.results[0].Label == divSection) {
+                    if (!IsNullOrUndefined(divSection) && !IsNullOrUndefined(l.SectionName) && !IsNullOrUndefined(l.SectionName.results[0]) && !IsNullOrUndefined(l.SectionName.results[0].Label) && l.SectionName.results[0].Label == divSection) {
                         //// if section name are same, get Role and FillByRole
                         $(this).attr('sectionOwner', l.Role);
                         $(this).attr('FillByRole', l.FillByRole);
@@ -409,4 +934,76 @@ function SetSectionWiseRoles(id) {
             });
         }
     }
+}
+
+function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previousLevel, actionperformed) {
+    if (!IsNullOrUndefined(tempApproverMatrix) && tempApproverMatrix.length > 0 && !IsNullOrUndefined(currentUser.Id)) {
+
+        if (currentLevel != previousLevel) {
+            var currentUserId = currentUser.Id;
+            var nextLevel = currentLevel;
+
+            switch (actionperformed) {
+                case actionperformed = 'Delegate':
+                case actionperformed = 'NextApproval':
+                    tempApproverMatrix.filter(function (temp) {
+                        ////right now searched by user Id, it may requires to check by name 
+                        if (!IsNullOrUndefined(temp.ApproverId) && temp.Levels == currentLevel && temp.ApproverId.toString().includes(currentUserId)) {
+                            temp.Status = "Approved";  ////ApproverStatus.APPROVED;  -----Gives error as not defined
+                        }
+                    });
+                    ////Get Next Level
+                    var nextLevelRow = tempApproverMatrix.sort(t => t.Levels).filter(function (temp) {
+                        return (temp.Status != "Not Required" && !IsNullOrUndefined(temp.ApproverId) && temp.Levels > currentLevel);
+                    })[0];
+
+                    nextLevel = (!IsNullOrUndefined(nextLevelRow)) ? nextLevelRow.Levels : nextLevel;
+
+                    var dueDate = null;
+                    tempApproverMatrix.forEach(temp => {
+                        if (!IsNullOrUndefined(temp.ApproverId) && temp.Levels == currentLevel && temp.ApproverId.toString().includes(currentUserId)) {
+                            temp.ApproveById = currentUserId;
+                            temp.ApprovalDate = new Date().format("yyyy-MM-ddTHH:mm:ssZ");
+                            temp.Status = "Approved";
+                        }
+                        else if (temp.Levels == nextLevel && (temp.Status != "Approved" && temp.Status != "Not Required")) {
+                            temp.DueDate = GetDueDate(new Date(), parseInt(temp.Days));
+                            temp.AssignDate = new Date().format("yyyy-MM-ddTHH:mm:ssZ");
+                            temp.Status = "Pending";
+                        }
+                        else if (temp.Levels > nextLevel && temp.Status != "Not Required") {
+                            temp.Status = "Not Assigned";
+                            temp.AssignDate = null;
+                            temp.DueDate = null;
+                            temp.Comments = '';
+                        }
+                    });
+            }
+        }
+    }
+}
+
+function GetDueDate(startDate, days) {
+    ////Count from Next Day
+    startDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000);
+    for (var i = 0; i < days; i++) {
+        var date = new Date(startDate.getTime() + (i * 24 * 60 * 60 * 1000));
+        var day = date.getDay();
+        switch (day) {
+            //case DayOfWeek.Saturday:
+            //case DayOfWeek.Sunday:
+            case 6:
+            case 0:
+                days++;
+                break;
+            default:
+                // if (holidays.Contains(date.ToString("dd/MM")))
+                // {
+                //days++;
+                //}
+                break;
+        }
+    }
+    dueDate = new Date(startDate.getTime() + ((days - 1) * 24 * 60 * 60 * 1000)).format("yyyy-MM-ddTHH:mm:ssZ");
+    return dueDate;
 }

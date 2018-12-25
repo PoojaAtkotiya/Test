@@ -17,7 +17,7 @@ function GetAllMasterData() {
 
 function GetMasterData(masterlistname) {
     masterDataArray = null;
-    if (masterlistname != undefined && masterlistname != '' && masterlistname != null) {
+    if (!IsNullOrUndefined(masterlistname) && masterlistname != '') {
         $.ajax
             ({
                 url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('" + masterlistname + "')/items",
@@ -30,7 +30,7 @@ function GetMasterData(masterlistname) {
                         "X-RequestDigest": $("#__REQUESTDIGEST").val()
                     },
                 success: function (data) {
-                    if (data != null && data != undefined && data.d != null && data.d.results != null) {
+                    if (!IsNullOrUndefined(data) && !IsNullOrUndefined(data.d) && !IsNullOrUndefined(data.d.results)) {
                         var result = data.d.results;
                         masterDataArray = result;
                         $('input[listname*=' + masterlistname + '],select[listname*=' + masterlistname + ']').each(function () {
@@ -38,12 +38,13 @@ function GetMasterData(masterlistname) {
                             var elementType = $(this).attr('controlType');
                             var valueBindingColumn = $(this).attr('valuebindingcolumn');
                             var textBindingColumnn = $(this).attr('textbindingcolumnn');
+
                             switch (elementType) {
                                 case "combo":
                                     $("#" + elementId).html('');
                                     $("#" + elementId).html("<option value=''>Select</option>");
 
-                                    if (valueBindingColumn != '' && textBindingColumnn != '' && valueBindingColumn != undefined && textBindingColumnn != undefined) {
+                                    if (!IsNullOrUndefined(valueBindingColumn) && !IsNullOrUndefined(textBindingColumnn) && valueBindingColumn != '' && textBindingColumnn != '') {
                                         $(result).each(function (i, e) {
                                             var cmditem = result[i];
                                             var opt = $("<option/>");
@@ -56,8 +57,9 @@ function GetMasterData(masterlistname) {
                                 case "listbox":
                                     break;
                             }
+
                         });
-                        
+
                         return masterDataArray;
                     }
 
@@ -71,3 +73,21 @@ function GetMasterData(masterlistname) {
         console.log("Master List Name is undefined.");
     }
 }
+
+// function OnGetDataSucceeded(filterBy,filterValue,textBindingColumnn,valueBindingColumn) {
+//     var listItemInfo = [];
+
+//     var listItemEnumerator = collListItem.getEnumerator();
+
+//     while (listItemEnumerator.moveNext()) {
+//         var oListItem = listItemEnumerator.get_current();
+
+//         listItemInfo.push({ filterBy: oListItem.get_item(filterBy), valueBindingColumn: oListItem.get_item(valueBindingColumn), textBindingColumnn: oListItem.get_item(textBindingColumnn) });
+//     }
+
+//     if (!IsNullOrUndefined(listItemInfo) && listItemInfo.length > 0) {
+//         console.log(listItemInfo);
+//     }
+// }
+
+// function OnGetDataFailed() { alert('Request failed. ' + args.get_message() + '\n' + args.get_stackTrace()); }

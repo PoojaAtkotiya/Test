@@ -83,7 +83,7 @@
         var formData = {};
         $(document).ready(function () {
             $('.form-control').change(function () {
-                var type = $(this).attr('cfieldType');
+                var type = $(this).attr('controlType');
                 var id = $(this).attr('id');
                 switch (type) {
                     case "text":
@@ -193,7 +193,13 @@
                                 <div class="col-sm-6 col-md-6 col-xs-12">
                                     <div class="col-sm-4 col-xs-12 form-Label">LUM Marketing Delegate User :</div>
                                     <div class="col-sm-8 col-xs-12">
+<<<<<<< HEAD
                                         <select class="form-control dynamic-control" listtype="master" UserRole="" listname="ApproverMaster" id="Role" controlType="combo"></select>
+=======
+                                        <!-- <select class="form-control dynamic-control" listtype="master" UserRole="" listname="ApproverMaster" id="Role" controlType="combo"></select> -->
+                                        <select class="form-control dynamic-control" data-selected="LUMMarketingDelegate" reflisttype="main"
+                                        id="LUMMarketingDelegate" controlType="combo"></select>
+>>>>>>> 39886e5e975bc1590344ed64de161f75f3876135
                                     </div>
                                 </div>
                                 <div class="col-sm-6 col-md-6 col-xs-12">

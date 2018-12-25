@@ -2,8 +2,8 @@ var returnUrl = "";
 var currentUser;
 var approverMaster;
 var securityToken;
-jQuery(document).ready(function () {   
-    KeyPressNumericValidation();   
+jQuery(document).ready(function () {
+    // KeyPressNumericValidation();   
 });
 
 function KeyPressNumericValidation() {
@@ -331,285 +331,113 @@ function GetItemTypeForListName(name) {
     return "SP.Data." + name.charAt(0).toUpperCase() + name.split(" ").join("").slice(1) + "ListItem";
 }
 
-function SetFormLevel(requestId, mainListName, localApprovalMatrixData) {
-    var web, clientContext;
-    var previousLevel;
-    var currentLevel;
-    var nextLevel = "";
-    var formLevel = "";
-    var nextApprover = "";
-    var nextApproverRole = "";
-    var userEmail = "";
-    SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
-        clientContext = new SP.ClientContext.get_current();
-        web = clientContext.get_web();
-        oList = web.get_lists().getByTitle(mainListName);
-        var oListItem = oList.getItemById(requestId);
+// function SetFormLevel(requestId, mainListName, tempApproverMatrix) {
+//     var web, clientContext;
+//     var previousLevel;
+//     var currentLevel;
+//     var nextLevel = "";
+//     var formLevel = "";
+//     var nextApprover = "";
+//     var nextApproverRole = "";
+//     var userEmail = "";
+//     // SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
+//     //     clientContext = new SP.ClientContext.get_current();
+//     //     web = clientContext.get_web();
+//     //     oList = web.get_lists().getByTitle(mainListName);
+//     //     var oListItem = oList.getItemById(requestId);
 
-        clientContext.load(oListItem, 'FormLevel');
-        clientContext.load(web);
-        //clientContext.load(web, 'EffectiveBasePermissions');
+//     //     clientContext.load(oListItem, 'FormLevel');
+//     //     clientContext.load(web);
+//     //     //clientContext.load(web, 'EffectiveBasePermissions');
 
-        clientContext.executeQueryAsync(function () {
-            previousLevel = oListItem.get_item('FormLevel').split("|")[0];
-            currentLevel = oListItem.get_item('FormLevel').split("|")[1];
-        }, function (sender, args) {
-            console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
-        });
-    });
+//     //     clientContext.executeQueryAsync(function () {
+//     //         previousLevel = oListItem.get_item('FormLevel').split("|")[0];
+//     //         currentLevel = oListItem.get_item('FormLevel').split("|")[1];
+//     //     }, function (sender, args) {
+//     //         console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
+//     //     });
+//     // });
 
-    localApprovalMatrixData.filter(function (i) {
-        //console.log(i);
-        if (i.Status == "Pending" && i.ApproverId.results[0] != "" && buttonActionStatus != "SendBack" &&
-            buttonActionStatus != "SendForward" && i.Levels > currentLevel) {
-            nextLevel = i.Levels;
-            if (nextApprover == "") {
-                nextApproverRole = i.Role;
-                nextApprover = i.ApproverId.results[0];
-                userEmail = i.Approver.results[0].EMail;
-            }
-            else {
-                if (!(nextApprover == localApprovalMatrixData[i].Approver)) {
-                    nextApproverRole = nextApproverRole.Trim(',') + "," + localApprovalMatrixData[i].Role;
-                    nextApprover = nextApprover.Trim(',') + "," + localApprovalMatrixData[i].Approver;
-                }
-            }
+//     // $.ajax({
+//     //     url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + mainListName + "')/items(" + requestId + ")",
+//     //     type: "MERGE",
+//     //     data: JSON.stringify
+//     //         ({
+//     //             __metadata: {
+//     //                 type: GetItemTypeForListName(mainListName)
+//     //             },
+//     //             FormLevel: formLevel,
+//     //             NextApproverId: {
+//     //                 results: [nextApprover]
+//     //             }
+//     //         }),
+//     //     headers:
+//     //     {
+//     //         "Accept": "application/json;odata=verbose",
+//     //         "Content-Type": "application/json;odata=verbose",
+//     //         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+//     //         "IF-MATCH": "*"
+//     //     },
+//     //     success: function (data) {
+//     //         console.log("Item saved Successfully");
+//     //     },
+//     //     error: function (data) {
+//     //         console.log(data);
+//     //     }
+//     // });
 
-        }
+//     //ISALluserViewer logic pending
+//     tempApproverMatrix.filter(function (i) {
+//         if (i.ApproverId != undefined) {
+//             if (i.Levels == nextLevel && (i.Status == "Pending" || i.Status == "Hold" || i.Status == "Resume")) {
+//                 SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
+//                     var clientContext = new SP.ClientContext.get_current();
+//                     var oList = clientContext.get_web().get_lists().getByTitle(mainListName);
 
-        if (buttonActionStatus == "SendBack" && sendToLevel != "") {
-            nextLevel = sendToLevel;
-            if (i.Levels == nextLevel) {
-                if (nextApprover == "") {
-                    nextApproverRole = i.Role;
-                    nextApprover = i.ApproverId.results[0];
-                }
-                else {
-                    if (!(nextApprover == localApprovalMatrixData[i].Approver)) {
-                        nextApproverRole = nextApproverRole.Trim(',') + "," + localApprovalMatrixData[i].Role;
-                        nextApprover = nextApprover.Trim(',') + "," + localApprovalMatrixData[i].Approver;
-                    }
-                }
-            }
+//                     var oListItem = oList.getItemById(requestId);
+//                     var oUser = clientContext.get_web().ensureUser(i.Approver.results[0].EMail);
+//                     //this.oUser = clientContext.get_web().get_siteUsers().getByLoginName('DOMAIN\\alias');
 
-        }
-        if (buttonActionStatus == "SendForward" && sendToLevel != "") {
-            nextLevel = sendToLevel;
-            if (i.Levels == nextLevel) {
-                if (nextApprover == "") {
-                    nextApproverRole = i.Role;
-                    nextApprover = i.ApproverId.results[0];
-                }
-                else {
-                    if (!(nextApprover == localApprovalMatrixData[i].Approver)) {
-                        nextApproverRole = nextApproverRole.Trim(',') + "," + localApprovalMatrixData[i].Role;
-                        nextApprover = nextApprover.Trim(',') + "," + localApprovalMatrixData[i].Approver;
-                    }
-                }
-            }
+//                     oListItem.breakRoleInheritance(false, true); // break role inheritance first!
 
-        }
-    });
+//                     var roleDefBindingColl = SP.RoleDefinitionBindingCollection.newObject(clientContext);
+//                     roleDefBindingColl.add(clientContext.get_web().get_roleDefinitions().getByType(SP.RoleType.contributor));
+//                     oListItem.get_roleAssignments().add(oUser, roleDefBindingColl);
 
-    // for (var i = 0; i <= localApprovalMatrixData.length - 1; i++) {
-    //     if (!(localApprovalMatrixData[i].Approver != "" &&
-    //         localApprovalMatrixData[i].IsOptional == false &&
-    //         localApprovalMatrixData[i].Status != "Approved" &&
-    //         localApprovalMatrixData[i].Levels == currentLevel) &&
-    //         buttonActionStatus != "SendBack" &&
-    //         buttonActionStatus != "SendForward") {
-    //         if (localApprovalMatrixData[i].Levels > currentLevel && localApprovalMatrixData[i].Approver != "" && localApprovalMatrixData[i].Status != "Not Required") {
+//                     clientContext.load(oUser);
+//                     clientContext.load(oListItem);
 
-    //             nextLevel = localApprovalMatrixData[i].Levels;
+//                     clientContext.executeQueryAsync(Function.createDelegate(this, this.onQuerySucceeded), Function.createDelegate(this, this.onQueryFailed));
+//                 });
+//             }
 
-    //             if(localApprovalMatrixData[i].Approver != null && localApprovalMatrixData[i].Approver != ""){
+//             else if (i.Status != "Pending") {
 
-    //                 if(nextApprover == null && nextApprover == ""){
-    //                     nextApproverRole = localApprovalMatrixData[i].Role;
-    //                     nextApprover = localApprovalMatrixData[i].Approver;
-    //                 }
-    //                 else{
-    //                     if(!(nextApprover == localApprovalMatrixData[i].Approver))
-    //                     {
-    //                         nextApproverRole = nextApproverRole.Trim(',') + "," + localApprovalMatrixData[i].Role;
-    //                         nextApprover = nextApprover.Trim(',') + "," + localApprovalMatrixData[i].Approver;
-    //                     }
-    //                 }
+//                 SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
+//                     //alert('test');
+//                     var clientContext = new SP.ClientContext.get_current();
+//                     var oList = clientContext.get_web().get_lists().getByTitle(listName);
 
-    //             }
-    //             break;
-    //         }
-    //         else{
-    //             if(buttonActionStatus == "NextApproval" || buttonActionStatus == "Delegate"){
+//                     var oListItem = oList.getItemById(listData.ID);
+//                     var oUser = clientContext.get_web().ensureUser(i.ApproverId.EMail);
+//                     //this.oUser = clientContext.get_web().get_siteUsers().getByLoginName('DOMAIN\\alias');
 
-    //             }
-    //         }
-    //     }
+//                     oListItem.breakRoleInheritance(false, true); // break role inheritance first!
 
+//                     var roleDefBindingColl = SP.RoleDefinitionBindingCollection.newObject(clientContext);
+//                     roleDefBindingColl.add(clientContext.get_web().get_roleDefinitions().getByType(SP.RoleType.reader));
+//                     oListItem.get_roleAssignments().add(oUser, roleDefBindingColl);
 
-    //   console.log(vm.GetGlobalApprovalMatrix[i].Levels);
-    //}
+//                     clientContext.load(oUser);
+//                     clientContext.load(oListItem);
 
-    // if (buttonActionStatus == "SendBack" && SendToLevel != "") {
-    //     nextLevel = SendToLevel;
-    // }
+//                     clientContext.executeQueryAsync(Function.createDelegate(this, this.onQuerySucceeded), Function.createDelegate(this, this.onQueryFailed));
+//                 });
+//             }
+//         }
 
-    // if (buttonActionStatus == "SendForward" && SendToLevel != "") {
-    //     nextLevel = SendToLevel;
-    // }
-
-    switch (buttonActionStatus) {
-        case buttonActionStatus = "SaveAsDraft":
-            nextLevel = currentLevel;
-            currentLevel = previousLevel;
-            break;
-        case buttonActionStatus = "SaveAndStatusUpdate":
-        case buttonActionStatus = "SaveAndStatusUpdateWithEmail":
-        case buttonActionStatus = "ConfirmSave":
-            break;
-        case buttonActionStatus = "Save":
-            break;
-        case buttonActionStatus = "Submit":
-            nextLevel = currentLevel;
-            currentLevel = previousLevel;
-            break;
-        case buttonActionStatus = "Hold":
-            break;
-        case buttonActionStatus = "Resume":
-            break;
-        case buttonActionStatus = "UpdateAndRepublish":
-            nextLevel = currentLevel;
-            currentLevel = previousLevel;
-            break;
-        case buttonActionStatus = "Reschedule":
-            nextLevel = currentLevel;
-            currentLevel = previousLevel;
-            break;
-        case buttonActionStatus = "ReadyToPublish":
-            nextLevel = currentLevel;
-            currentLevel = previousLevel;
-            break;
-        case buttonActionStatus = "Delegate":
-        case buttonActionStatus = "NextApproval":
-            if (nextApprover != "" && nextApprover != null) {
-                formLevel = currentLevel + "|" + nextLevel
-            }
-            else {
-                nextLevel = currentLevel;
-                formLevel = currentLevel + "|" + currentLevel;
-            }
-            break;
-        case buttonActionStatus = "BackToCreator":
-            formLevel = currentLevel + "|" + nextLevel;
-            break;
-        case buttonActionStatus = "Cancel":
-            nextLevel = currentLevel;
-            currentLevel = previousLevel;
-            break;
-        case buttonActionStatus = "Rejected":
-            nextLevel = currentLevel;
-            currentLevel = previousLevel;
-            break;
-        case buttonActionStatus = "Complete":
-            formLevel = currentLevel + "|" + currentLevel;
-            break;
-        case buttonActionStatus = "SendBack":
-            formLevel = currentLevel + "|" + nextLevel;
-            break;
-        case buttonActionStatus = "SendForward":
-            if (!string.IsNullOrEmpty(nextApprover)) {
-                formLevel = currentLevel + "|" + nextLevel;
-            }
-            else {
-                formLevel = currentLevel + "|" + currentLevel;
-            }
-            break;
-        default:
-            nextLevel = currentLevel;
-            currentLevel = previousLevel;
-            break;
-    }
-
-    $.ajax({
-        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + mainListName + "')/items(" + requestId + ")",
-        type: "MERGE",
-        data: JSON.stringify
-            ({
-                __metadata: {
-                    type: GetItemTypeForListName(mainListName)
-                },
-                FormLevel: formLevel,
-                NextApproverId: {
-                    results: [nextApprover]
-                }
-            }),
-        headers:
-        {
-            "Accept": "application/json;odata=verbose",
-            "Content-Type": "application/json;odata=verbose",
-            "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-            "IF-MATCH": "*"
-        },
-        success: function (data) {
-            console.log("Item saved Successfully");
-        },
-        error: function (data) {
-            console.log(data);
-        }
-    });
-
-    //ISALluserViewer logic pending
-    localApprovalMatrixData.filter(function (i) {
-        if (i.Approver.results != undefined) {
-            if (i.Levels == nextLevel && (i.Status == "Pending" || i.Status == "Hold" || i.Status == "Resume")) {
-                SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
-                    var clientContext = new SP.ClientContext.get_current();
-                    var oList = clientContext.get_web().get_lists().getByTitle(mainListName);
-
-                    var oListItem = oList.getItemById(requestId);
-                    var oUser = clientContext.get_web().ensureUser(i.Approver.results[0].EMail);
-                    //this.oUser = clientContext.get_web().get_siteUsers().getByLoginName('DOMAIN\\alias');
-
-                    oListItem.breakRoleInheritance(false, true); // break role inheritance first!
-
-                    var roleDefBindingColl = SP.RoleDefinitionBindingCollection.newObject(clientContext);
-                    roleDefBindingColl.add(clientContext.get_web().get_roleDefinitions().getByType(SP.RoleType.contributor));
-                    oListItem.get_roleAssignments().add(oUser, roleDefBindingColl);
-
-                    clientContext.load(oUser);
-                    clientContext.load(oListItem);
-
-                    clientContext.executeQueryAsync(Function.createDelegate(this, this.onQuerySucceeded), Function.createDelegate(this, this.onQueryFailed));
-                });
-            }
-
-            else if (i.Status != "Pending") {
-
-                SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
-                    //alert('test');
-                    var clientContext = new SP.ClientContext.get_current();
-                    var oList = clientContext.get_web().get_lists().getByTitle(listName);
-
-                    var oListItem = oList.getItemById(listData.ID);
-                    var oUser = clientContext.get_web().ensureUser(i.Approver.results[0].EMail);
-                    //this.oUser = clientContext.get_web().get_siteUsers().getByLoginName('DOMAIN\\alias');
-
-                    oListItem.breakRoleInheritance(false, true); // break role inheritance first!
-
-                    var roleDefBindingColl = SP.RoleDefinitionBindingCollection.newObject(clientContext);
-                    roleDefBindingColl.add(clientContext.get_web().get_roleDefinitions().getByType(SP.RoleType.reader));
-                    oListItem.get_roleAssignments().add(oUser, roleDefBindingColl);
-
-                    clientContext.load(oUser);
-                    clientContext.load(oListItem);
-
-                    clientContext.executeQueryAsync(Function.createDelegate(this, this.onQuerySucceeded), Function.createDelegate(this, this.onQueryFailed));
-                });
-            }
-        }
-
-    });
-}
+//     });
+// }
 
 function onQuerySucceeded(sender, args) {
     console.log("Success");
@@ -641,7 +469,11 @@ function GetFormControlsValue(id, elementType, listDataArray) {
             listDataArray[id] = $(obj).val();
             break;
         case "date":
-            listDataArray[id] = $(obj).val();
+            var month = $(obj).datepicker('getDate').getMonth() + 1;
+            var date = $(obj).datepicker('getDate').getDate();
+            var year = $(obj).datepicker('getDate').getFullYear();
+            listDataArray[id] = new Date(year.toString() + "-" + month.toString() + "-" + date.toString()).format("yyyy-MM-ddTHH:mm:ssZ")
+            //$(obj).val().format("yyyy-MM-ddTHH:mm:ssZ");
             break;
         case "checkbox":
             listDataArray[id] = $(obj)[0]['checked'];
@@ -674,11 +506,11 @@ function GetApproverMaster() {
             type: "GET",
             async: false,
             headers:
-            {
-                "Accept": "application/json;odata=verbose",
-                "Content-Type": "application/json;odata=verbose",
-                "X-RequestDigest": $("#__REQUESTDIGEST").val()
-            },
+                {
+                    "Accept": "application/json;odata=verbose",
+                    "Content-Type": "application/json;odata=verbose",
+                    "X-RequestDigest": $("#__REQUESTDIGEST").val()
+                },
             success: function (data) {
                 approverMaster = data.d.results;
             },
@@ -687,6 +519,17 @@ function GetApproverMaster() {
             }
         });
 }
+
+// function IsNullOrUndefined(obj){
+//     debugger;
+//     var isNullOrUndefined = true;
+//     if(obj != null && obj != undefined){
+//         isNullOrUndefined = false; 
+//     }
+//     return isNullOrUndefined;
+// }
+
+
 //function ValidateCollapseForm() {
 //    $(".card-body").each(function () {
 //        if ($(this).hasClass("collapse")) {
