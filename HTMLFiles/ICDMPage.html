@@ -55,6 +55,7 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/PoojaAtkotiya/Test/JSFiles/jQueryFiles/jquery.validate.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/PoojaAtkotiya/Test/JSFiles/jQueryFiles/jquery.validate.unobtrusive.js"></script>
+
     <!-- <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/ApprovalMatrix.js"></script>
     <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/Button.js"></script>
     <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/Common.js"></script>
@@ -65,10 +66,12 @@
     <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/ICDMForm.js"></script> -->
 
     <!--Site assets Hub Files-->
+
+    <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/Common.js"></script>
     <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/Constants.js"></script>
     <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/ApprovalMatrix.js"></script>
     <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/Button.js"></script>
-    <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/Common.js"></script>
+
     <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/master.js"></script>
     <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/tran.js"></script>
     <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/ICDMForm.js"></script>
@@ -86,6 +89,7 @@
     <script type="text/javascript">
         var formData = {};
         $(document).ready(function () {
+
             $('.form-control').change(function () {
                 var type = $(this).attr('controlType');
                 var id = $(this).attr('id');
@@ -93,6 +97,9 @@
                     case "text":
                         formData[id] = $(this).val();
                         break;
+                    // case "number":
+                    //     formData[id] = $(this).val();
+                    //     break;
                     case "terms":
                         var metaObject = {
                             __metadata: { "type": "SP.Taxonomy.TaxonomyFieldValue" },
@@ -206,15 +213,15 @@
                                                         <div class="col-md-4 control-label">LUM Marketing Delegate User :</div>
                                                         <div class="col-md-8">
                                                             <!-- <select class="form-control dynamic-control" listtype="master" UserRole="" listname="ApproverMaster" id="Role" controlType="combo"></select> -->
-                                                            <select class="form-control dynamic-control" data-selected="LUMMarketingDelegate" reflisttype="main" id="LUMMarketingDelegate"
+                                                            <select class="form-control dynamic-control" data-selected="LUMMarketingDelegateId" reflisttype="main" id="LUMMarketingDelegateId"
                                                                 controlType="combo"></select>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6">
                                                         <div class="col-md-4 control-label">Comment :</div>
                                                         <div class="col-md-8">
-                                                            <textarea class="form-control dynamic-control" maxlength="1000" required="true" cols="40" rows="6" controlType="multitext"
-                                                                listtype="tran" listname="ItemCodeApprovalMatrix" id="Comments"></textarea>
+                                                            <!-- <textarea class="form-control dynamic-control" maxlength="1000" required="true" cols="40" rows="6" controlType="multitext"
+                                                                listtype="tran" listname="ItemCodeApprovalMatrix" id="Comments"></textarea> -->
                                                         </div>
                                                     </div>
                                                 </div>
@@ -229,7 +236,7 @@
                                             <i class="fa fa-chevron-down"></i>
                                         </div>
                                     </div>
-                                    <div id="LUMMKTDELEGATEESECTION" section="LUM Marketing Delegate Section" sectionOwner="" FillByRole="" class="card-body">
+                                    <div id="LUMMKTDELEGATEESECTION" section="LUM Marketing Delegate Section" sectionOwner="" FillByRole="" class="card-body disabled">
                                         <div class="form-horizontal">
                                             <div class="row">
                                                 <div class="form-group">
@@ -285,7 +292,8 @@
                                                     <div class="col-md-6">
                                                         <div class="col-md-4 control-label">Expected Annual Business Volume (Nos) :</div>
                                                         <div class="col-md-8">
-                                                            <input class="form-control dynamic-control" maxlength="15" type="text" data="digit" listtype="main" controlType="text" id="ExpectedAnnualBusinessVolume">
+                                                            <input class="form-control dynamic-control" maxlength="15" type="text" data="digit" listtype="main" controlType="text"
+                                                                id="ExpectedAnnualBusinessVolume">
                                                         </div>
                                                     </div>
                                                 </div>
@@ -433,21 +441,21 @@
                                                     <div class="col-md-6">
                                                         <div class="col-md-4 control-label">LUM Design Delegate User:</div>
                                                         <div class="col-md-8">
-                                                            <select class="form-control dynamic-control" data-selected="SCMLUMDesignDelegate" reflisttype="main" id="SCMLUMDesignDelegate"
+                                                            <select class="form-control dynamic-control" data-selected="SCMLUMDesignDelegateId" reflisttype="main" id="SCMLUMDesignDelegateId"
                                                                 controlType="combo"></select>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6">
                                                         <div class="col-md-4 control-label">Comments:</div>
-                                                        <div class="col-md-8">
+                                                        <!-- <div class="col-md-8">
                                                             <textarea cols="40" rows="6" class="form-control dynamic-control" id="Comment" listtype="ItemCodeApprovalMatrix" controlType="multitext"></textarea>
-                                                        </div>
+                                                        </div> -->
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </div> 
                                 <div class="card">
                                     <div class="card-head" data-toggle="collapse" data-target="#SCMLUMDESIGNDELEGATESECTION">
                                         <b> LUM Design Delegate Section</b>
@@ -497,10 +505,10 @@
                                                             Upload Artwork Attachment
                                                         </label>
                                                         <div class="col-md-8 ">
-                                                            <div id="divUploadArtworkAttachment">
+                                                            <!-- <div id="divUploadArtworkAttachment">
                                                             </div>
                                                             <input class="form-control dynamic-control notvisible" listtype="main" type="text" controlType="text" id="UploadArtworkAttachment"
-                                                            />
+                                                            /> -->
                                                         </div>
                                                     </div>
                                                 </div>
@@ -512,11 +520,11 @@
                                                         </label>
                                                         <div class="col-md-8 ">
                                                             <div class="form-control noborder">
-                                                                <input class="form-control dynamic-control  user-tags disable paste required" required="true" min-chars="2" maxlength="255"
+                                                                <!-- <input class="form-control dynamic-control  user-tags disable paste required" required="true" min-chars="2" maxlength="255"
                                                                     listtype="main" type="text" data-val="true" data-hint="Type and Select Vendor Name(s)"
                                                                     data-val-required="Please Select Vendor(s)" controlType="text"
                                                                     id="tblVendors" />
-                                                                <input id="hdnVendors" name="Vendors" type="hidden" />
+                                                                <input id="hdnVendors" name="Vendors" type="hidden" /> -->
                                                             </div>
                                                         </div>
                                                     </div>
@@ -546,7 +554,7 @@
                                                 <div class="col-md-6">
                                                     <div class="col-md-4 control-label">Comments:</div>
                                                     <div class="col-md-8">
-                                                        <textarea cols="40" rows="6" class="form-control dynamic-control" id="Comment" listtype="ItemCodeApprovalMatrix" controlType="multitext"></textarea>
+                                                        <!-- <textarea cols="40" rows="6" class="form-control dynamic-control" id="Comment" listtype="ItemCodeApprovalMatrix" controlType="multitext"></textarea> -->
                                                     </div>
                                                 </div>
                                             </div>
