@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap CRUD Data Table for Database with Modal Form</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/Common.js"></script>
+    <script src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/CRUDjs.js"></script>
+    <style type="text/css">
+        /* Modal styles */
+
+        @media (min-width: 768px) {
+            .modal-dialog {
+                width: 950px!important;
+                margin: 30px auto;
+            }
+        }
+
+        /* .modal .modal-dialog {
+            max-width: 400px;
+        } */
+
+        .modal .modal-header,
+        .modal .modal-body,
+        .modal .modal-footer {
+            padding: 20px 30px;
+        }
+
+        .modal .modal-content {
+            border-radius: 3px;
+        }
+
+        .modal .modal-footer {
+            background: #ecf0f1;
+            border-radius: 0 0 3px 3px;
+        }
+
+        .modal .modal-title {
+            display: inline-block;
+        }
+
+        .modal .form-control {
+            border-radius: 2px;
+            box-shadow: none;
+            border-color: #dddddd;
+        }
+
+        .modal textarea.form-control {
+            resize: vertical;
+        }
+
+        .modal .btn {
+            border-radius: 2px;
+            min-width: 100px;
+        }
+
+        .modal form label {
+            font-weight: normal;
+        }
+    </style>
+    <div class="modal fade" id="CRUDVendorModal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">
+                        <span id="spanTitle">
+                            Vendor Details
+                        </span>
+                    </h4>
+                </div>
+                <div class="modal-body form-horizontal">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="Objective" class="col-md-4 control-label">
+                                    <span class="text-danger text-default-light">*</span>
+                                    Name :
+                                </label>
+                                <div class="col-md-8 ">
+                                    <input type="text" controlType="text" id="VendorName" class="form-control dynamic-control" required />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="Objective" class="col-md-4 control-label">
+                                    <span class="text-danger text-default-light">*</span>
+                                    Address :
+                                </label>
+                                <div class="col-md-8 ">
+                                    <textarea id="VendorAddress" controlType="multitext" class="form-control dynamic-control" required></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="DesiredResult" class="col-md-4 control-label">
+                                    <span class="text-danger text-default-light">*</span>Make :
+                                </label>
+                                <div class="col-md-8 ">
+                                    <input type="text" id="Make" controlType="text" class="form-control dynamic-control" required />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="Objective" class="col-md-4 control-label">
+                                    <span class="text-danger text-default-light">*</span>
+                                    Gross Value :
+                                </label>
+                                <div class="col-md-8 ">
+                                    <input type="text" id="GrossValue" controlType="text" class="form-control dynamic-control" required />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="Objective" class="col-md-4 control-label">
+                                    <span class="text-danger text-default-light">*</span>
+                                    Less Discount :
+                                </label>
+                                <div class="col-md-8 ">
+                                    <input type="text" id="Discount" controlType="text" class="form-control dynamic-control" required />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="Objective" class="col-md-4 control-label">
+                                    <span class="text-danger text-default-light">*</span>
+                                    Net Value :
+                                </label>
+                                <div class="col-md-8 ">
+                                    <input type="text" id="NetValue" controlType="text" class="form-control dynamic-control" required />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="DesiredResult" class="col-md-4 control-label">
+                                    <span class="text-danger text-default-light">*</span>Custom Duty :
+                                </label>
+                                <div class="col-md-8 ">
+                                    <input type="text" id="CustomDuty" controlType="text" class="form-control dynamic-control" required />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="Objective" class="col-md-4 control-label">
+                                    <span class="text-danger text-default-light">*</span>
+                                    State GST :
+                                </label>
+                                <div class="col-md-8 ">
+                                    <input type="text" id="StateGST" controlType="text" class="form-control dynamic-control" required />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="DesiredResult" class="col-md-4 control-label">
+                                    <span class="text-danger text-default-light">*</span>Central GST :
+                                </label>
+                                <div class="col-md-8 ">
+                                    <input type="text" id="CentralGST" controlType="text" class="form-control dynamic-control" required />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="Objective" class="col-md-4 control-label">
+                                    <span class="text-danger text-default-light">*</span>
+                                    Interstate GST :
+                                </label>
+                                <div class="col-md-8 ">
+                                    <input type="text" id="InterStateGST" controlType="text" class="form-control dynamic-control" required />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="DesiredResult" class="col-md-4 control-label">
+                                    <span class="text-danger text-default-light">*</span>Add : Additional Charges :
+                                </label>
+                                <div class="col-md-8 ">
+                                    <input type="text" id="InstallationCharges" controlType="text" class="form-control dynamic-control" required />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="Objective" class="col-md-4 control-label">
+                                    <span class="text-danger text-default-light">*</span>
+                                    Delivery Period :
+                                </label>
+                                <div class="col-md-8 ">
+                                    <input type="text" id="DeliveryPeriod" controlType="text" class="form-control dynamic-control" required />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="DesiredResult" class="col-md-4 control-label">
+                                    <span class="text-danger text-default-light">*</span>Terms of Payment :
+                                </label>
+                                <div class="col-md-8">
+                                    <textarea type="text" controlType="multitext" id="PaymentTerms" cols="40" rows="3" class="form-control dynamic-control" required></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6"></div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel">
+                    <input type="submit" class="btn btn-success" value="Save">
+                </div>
+                }
+            </div>
+
+        </div>
+    </div>
