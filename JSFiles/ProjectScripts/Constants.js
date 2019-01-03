@@ -1,7 +1,10 @@
+var spSiteUrl = _spPageContextInfo.webAbsoluteUrl;
+var rootUrl = "https://bajajelect.sharepoint.com/sites/WFRootDev/";
+
 var applicationName = "Item Code Creation Preprocess";
 var formName = "Item Code Preprocess Form";
 var globalApprovalMatrixName = 'ApprovalMatrix';
-var approverMatrixListName = 'WorkflowTestApprovalMatrix';
+// var approverMatrixListName = 'WorkflowTestApprovalMatrix';
 var ItemCodeProProcessListName = "ItemCodeProProcess";
 var ItemCodeApprovalMatrixListName = "ItemCodeApprovalMatrix";
 var ApproverMasterListName = "ApproverMaster";

@@ -22,6 +22,25 @@ function GetButtons(id, currentUserRole,formStatus) {
             }
         });
     });
+    // GetFormDigest().then(function (data) {
+    //     executor.executeAsync({
+    //         url: "https://bajajelect.sharepoint.com/sites/WFRootDev" + "/_api/web/lists/getbytitle('" + buttonListName + "')/GetItems(query=@v1)?@v1={\"ViewXml\":\"<View><Query><Where><And><Eq><FieldRef Name='ApplicationName' /><Value Type='TaxonomyFieldType'>" + applicationName + "</Value></Eq><Eq><FieldRef Name='FormName' /><Value Type='Text'>" + formName + "</Value></Eq></And></Where></Query></View>\"}",
+    //         type: "POST",
+    //         headers:
+    //         {
+    //             "Accept": "application/json;odata=verbose",
+    //             "Content-Type": "application/json; odata=verbose",
+    //             "X-RequestDigest": data.d.GetContextWebInformation.FormDigestValue
+    //         },
+    //         success: function (data) {
+    //             allButtons = data.d.results;
+    //             GetButtonsByRole(id, currentUserRole,formStatus);
+    //         },
+    //         error: function (data) {
+    //             console.log(data.responseJSON.error);
+    //         }
+    //     });
+    // });
 }
 function GetButtonsByRole(id, currentUserRole,formStatus) {
     var btnli = "";

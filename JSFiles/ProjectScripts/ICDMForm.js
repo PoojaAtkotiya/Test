@@ -6,21 +6,55 @@ var masterDataArray;
 var listItemId;
 var formData = {};
 var mainListData = {};
-var listData = [];
-
 var sendToLevel = 0;
 var collListItem = null;
+var currentContext;
+var hostweburl;
 
 $(document).ready(function () {
+    hostweburl = "https://bajajelect.sharepoint.com/sites/MTDEV";
+
+    var scriptbase = hostweburl + "/_layouts/15/";
+
+    // Load the js files and continue to
+    // the execOperation function.
+    $.getScript(scriptbase + "SP.Runtime.js",
+        function () {
+            $.getScript(scriptbase + "SP.js", loadConstants);
+        }
+    );
+});
+
+
+function loadConstants() {
+    var clientContext = new SP.ClientContext("https://bajajelect.sharepoint.com/sites/MTDEV");
+    this.oWebsite = clientContext.get_web();
+    clientContext.load(this.oWebsite);
+    clientContext.executeQueryAsync(
+        Function.createDelegate(this, onSuccess),
+        Function.createDelegate(this, onFail)
+    );
+}
+
+function onSuccess(sender, args) {
+
+    currentContext = SP.ClientContext.get_current();
     listItemId = getUrlParameter("ID");
     returnUrl = getUrlParameter("Source");
+    ExecuteOrDelayUntilScriptLoaded(GetCurrentUserDetails, "sp.js");
 
     ////Get Current user details
-    GetCurrentUserDetails();
+    // GetCurrentUserDetails();
 
     GetAllMasterData();
+
+    // GetUserName(roleName, html element Id)
+    GetUsersForDDL("LUM Marketing Delegate", "LUMMarketingDelegateId");
+    GetUsersForDDL("LUM Design Delegate", "SCMLUMDesignDelegateId");
+
+
     //For Temporary
-    GetApproverMaster();
+    //GetApproverMaster();
 
     if (listItemId != null && listItemId > 0) {
         GetSetFormData();
@@ -28,55 +62,84 @@ $(document).ready(function () {
     else {
         GetGlobalApprovalMatrix(listItemId);
     }
+}
 
-     
-});
+function onFail(sender, args) {
+    console.log(args.get_message());
+}
 
-function GetUserName(roleName, eleID) {
-    SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
-        var clientContext = new SP.ClientContext.get_current();
-        var oList = clientContext.get_web().get_lists().getByTitle('ApproverMaster');
-        var camlQuery = new SP.CamlQuery();
-        camlQuery.set_viewXml(
-            '<View><Query><Where><Eq><FieldRef Name=\'Role\'/>' +
-            '<Value Type=\'Text\'>' + roleName + '</Value></Eq></Where></Query>' +
-            '<RowLimit>5000</RowLimit></View>'
-        );
-        collListItem = oList.getItems(camlQuery);
-        clientContext.load(collListItem);
-        clientContext.executeQueryAsync(
-            Function.createDelegate(this, function (sender, args) {
-                 onQuerySucceeded(sender, args, eleID) 
-                }
-            ),
-            Function.createDelegate(this, onQueryFailed)
-        );
+function GetUsersForDDL(roleName, eleID) {
+    //sync call to avoid conflicts in deriving role wise users
+    jQuery.ajax({
+        async: false,
+        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('ApproverMaster')/items?$select=Role,UserSelection,UserName/Id,UserName/Title&$expand=UserName/Id&$expand=UserName/Id&$filter= (Role eq '" + roleName + "') and (UserSelection eq 1)",
+        type: "GET",
+        headers: { "Accept": "application/json;odata=verbose" },
+        success: function (data, textStatus, xhr) {
+            var dataResults = data.d.results;
+            var allUsers = [];
+            if (!IsNullOrUndefined(dataResults) && dataResults.length != -1) {
+                $.each(dataResults, function (index, item) {
+                    dataResults.forEach(users => {
+                        if (!IsNullOrUndefined(users.UserName) && !IsNullOrUndefined(users.UserName.results) && users.UserName.results.length > 0) {
+                            users.UserName.results.forEach(user => {
+                                allUsers.push({ userId: user.Id, userName: user.Title })
+                            });
+                        }
+                    });
+
+                });
+            }
+            setUsersInDDL(allUsers, eleID);
+        },
+        error: function (error, textStatus) {
+            console.log(error);
+        }
     });
 }
 
+// function GetUserName(roleName, eleID) {
+//     var oList = currentContext.get_web().get_lists().getByTitle('ApproverMaster');
+//     var camlQuery = new SP.CamlQuery();
+//     camlQuery.set_viewXml(
+//         '<View><Query><Where><Eq><FieldRef Name=\'Role\'/>' +
+//         '<Value Type=\'Text\'>' + roleName + '</Value></Eq></Where></Query>' +
+//         '<RowLimit>5000</RowLimit></View>'
+//     );
+//     collListItem = oList.getItems(camlQuery);
+//     currentContext.load(collListItem);
+//     currentContext.executeQueryAsync(
+//         Function.createDelegate(this, function (sender, args) {
+//             onGetUserNameSucceeded(sender, args, eleID, collListItem)
+//         }
+//         ),
+//         Function.createDelegate(this, onGetUserFailed)
+//     );
+// }
 
+// function onGetUserNameSucceeded(sender, args, eleID, collListItem) {
+//     var allUsers = [];
+//     if (!IsNullOrUndefined(collListItem)) {
+//         var listItemEnumerator = collListItem.getEnumerator();
+//         while (listItemEnumerator.moveNext()) {
+//             var oListItem = listItemEnumerator.get_current();
+//             var users = oListItem.get_item('UserName');
+//             if (!IsNullOrUndefined(users) && users.length != -1) {
+//                 users.forEach(user => {
+//                     allUsers.push({ userId: user.get_lookupId(), userName: user.get_lookupValue(), userEmail: user.get_email() })
+//                 });
+//             }
 
-function onQuerySucceeded(sender, args, eleID) {
+//         }
+//         setUsersInDDL(allUsers, eleID);
+//     }
+// }
 
-    var allUsers = [];
-    if (!IsNullOrUndefined(collListItem)) {
-        var listItemEnumerator = collListItem.getEnumerator();
-        while (listItemEnumerator.moveNext()) {
-            var oListItem = listItemEnumerator.get_current();
-            var users = oListItem.get_item('UserName');
-            if (!IsNullOrUndefined(users) && users.length != -1) {
-                users.forEach(user => {
-                    allUsers.push({ userId: user.get_lookupId(), userName: user.get_lookupValue(), userEmail: user.get_email() })
-                });
-            }
-
-        }
-        setUsersInDDL(allUsers, eleID);
-    }
+function onGetUserFailed(sender, args) {
+    console.log('onGetUserFailed : Request failed. ' + args.get_message() +
+        '\n' + args.get_stackTrace());
 }
-
 function setUsersInDDL(allUsers, eleID) {
-    debugger
     $("#" + eleID).html('');
     $("#" + eleID).html("<option value=''>Select</option>");
     if (!IsNullOrUndefined(allUsers) && allUsers.length > 0) {
@@ -89,24 +152,21 @@ function setUsersInDDL(allUsers, eleID) {
     }
 }
 
-function onQueryFailed(sender, args) {
-    alert('Request failed. ' + args.get_message() +
-        '\n' + args.get_stackTrace());
-}
+
 
 function SaveFormData() {
     var mainListName = $('#divItemCodeForm').attr('mainlistname');
     if (mainListName != undefined && mainListName != '' && mainListName != null) {
-
         $('#divItemCodeForm').find('div[section]').not(".disabled").each(function (i, e) {
             var sectionName = $(e).attr('section');
+            var listDataArray = {};
             $(e).find('input[listtype=main],select[listtype=main],radio[listtype=main],textarea[listtype=main],label[listtype=main],input[reflisttype=main],select[reflisttype=main],radio[reflisttype=main],textarea[reflisttype=main],label[reflisttype=main]').each(function () {
                 var elementId = $(this).attr('id');
                 var elementType = $(this).attr('controlType');
-                mainListData = GetFormControlsValue(elementId, elementType, mainListData);
+                listDataArray = GetFormControlsValue(elementId, elementType, listDataArray);
             });
             //if (ValidateFormControls('LUMMARKETINGINCHARGESECTION', false)) {
-            SaveData(mainListName, mainListData, sectionName);
+            SaveData(mainListName, listDataArray, sectionName);
             //}
         });
     }
@@ -114,6 +174,15 @@ function SaveFormData() {
 
 function SaveData(listname, listDataArray, sectionName) {
     var itemType = GetItemTypeForListName(listname);
+
+    //check if there any delegate user fillby section owner
+    // $('#'+ sectionName).
+    if (!IsNullOrUndefined(listDataArray.SCMLUMDesignDelegateId)) {
+        var array = [];
+        array.push(listDataArray.SCMLUMDesignDelegateId);
+        listDataArray["SCMLUMDesignDelegateId"] = {"results" : array};
+    }
+
     var isNewItem = true;
     if (listDataArray != null) {
         listDataArray["__metadata"] = {
@@ -121,26 +190,23 @@ function SaveData(listname, listDataArray, sectionName) {
         };
         var url = '', headers = '';
         if (listItemId != null && listItemId > 0 && listItemId != "") {
-            listDataArray.ID = listItemId;
-            url = _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + listname + "')/items(" + listItemId + ")";
-            headers = { "Accept": "application/json;odata=verbose", "X-RequestDigest": $("#__REQUESTDIGEST").val(), "IF-MATCH": "*", "X-HTTP-Method": "MERGE" };
+
+            url = _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('" + listname + "')/items(" + listItemId + ")";
+            headers = { "Accept": "application/json;odata=verbose", "Content-Type": "application/json;odata=verbose", "X-RequestDigest": $("#__REQUESTDIGEST").val(), "IF-MATCH": "*", "X-HTTP-Method": "MERGE" };
             isNewItem = false;
         }
         else {
             url = _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + listname + "')/items";
-            headers = { "Accept": "application/json;odata=verbose", "X-RequestDigest": $("#__REQUESTDIGEST").val() };
+            headers = { "Accept": "application/json;odata=verbose", "Content-Type": "application/json;odata=verbose", "X-RequestDigest": $("#__REQUESTDIGEST").val() };
         }
-
         $.ajax({
             url: url,
             type: "POST",
-            contentType: "application/json;odata=verbose",
             data: JSON.stringify(listDataArray),
             headers: headers,
             success: function (data) {
-                listData = data.d;
                 var itemID = listItemId;
-                if (data != undefined && data != null && data.d != null) {
+                if (!IsNullOrUndefined(data) && !IsNullOrUndefined(data.d)) {
                     itemID = data.d.ID;
                 }
                 var web, clientContext;
@@ -156,7 +222,7 @@ function SaveData(listname, listDataArray, sectionName) {
 
                     clientContext.executeQueryAsync(function () {
 
-                        ///Pending
+                        ///Pending -- temporary
                         var param = [
                             SendToLevel = 0
                         ]
@@ -179,6 +245,7 @@ function SaveData(listname, listDataArray, sectionName) {
 
             },
             error: function (data) {
+                debugger;
                 console.log(data);
             }
         });

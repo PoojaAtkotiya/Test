@@ -2,7 +2,13 @@ var returnUrl = "";
 var currentUser;
 var approverMaster;
 var securityToken;
+//var currentContext;
+//var executor = null;
+
+var scriptbase; //= spSiteUrl + "/_layouts/15/";     ////_spPageContextInfo.layoutsUrl
+
 jQuery(document).ready(function () {
+
     // KeyPressNumericValidation();   
 });
 
@@ -260,11 +266,21 @@ function cancel() {
 }
 
 function GetFormDigest() {
+
+
     return $.ajax({
         url: "https://bajajelect.sharepoint.com/sites/WFRootDev" + "/_api/contextinfo",
         method: "POST",
         headers: { "Accept": "application/json; odata=verbose" }
     });
+
+    //     return executor.executeAsync({
+    //         url: "https://bajajelect.sharepoint.com/sites/WFRootDev" + "/_api/contextinfo",
+    //         method: "POST",
+    //         headers: { "Accept": "application/json; odata=verbose" }
+    //     });
+
+
 }
 
 function BindDatePicker(selector) {
@@ -303,6 +319,9 @@ function setFieldValue(controlId, item, fieldType, fieldName) {
         case "text":
             $("#" + controlId).val(item[fieldName]).change();
             break;
+        case "number":
+            $("#" + controlId).val(item[fieldName]).change();
+            break;
         case "label":
             $("#" + controlId).text(item[fieldName]);
             break;
@@ -331,114 +350,6 @@ function GetItemTypeForListName(name) {
     return "SP.Data." + name.charAt(0).toUpperCase() + name.split(" ").join("").slice(1) + "ListItem";
 }
 
-// function SetFormLevel(requestId, mainListName, tempApproverMatrix) {
-//     var web, clientContext;
-//     var previousLevel;
-//     var currentLevel;
-//     var nextLevel = "";
-//     var formLevel = "";
-//     var nextApprover = "";
-//     var nextApproverRole = "";
-//     var userEmail = "";
-//     // SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
-//     //     clientContext = new SP.ClientContext.get_current();
-//     //     web = clientContext.get_web();
-//     //     oList = web.get_lists().getByTitle(mainListName);
-//     //     var oListItem = oList.getItemById(requestId);
-
-//     //     clientContext.load(oListItem, 'FormLevel');
-//     //     clientContext.load(web);
-//     //     //clientContext.load(web, 'EffectiveBasePermissions');
-
-//     //     clientContext.executeQueryAsync(function () {
-//     //         previousLevel = oListItem.get_item('FormLevel').split("|")[0];
-//     //         currentLevel = oListItem.get_item('FormLevel').split("|")[1];
-//     //     }, function (sender, args) {
-//     //         console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
-//     //     });
-//     // });
-
-//     // $.ajax({
-//     //     url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + mainListName + "')/items(" + requestId + ")",
-//     //     type: "MERGE",
-//     //     data: JSON.stringify
-//     //         ({
-//     //             __metadata: {
-//     //                 type: GetItemTypeForListName(mainListName)
-//     //             },
-//     //             FormLevel: formLevel,
-//     //             NextApproverId: {
-//     //                 results: [nextApprover]
-//     //             }
-//     //         }),
-//     //     headers:
-//     //     {
-//     //         "Accept": "application/json;odata=verbose",
-//     //         "Content-Type": "application/json;odata=verbose",
-//     //         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-//     //         "IF-MATCH": "*"
-//     //     },
-//     //     success: function (data) {
-//     //         console.log("Item saved Successfully");
-//     //     },
-//     //     error: function (data) {
-//     //         console.log(data);
-//     //     }
-//     // });
-
-//     //ISALluserViewer logic pending
-//     tempApproverMatrix.filter(function (i) {
-//         if (i.ApproverId != undefined) {
-//             if (i.Levels == nextLevel && (i.Status == "Pending" || i.Status == "Hold" || i.Status == "Resume")) {
-//                 SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
-//                     var clientContext = new SP.ClientContext.get_current();
-//                     var oList = clientContext.get_web().get_lists().getByTitle(mainListName);
-
-//                     var oListItem = oList.getItemById(requestId);
-//                     var oUser = clientContext.get_web().ensureUser(i.Approver.results[0].EMail);
-//                     //this.oUser = clientContext.get_web().get_siteUsers().getByLoginName('DOMAIN\\alias');
-
-//                     oListItem.breakRoleInheritance(false, true); // break role inheritance first!
-
-//                     var roleDefBindingColl = SP.RoleDefinitionBindingCollection.newObject(clientContext);
-//                     roleDefBindingColl.add(clientContext.get_web().get_roleDefinitions().getByType(SP.RoleType.contributor));
-//                     oListItem.get_roleAssignments().add(oUser, roleDefBindingColl);
-
-//                     clientContext.load(oUser);
-//                     clientContext.load(oListItem);
-
-//                     clientContext.executeQueryAsync(Function.createDelegate(this, this.onQuerySucceeded), Function.createDelegate(this, this.onQueryFailed));
-//                 });
-//             }
-
-//             else if (i.Status != "Pending") {
-
-//                 SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
-//                     //alert('test');
-//                     var clientContext = new SP.ClientContext.get_current();
-//                     var oList = clientContext.get_web().get_lists().getByTitle(listName);
-
-//                     var oListItem = oList.getItemById(listData.ID);
-//                     var oUser = clientContext.get_web().ensureUser(i.ApproverId.EMail);
-//                     //this.oUser = clientContext.get_web().get_siteUsers().getByLoginName('DOMAIN\\alias');
-
-//                     oListItem.breakRoleInheritance(false, true); // break role inheritance first!
-
-//                     var roleDefBindingColl = SP.RoleDefinitionBindingCollection.newObject(clientContext);
-//                     roleDefBindingColl.add(clientContext.get_web().get_roleDefinitions().getByType(SP.RoleType.reader));
-//                     oListItem.get_roleAssignments().add(oUser, roleDefBindingColl);
-
-//                     clientContext.load(oUser);
-//                     clientContext.load(oListItem);
-
-//                     clientContext.executeQueryAsync(Function.createDelegate(this, this.onQuerySucceeded), Function.createDelegate(this, this.onQueryFailed));
-//                 });
-//             }
-//         }
-
-//     });
-// }
-
 function onQuerySucceeded(sender, args) {
     console.log("Success");
 }
@@ -453,6 +364,9 @@ function GetFormControlsValue(id, elementType, listDataArray) {
         case "text":
             listDataArray[id] = $(obj).val();
             break;
+        // case "number":
+        //     listDataArray[id] = Number($(this).val());
+        //     break;
         case "terms":
             var metaObject = {
                 __metadata: { "type": "SP.Taxonomy.TaxonomyFieldValue" },
@@ -469,11 +383,13 @@ function GetFormControlsValue(id, elementType, listDataArray) {
             listDataArray[id] = $(obj).val();
             break;
         case "date":
-            var month = $(obj).datepicker('getDate').getMonth() + 1;
-            var date = $(obj).datepicker('getDate').getDate();
-            var year = $(obj).datepicker('getDate').getFullYear();
-            listDataArray[id] = new Date(year.toString() + "-" + month.toString() + "-" + date.toString()).format("yyyy-MM-ddTHH:mm:ssZ")
-            //$(obj).val().format("yyyy-MM-ddTHH:mm:ssZ");
+            var month = !IsNullOrUndefined($(obj).datepicker('getDate')) ? $(obj).datepicker('getDate').getMonth() + 1 : '';
+            var date = !IsNullOrUndefined($(obj).datepicker('getDate')) ? $(obj).datepicker('getDate').getDate() : '';
+            var year = !IsNullOrUndefined($(obj).datepicker('getDate')) ? $(obj).datepicker('getDate').getFullYear() : '';
+            var date = new Date(year.toString() + "-" + month.toString() + "-" + date.toString()).format("yyyy-MM-ddTHH:mm:ssZ");
+            if (!IsNullOrUndefined(date)) {
+                listDataArray[id] = date;
+            }
             break;
         case "checkbox":
             listDataArray[id] = $(obj)[0]['checked'];
@@ -519,16 +435,6 @@ function GetApproverMaster() {
             }
         });
 }
-
-// function IsNullOrUndefined(obj){
-//     debugger;
-//     var isNullOrUndefined = true;
-//     if(obj != null && obj != undefined){
-//         isNullOrUndefined = false; 
-//     }
-//     return isNullOrUndefined;
-// }
-
 
 //function ValidateCollapseForm() {
 //    $(".card-body").each(function () {

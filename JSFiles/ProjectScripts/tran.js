@@ -30,11 +30,11 @@ function GetTranData(tranlistname, lookupId) {
             type: "GET",
             async: false,
             headers:
-            {
-                "Accept": "application/json;odata=verbose",
-                "Content-Type": "application/json;odata=verbose",
-                "X-RequestDigest": $("#__REQUESTDIGEST").val()
-            },
+                {
+                    "Accept": "application/json;odata=verbose",
+                    "Content-Type": "application/json;odata=verbose",
+                    "X-RequestDigest": $("#__REQUESTDIGEST").val()
+                },
             success: function (data) {
                 var item = data.d.results[0];
                 if (item != null && item != '' & item != undefined) {
@@ -45,19 +45,19 @@ function GetTranData(tranlistname, lookupId) {
                         setFieldValue(elementId, item, elementType, elementId);
                     });
                 }
-                if (tranlistname == "ItemCodeApprovalMatrix") {
-                    localApprovalMatrix = data;
-                    if (listItemId > 0 && localApprovalMatrix != null && localApprovalMatrix != undefined && localApprovalMatrix.d.results.length > 0) {
-                        localApprovalMatrix.d.results.filter(function (i) {
-                            if (i.Status == "Pending" && i.ApproverId.results.indexOf(this.currentUser.Id) >= 0) {
-                                activeSectionName = i.SectionName;
-                                activeSectionName = activeSectionName.replace(/ /g, '').trim().toUpperCase();
-                                $("#" + activeSectionName).removeClass("disabled");
-                                $("div .disabled .form-control").attr("disabled", "disabled");
-                            }
-                        });
-                    }
-                }
+                // if (tranlistname == "ItemCodeApprovalMatrix") {
+                //     localApprovalMatrix = data;
+                //     if (listItemId > 0 && localApprovalMatrix != null && localApprovalMatrix != undefined && localApprovalMatrix.d.results.length > 0) {
+                //         localApprovalMatrix.d.results.filter(function (i) {
+                //             if (i.Status == "Pending" && i.ApproverId.results.indexOf(this.currentUser.Id) >= 0) {
+                //                 activeSectionName = i.SectionName;
+                //                 activeSectionName = activeSectionName.replace(/ /g, '').trim().toUpperCase();
+                //                 $("#" + activeSectionName).removeClass("disabled");
+                //                 $("div .disabled .form-control").attr("disabled", "disabled");
+                //             }
+                //         });
+                //     }
+                // }
             }
         });
     }
@@ -74,13 +74,16 @@ function SaveTranListData(lookupId) {
     }
 }
 function SetTranDataValues(tranlistname, lookupId) {
-    if (tranlistname != undefined && tranlistname != '' && tranlistname != null) {
-        $('input[listname*=' + tranlistname + '],select[listname*=' + tranlistname + '],radio[listname*=' + tranlistname + '],textarea[listname*=' + tranlistname + ']').each(function () {
-            var elementId = $(this).attr('id');
-            var elementType = $(this).attr('controlType');
-            tranListData = GetFormControlsValue(elementId, elementType, tranListData);
-        });
-        SaveTranData(tranlistname, tranListData, lookupId);
+    if (tranlistname != ItemCodeApprovalMatrixListName)    ////avoid for localapprovalmatrix
+    {
+        if (tranlistname != undefined && tranlistname != '' && tranlistname != null) {
+            $('input[listname*=' + tranlistname + '],select[listname*=' + tranlistname + '],radio[listname*=' + tranlistname + '],textarea[listname*=' + tranlistname + ']').each(function () {
+                var elementId = $(this).attr('id');
+                var elementType = $(this).attr('controlType');
+                tranListData = GetFormControlsValue(elementId, elementType, tranListData);
+            });
+            SaveTranData(tranlistname, tranListData, lookupId);
+        }
     }
 }
 
@@ -97,11 +100,11 @@ function SaveTranData(listname, tranListDataArray, lookupId) {
                 type: "GET",
                 async: false,
                 headers:
-                {
-                    "Accept": "application/json;odata=verbose",
-                    "Content-Type": "application/json;odata=verbose",
-                    "X-RequestDigest": $("#__REQUESTDIGEST").val()
-                },
+                    {
+                        "Accept": "application/json;odata=verbose",
+                        "Content-Type": "application/json;odata=verbose",
+                        "X-RequestDigest": $("#__REQUESTDIGEST").val()
+                    },
                 success: function (data) {
                     var item = data.d.results[0];
                     if (item != null && item != '' & item != undefined) {
