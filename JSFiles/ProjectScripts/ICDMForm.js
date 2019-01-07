@@ -78,8 +78,8 @@ function blob() {
         console.log(fileName);
         var file = input.files[i];
         var reader = new FileReader();
-        reader.onload = (function(file) {
-            return function(e) {
+        reader.onload = (function (file) {
+            return function (e) {
                 console.log(file.name);
                 fileInfos.push({
                     "name": file.name,
@@ -100,7 +100,7 @@ function uploadListAttachments() {
     var item = $pnp.sp.web.lists.getByTitle("demopoc2").items.getById(1);
     item.attachmentFiles.addMultiple(fileInfos).then(v => {
         console.log(v);
-    }).catch(function(err) {
+    }).catch(function (err) {
         alert(err);
     });
 }
@@ -190,15 +190,13 @@ function setUsersInDDL(allUsers, eleID) {
 }
 
 function ICDM_SaveData(ele) {
-    if(ValidateForm(ele))
-    {
+    if (ValidateForm(ele)) {
         FormBusinessLogic();
         SaveForm();
     }
 }
 
-function FormBusinessLogic()
-{
+function FormBusinessLogic() {
 
 }
 
@@ -214,9 +212,9 @@ function SaveFormData() {
                 var elementType = $(this).attr('controlType');
                 listDataArray = GetFormControlsValue(elementId, elementType, listDataArray);
             });
-            if (ValidateFormControls(activeSectionId, false)) {
-                SaveData(mainListName, listDataArray, sectionName);
-            }
+            // if (ValidateFormControls(activeSectionId, false)) {
+            SaveData(mainListName, listDataArray, sectionName);
+            // }
         });
     }
 }
@@ -318,7 +316,7 @@ function AddAttachments(itemId) {
             binaryStringRequestBody: true,
             data: fileData,
             processData: false,
-            async : false,
+            async: false,
             headers: {
                 "ACCEPT": "application/json;odata=verbose",
                 "X-RequestDigest": _spPageContextInfo.formDigestValue,

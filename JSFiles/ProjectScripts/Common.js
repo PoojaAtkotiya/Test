@@ -8,7 +8,7 @@ var securityToken;
 var scriptbase; //= spSiteUrl + "/_layouts/15/";     ////_spPageContextInfo.layoutsUrl
 
 jQuery(document).ready(function () {
-     KeyPressNumericValidation();   
+    KeyPressNumericValidation();
 });
 
 function KeyPressNumericValidation() {
@@ -533,15 +533,24 @@ function OnDelete(ele) {
         }
     });
 }
+function resetFormValidator(formId) {
+    $(formId).removeData('validator');
+    $(formId).removeData('unobtrusiveValidation');
+    $(formId).data('validator');
+    $(formId).data('unobtrusiveValidation');
+    $.validator.unobtrusive.parse(formId);
+}
 
 function ValidateForm(ele) {
     var activediv = $('div[section]').not(".disabled")[0].outerHTML;
-    var form = '<form data-ajax="true" enctype="multipart/form-data" id="form0" method="post" novalidate="novalidate" autocomplete="off"/>';
+    var form = '<form data-ajax="true" enctype="multipart/form-data" id="form0" method="post" autocomplete="off"/>';
     var formList = $(form).append(activediv);
     var isValid = true;
     var dataAction = $(ele).attr("data-action");
     var isPageRedirect = true;
     var buttonCaption = $(ele).text().toLowerCase().trim();
+    $(document.body).append(formList);
+    resetFormValidator('#form0');
     if (buttonCaption == "hold" || buttonCaption == "resume") {
         $("#Action").rules("remove", "required");
     }
@@ -551,7 +560,7 @@ function ValidateForm(ele) {
     }
 
     if (buttonCaption != "print") {
-        formList.each(function () {            
+        formList.each(function () {
             if ($(this).find("input[id='ButtonCaption']").length == 0) {
                 var input = $("<input id='ButtonCaption' name='ButtonCaption' type='hidden'/>");
                 input.val($(ele).text());
@@ -629,6 +638,9 @@ function ValidateForm(ele) {
                 try {
                     var validator = $(this).validate();
                     $(validator.errorList).each(function (i, errorItem) {
+                        //  AlertModal("Validation", errorItem.element.id + "' : '" + errorItem.message);
+                        $("#" + errorItem.element.id).addClass("input-validation-error");
+                        $("#" + errorItem.element.id).removeClass("field-validation-valid");
                         console.log("{ '" + errorItem.element.id + "' : '" + errorItem.message + "'}");
                     });
                 }
@@ -638,25 +650,25 @@ function ValidateForm(ele) {
             }
         });
     }
-    // if (isValid) {
-    //     if (buttonCaption != "save as draft") {
-    //         //confirm file Attachment need attach or not
-    //         var attachmsg = "Are you sure to '" + $.trim($(ele).text()) + "'?";
-    //         if ($(form).find("div[data-appname]").length != 0 && $(form).find("div[data-appname]").find("ul li").length == 0 && dataAction == "10") {
-    //             attachmsg = "Are you sure to '" + $.trim($(ele).text()) + "' without attachment?";
-    //         }
+    if (isValid) {
+        if (buttonCaption != "save as draft") {
+            //confirm file Attachment need attach or not
+            var attachmsg = "Are you sure to '" + $.trim($(ele).text()) + "'?";
+            if ($(form).find("div[data-appname]").length != 0 && $(form).find("div[data-appname]").find("ul li").length == 0 && dataAction == "10") {
+                attachmsg = "Are you sure to '" + $.trim($(ele).text()) + "' without attachment?";
+            }
 
-    //         ConfirmationDailog({
-    //             title: "Confirm", message: attachmsg, okCallback: function (id, data) {
-    //                 //ShowWaitDialog();
-    //                 workflowSaveMethodName();
-    //             }
-    //         });
-    //     }
-    //     else {
-    //         workflowSaveMethodName();
-    //     }
-    // }
+            ConfirmationDailog({
+                title: "Confirm", message: attachmsg, okCallback: function (id, data) {
+                    //ShowWaitDialog();
+                 //  workflowSaveMethodName();
+                }
+            });
+        }
+        else {
+          //  workflowSaveMethodName();
+        }
+    }
     return isValid;
 }
 
