@@ -2,14 +2,100 @@ var returnUrl = "";
 var currentUser;
 var approverMaster;
 var securityToken;
-//var currentContext;
+var currentContext;
 //var executor = null;
+var hostweburl;
+var currentContext;
 
 var scriptbase; //= spSiteUrl + "/_layouts/15/";     ////_spPageContextInfo.layoutsUrl
 
 jQuery(document).ready(function () {
     KeyPressNumericValidation();
+
+    hostweburl = "https://bajajelect.sharepoint.com/sites/MTDEV";
+    var scriptbase = hostweburl + "/_layouts/15/";
+    // Load the js files and continue to
+    // the execOperation function.
+    $.getScript(scriptbase + "SP.Runtime.js",
+        function () {
+            $.getScript(scriptbase + "SP.js", loadConstants);
+        }
+    );
 });
+
+function loadConstants() {
+    var clientContext = new SP.ClientContext("https://bajajelect.sharepoint.com/sites/MTDEV");
+    this.oWebsite = clientContext.get_web();
+    clientContext.load(this.oWebsite);
+    clientContext.executeQueryAsync(
+        Function.createDelegate(this, onSuccess),
+        Function.createDelegate(this, onFail)
+    );
+}
+
+function onSuccess(sender, args) {
+
+    currentContext = SP.ClientContext.get_current();
+    listItemId = getUrlParameter("ID");
+    returnUrl = getUrlParameter("Source");
+    ExecuteOrDelayUntilScriptLoaded(GetCurrentUserDetails, "sp.js");
+
+    GetAllMasterData();
+
+    if (listItemId != null && listItemId > 0) {
+        GetSetFormData();
+    }
+    else {
+        GetGlobalApprovalMatrix(listItemId);
+    }
+}
+
+function onFail(sender, args) {
+    console.log(args.get_message());
+}
+
+function GetUsersForDDL(roleName, eleID) {
+    //sync call to avoid conflicts in deriving role wise users
+    jQuery.ajax({
+        async: false,
+        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('ApproverMaster')/items?$select=Role,UserSelection,UserName/Id,UserName/Title&$expand=UserName/Id&$expand=UserName/Id&$filter= (Role eq '" + roleName + "') and (UserSelection eq 1)",
+        type: "GET",
+        headers: { "Accept": "application/json;odata=verbose" },
+        success: function (data, textStatus, xhr) {
+            var dataResults = data.d.results;
+            var allUsers = [];
+            if (!IsNullOrUndefined(dataResults) && dataResults.length != -1) {
+                $.each(dataResults, function (index, item) {
+                    dataResults.forEach(users => {
+                        if (!IsNullOrUndefined(users.UserName) && !IsNullOrUndefined(users.UserName.results) && users.UserName.results.length > 0) {
+                            users.UserName.results.forEach(user => {
+                                allUsers.push({ userId: user.Id, userName: user.Title })
+                            });
+                        }
+                    });
+
+                });
+            }
+            setUsersInDDL(allUsers, eleID);
+        },
+        error: function (error, textStatus) {
+            console.log(error);
+        }
+    });
+}
+
+function setUsersInDDL(allUsers, eleID) {
+    $("#" + eleID).html('');
+    $("#" + eleID).html("<option value=''>Select</option>");
+    if (!IsNullOrUndefined(allUsers) && allUsers.length > 0) {
+        allUsers.forEach(user => {
+            var opt = $("<option/>");
+            opt.text(user.userName);
+            opt.attr("value", user.userId);
+            opt.appendTo($("#" + eleID));
+        });
+    }
+}
 
 function KeyPressNumericValidation() {
     jQuery('input[data="integer"]').keypress(function (event) {
@@ -661,125 +747,16 @@ function ValidateForm(ele) {
             ConfirmationDailog({
                 title: "Confirm", message: attachmsg, okCallback: function (id, data) {
                     //ShowWaitDialog();
-                 //  workflowSaveMethodName();
+                    //  workflowSaveMethodName();
                 }
             });
         }
         else {
-          //  workflowSaveMethodName();
+            //  workflowSaveMethodName();
         }
     }
     return isValid;
 }
-
-
-// function SetFormLevel(requestId, mainListName, tempApproverMatrix) {
-//     var web, clientContext;
-//     var previousLevel;
-//     var currentLevel;
-//     var nextLevel = "";
-//     var formLevel = "";
-//     var nextApprover = "";
-//     var nextApproverRole = "";
-//     var userEmail = "";
-//     // SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
-//     //     clientContext = new SP.ClientContext.get_current();
-//     //     web = clientContext.get_web();
-//     //     oList = web.get_lists().getByTitle(mainListName);
-//     //     var oListItem = oList.getItemById(requestId);
-
-//     //     clientContext.load(oListItem, 'FormLevel');
-//     //     clientContext.load(web);
-//     //     //clientContext.load(web, 'EffectiveBasePermissions');
-
-//     //     clientContext.executeQueryAsync(function () {
-//     //         previousLevel = oListItem.get_item('FormLevel').split("|")[0];
-//     //         currentLevel = oListItem.get_item('FormLevel').split("|")[1];
-//     //     }, function (sender, args) {
-//     //         console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
-//     //     });
-//     // });
-
-//     // $.ajax({
-//     //     url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + mainListName + "')/items(" + requestId + ")",
-//     //     type: "MERGE",
-//     //     data: JSON.stringify
-//     //         ({
-//     //             __metadata: {
-//     //                 type: GetItemTypeForListName(mainListName)
-//     //             },
-//     //             FormLevel: formLevel,
-//     //             NextApproverId: {
-//     //                 results: [nextApprover]
-//     //             }
-//     //         }),
-//     //     headers:
-//     //     {
-//     //         "Accept": "application/json;odata=verbose",
-//     //         "Content-Type": "application/json;odata=verbose",
-//     //         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-//     //         "IF-MATCH": "*"
-//     //     },
-//     //     success: function (data) {
-//     //         console.log("Item saved Successfully");
-//     //     },
-//     //     error: function (data) {
-//     //         console.log(data);
-//     //     }
-//     // });
-
-//     //ISALluserViewer logic pending
-//     tempApproverMatrix.filter(function (i) {
-//         if (i.ApproverId != undefined) {
-//             if (i.Levels == nextLevel && (i.Status == "Pending" || i.Status == "Hold" || i.Status == "Resume")) {
-//                 SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
-//                     var clientContext = new SP.ClientContext.get_current();
-//                     var oList = clientContext.get_web().get_lists().getByTitle(mainListName);
-
-//                     var oListItem = oList.getItemById(requestId);
-//                     var oUser = clientContext.get_web().ensureUser(i.Approver.results[0].EMail);
-//                     //this.oUser = clientContext.get_web().get_siteUsers().getByLoginName('DOMAIN\\alias');
-
-//                     oListItem.breakRoleInheritance(false, true); // break role inheritance first!
-
-//                     var roleDefBindingColl = SP.RoleDefinitionBindingCollection.newObject(clientContext);
-//                     roleDefBindingColl.add(clientContext.get_web().get_roleDefinitions().getByType(SP.RoleType.contributor));
-//                     oListItem.get_roleAssignments().add(oUser, roleDefBindingColl);
-
-//                     clientContext.load(oUser);
-//                     clientContext.load(oListItem);
-
-//                     clientContext.executeQueryAsync(Function.createDelegate(this, this.onQuerySucceeded), Function.createDelegate(this, this.onQueryFailed));
-//                 });
-//             }
-
-//             else if (i.Status != "Pending") {
-
-//                 SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
-//                     //alert('test');
-//                     var clientContext = new SP.ClientContext.get_current();
-//                     var oList = clientContext.get_web().get_lists().getByTitle(listName);
-
-//                     var oListItem = oList.getItemById(listData.ID);
-//                     var oUser = clientContext.get_web().ensureUser(i.ApproverId.EMail);
-//                     //this.oUser = clientContext.get_web().get_siteUsers().getByLoginName('DOMAIN\\alias');
-
-//                     oListItem.breakRoleInheritance(false, true); // break role inheritance first!
-
-//                     var roleDefBindingColl = SP.RoleDefinitionBindingCollection.newObject(clientContext);
-//                     roleDefBindingColl.add(clientContext.get_web().get_roleDefinitions().getByType(SP.RoleType.reader));
-//                     oListItem.get_roleAssignments().add(oUser, roleDefBindingColl);
-
-//                     clientContext.load(oUser);
-//                     clientContext.load(oListItem);
-
-//                     clientContext.executeQueryAsync(Function.createDelegate(this, this.onQuerySucceeded), Function.createDelegate(this, this.onQueryFailed));
-//                 });
-//             }
-//         }
-
-//     });
-// }
 
 function onQuerySucceeded(sender, args) {
     console.log("Success");
