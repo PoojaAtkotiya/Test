@@ -212,6 +212,7 @@ function SaveFormData() {
                 var elementType = $(this).attr('controlType');
                 listDataArray = GetFormControlsValue(elementId, elementType, listDataArray);
             });
+            
             // if (ValidateFormControls(activeSectionId, false)) {
             SaveData(mainListName, listDataArray, sectionName);
             // }
