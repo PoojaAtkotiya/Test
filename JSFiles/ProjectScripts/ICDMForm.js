@@ -3,191 +3,84 @@ var appName = applicationName;
 var formName = "Item Code Preprocess Form";
 var masterDataArray;
 
-var listItemId;
+// var listItemId;
 var formData = {};
 var mainListData = {};
 var sendToLevel = 0;
 var collListItem = null;
-var currentContext;
-var hostweburl;
+// var currentContext;
+// var hostweburl;
 var fileInfos = [];
 
 $(document).ready(function () {
-    hostweburl = "https://bajajelect.sharepoint.com/sites/MTDEV";
+    // hostweburl = "https://bajajelect.sharepoint.com/sites/MTDEV";
 
-    var scriptbase = hostweburl + "/_layouts/15/";
+    // var scriptbase = hostweburl + "/_layouts/15/";
 
-    // Load the js files and continue to
-    // the execOperation function.
-    $.getScript(scriptbase + "SP.Runtime.js",
-        function () {
-            $.getScript(scriptbase + "SP.js", loadConstants);
-        }
-    );
+    // // Load the js files and continue to
+    // // the execOperation function.
+    // $.getScript(scriptbase + "SP.Runtime.js",
+    //     function () {
+    //         $.getScript(scriptbase + "SP.js", loadConstants);
+    //     }
+    // );
+    GetUsersForDDL("LUM Marketing Delegate", "LUMMarketingDelegateId");
+    GetUsersForDDL("LUM Design Delegate", "SCMLUMDesignDelegateId");
 });
 
 
-function loadConstants() {
-    var clientContext = new SP.ClientContext("https://bajajelect.sharepoint.com/sites/MTDEV");
-    this.oWebsite = clientContext.get_web();
-    clientContext.load(this.oWebsite);
-    clientContext.executeQueryAsync(
-        Function.createDelegate(this, onSuccess),
-        Function.createDelegate(this, onFail)
-    );
-}
-
-function onSuccess(sender, args) {
-
-    currentContext = SP.ClientContext.get_current();
-    listItemId = getUrlParameter("ID");
-    returnUrl = getUrlParameter("Source");
-    ExecuteOrDelayUntilScriptLoaded(GetCurrentUserDetails, "sp.js");
-
-    ////Get Current user details
-    // GetCurrentUserDetails();
-
-    GetAllMasterData();
-
-    // GetUserName(roleName, html element Id)
-    GetUsersForDDL("LUM Marketing Delegate", "LUMMarketingDelegateId");
-    GetUsersForDDL("LUM Design Delegate", "SCMLUMDesignDelegateId");
-
-
-    //For Temporary
-    //GetApproverMaster();
-
-    if (listItemId != null && listItemId > 0) {
-        GetSetFormData();
-    }
-    else {
-        GetGlobalApprovalMatrix(listItemId);
-    }
-}
-
-function onFail(sender, args) {
-    console.log(args.get_message());
-}
-
-function blob() {
-    var input = document.getElementById("exampleFormControlFile1");
-    var fileCount = input.files.length;
-    console.log(fileCount);
-    for (var i = 0; i < fileCount; i++) {
-        var fileName = input.files[i].name;
-        console.log(fileName);
-        var file = input.files[i];
-        var reader = new FileReader();
-        reader.onload = (function (file) {
-            return function (e) {
-                console.log(file.name);
-                fileInfos.push({
-                    "name": file.name,
-                    "content": e.target.result
-                });
-                console.log(fileInfos);
-            }
-        })(file);
-
-        reader.readAsArrayBuffer(file);
-    }
-
-    //End of for loop
-
-}
-
-function uploadListAttachments() {
-    var item = $pnp.sp.web.lists.getByTitle("demopoc2").items.getById(1);
-    item.attachmentFiles.addMultiple(fileInfos).then(v => {
-        console.log(v);
-    }).catch(function (err) {
-        alert(err);
-    });
-}
-
-function GetUsersForDDL(roleName, eleID) {
-    //sync call to avoid conflicts in deriving role wise users
-    jQuery.ajax({
-        async: false,
-        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('ApproverMaster')/items?$select=Role,UserSelection,UserName/Id,UserName/Title&$expand=UserName/Id&$expand=UserName/Id&$filter= (Role eq '" + roleName + "') and (UserSelection eq 1)",
-        type: "GET",
-        headers: { "Accept": "application/json;odata=verbose" },
-        success: function (data, textStatus, xhr) {
-            var dataResults = data.d.results;
-            var allUsers = [];
-            if (!IsNullOrUndefined(dataResults) && dataResults.length != -1) {
-                $.each(dataResults, function (index, item) {
-                    dataResults.forEach(users => {
-                        if (!IsNullOrUndefined(users.UserName) && !IsNullOrUndefined(users.UserName.results) && users.UserName.results.length > 0) {
-                            users.UserName.results.forEach(user => {
-                                allUsers.push({ userId: user.Id, userName: user.Title })
-                            });
-                        }
-                    });
-
-                });
-            }
-            setUsersInDDL(allUsers, eleID);
-        },
-        error: function (error, textStatus) {
-            console.log(error);
-        }
-    });
-}
-
-// function GetUserName(roleName, eleID) {
-//     var oList = currentContext.get_web().get_lists().getByTitle('ApproverMaster');
-//     var camlQuery = new SP.CamlQuery();
-//     camlQuery.set_viewXml(
-//         '<View><Query><Where><Eq><FieldRef Name=\'Role\'/>' +
-//         '<Value Type=\'Text\'>' + roleName + '</Value></Eq></Where></Query>' +
-//         '<RowLimit>5000</RowLimit></View>'
-//     );
-//     collListItem = oList.getItems(camlQuery);
-//     currentContext.load(collListItem);
-//     currentContext.executeQueryAsync(
-//         Function.createDelegate(this, function (sender, args) {
-//             onGetUserNameSucceeded(sender, args, eleID, collListItem)
-//         }
-//         ),
-//         Function.createDelegate(this, onGetUserFailed)
+// function loadConstants() {
+//     var clientContext = new SP.ClientContext("https://bajajelect.sharepoint.com/sites/MTDEV");
+//     this.oWebsite = clientContext.get_web();
+//     clientContext.load(this.oWebsite);
+//     clientContext.executeQueryAsync(
+//         Function.createDelegate(this, onSuccess),
+//         Function.createDelegate(this, onFail)
 //     );
 // }
 
-// function onGetUserNameSucceeded(sender, args, eleID, collListItem) {
-//     var allUsers = [];
-//     if (!IsNullOrUndefined(collListItem)) {
-//         var listItemEnumerator = collListItem.getEnumerator();
-//         while (listItemEnumerator.moveNext()) {
-//             var oListItem = listItemEnumerator.get_current();
-//             var users = oListItem.get_item('UserName');
-//             if (!IsNullOrUndefined(users) && users.length != -1) {
-//                 users.forEach(user => {
-//                     allUsers.push({ userId: user.get_lookupId(), userName: user.get_lookupValue(), userEmail: user.get_email() })
-//                 });
-//             }
+// function onSuccess(sender, args) {
 
-//         }
-//         setUsersInDDL(allUsers, eleID);
+//     currentContext = SP.ClientContext.get_current();
+//     listItemId = getUrlParameter("ID");
+//     returnUrl = getUrlParameter("Source");
+//     ExecuteOrDelayUntilScriptLoaded(GetCurrentUserDetails, "sp.js");
+
+//     ////Get Current user details
+//     // GetCurrentUserDetails();
+
+//     GetAllMasterData();
+
+//     // GetUserName(roleName, html element Id)
+//     GetUsersForDDL("LUM Marketing Delegate", "LUMMarketingDelegateId");
+//     GetUsersForDDL("LUM Design Delegate", "SCMLUMDesignDelegateId");
+
+
+//     //For Temporary
+//     //GetApproverMaster();
+
+//     if (listItemId != null && listItemId > 0) {
+//         GetSetFormData();
+//     }
+//     else {
+//         GetGlobalApprovalMatrix(listItemId);
 //     }
 // }
 
-function onGetUserFailed(sender, args) {
-    console.log('onGetUserFailed : Request failed. ' + args.get_message() +
-        '\n' + args.get_stackTrace());
-}
-function setUsersInDDL(allUsers, eleID) {
-    $("#" + eleID).html('');
-    $("#" + eleID).html("<option value=''>Select</option>");
-    if (!IsNullOrUndefined(allUsers) && allUsers.length > 0) {
-        allUsers.forEach(user => {
-            var opt = $("<option/>");
-            opt.text(user.userName);
-            opt.attr("value", user.userId);
-            opt.appendTo($("#" + eleID));
-        });
-    }
-}
+// function onFail(sender, args) {
+//     console.log(args.get_message());
+// }
+
+
+
+
+//Not in use -----------
+// function onGetUserFailed(sender, args) {
+//     console.log('onGetUserFailed : Request failed. ' + args.get_message() +
+//         '\n' + args.get_stackTrace());
+// }
+
+
 
 function ICDM_SaveData(ele) {
     if (ValidateForm(ele)) {
@@ -197,6 +90,8 @@ function ICDM_SaveData(ele) {
 }
 
 function FormBusinessLogic() {
+  //check if there any delegate user fillby section owner
+    // $('#'+ sectionName).
 
 }
 
@@ -213,7 +108,7 @@ function SaveFormData() {
                 var elementType = $(this).attr('controlType');
                 listDataArray = GetFormControlsValue(elementId, elementType, listDataArray);
             });
-            
+
             // if (ValidateFormControls(activeSectionId, false)) {
             SaveData(mainListName, listDataArray, sectionName);
             // }
@@ -224,9 +119,7 @@ function SaveFormData() {
 function SaveData(listname, listDataArray, sectionName) {
     var itemType = GetItemTypeForListName(listname);
 
-    //check if there any delegate user fillby section owner
-    // $('#'+ sectionName).
-
+  
     ////Pending to make it dynamic
     if (!IsNullOrUndefined(listDataArray.SCMLUMDesignDelegateId)) {
         var array = [];
@@ -261,7 +154,8 @@ function SaveData(listname, listDataArray, sectionName) {
                     itemID = data.d.ID;
                 }
                 debugger
-                AddAttachments(itemID);
+                // AddAttachments(itemID);
+                AddAllAttachments(listname,itemID);
                 var web, clientContext;
                 SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
                     clientContext = new SP.ClientContext.get_current();
@@ -305,38 +199,100 @@ function SaveData(listname, listDataArray, sectionName) {
     }
 }
 
-function AddAttachments(itemId) {
-    debugger
-    var fileInput = $('#UploadArtworkAttachment');
-    var fileName = fileInput[0].files[0].name;
-    var reader = new FileReader();
-    reader.onload = function (e) {
-        var fileData = e.target.result;
-        var res11 = $.ajax({
-            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ItemCodeProProcessListName + "')/items(" + itemId + ")/AttachmentFiles/ add(FileName='" + fileName + "')",
-            method: "POST",
-            binaryStringRequestBody: true,
-            data: fileData,
-            processData: false,
-            async: false,
-            headers: {
-                "ACCEPT": "application/json;odata=verbose",
-                "X-RequestDigest": _spPageContextInfo.formDigestValue,
-                "content-length": fileData.byteLength
-            },
-            success: function (data) {
-                console.log(data);
-                console.log("attachment saved successfully. filename = " + fileName);
-            },
-            error: function (data) {
+function AddAllAttachments(listname,itemID) {
+    $('#divItemCodeForm').find('div[section]').not(".disabled").each(function (i, e) {
+        var fileListArray = [];
+        $(e).find('input[type="file"]').each(function () {
+            var elementId = $(this).attr('id');
+            var controlType = $(this).attr('controlType');
+            // if (controlType == "file") {
                 debugger;
-                console.log(data);
-            }
-        });
-    };
-    reader.readAsArrayBuffer(fileInput[0].files[0]);
+                fileListArray = GetAttachmentValue(elementId, fileListArray);
+                //if (!IsNullOrUndefined(fileListArray)) {
+                    SaveItemWiseAttachments(listname, fileListArray, itemID, elementId);
+                //}
+           // }
 
+        });
+
+
+    });
 }
+
+function GetAttachmentValue(elementId, fileListArray) {
+    var input =document.getElementById("UploadArtworkAttachment")
+    var fileCount = input.files.length;
+    for (var i = 0; i < fileCount; i++) {
+        var file = input.files[i];
+        var reader = new FileReader();
+        reader.onload = (function (file) {
+            return function (e) {
+                console.log(file.name);
+                debugger;
+                fileInfos.push({
+                    "name": file.name,
+                    "content": e.target.result
+                });
+            }
+        })(file);
+        reader.readAsArrayBuffer(file);
+    }
+}
+
+function SaveItemWiseAttachments(listname, fileListArray, itemID, elementId) {
+    var item = $pnp.sp.web.lists.getByTitle(listname).items.getById(itemID);
+    item.attachmentFiles.addMultiple(fileInfos).then(v => {
+        console.log(v);
+        // pnp.sp.web.lists.getByTitle(listname).items.getById(itemID).update({
+        //     elementId: "file name here",
+        // }).then(result => {
+        //     console.log(JSON.stringify(result));
+        // }).catch(function (err) {
+        //     debugger;
+        //     console.log(err);
+        //     console.log("error while saving file name in multiline text field");
+        // });
+        console.log("files saved successfully in list = " + listname + "for listItemId = " + itemID);
+    }).catch(function (err) {
+        debugger;
+        console.log(err);
+        console.log("error while save attachment ib list = " + listname + "for listItemId = " + itemID)
+    });
+}
+
+////requried if attachment using ajax call
+// function AddAttachments(itemId) {
+//     debugger
+//     var fileInput = $('#UploadArtworkAttachment');
+//     var fileName = fileInput[0].files[0].name;
+//     var reader = new FileReader();
+//     reader.onload = function (e) {
+//         var fileData = e.target.result;
+//         var res11 = $.ajax({
+//             url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ItemCodeProProcessListName + "')/items(" + itemId + ")/AttachmentFiles/ add(FileName='" + fileName + "')",
+//             method: "POST",
+//             binaryStringRequestBody: true,
+//             data: fileData,
+//             processData: false,
+//             async: false,
+//             headers: {
+//                 "ACCEPT": "application/json;odata=verbose",
+//                 "X-RequestDigest": _spPageContextInfo.formDigestValue,
+//                 "content-length": fileData.byteLength
+//             },
+//             success: function (data) {
+//                 console.log(data);
+//                 console.log("attachment saved successfully. filename = " + fileName);
+//             },
+//             error: function (data) {
+//                 debugger;
+//                 console.log(data);
+//             }
+//         });
+//     };
+//     reader.readAsArrayBuffer(fileInput[0].files[0]);
+
+// }
 
 //function TranListData(lookupId) {
 //    tranlistNameArray = [];

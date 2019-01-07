@@ -66,10 +66,6 @@ function SetApprovalMatrix(id, mainListName) {
         }).fail(function () {
             console.log("Execute  second after the retrieve list items  failed");
         });
-        //  GetCurrentUserRole(id, mainListName);
-        //  GetEnableSectionNames(id);
-        //  tempApproverMatrix = localApprovalMatrixdata;
-
     } else {
         currentUserRole = "Creator";
         //get active/inactive section name from globalApprovalMatrix
@@ -90,7 +86,6 @@ function SetApprovalMatrix(id, mainListName) {
             temp.IsHOLD = "";
         });
         SetApproversInApprovalMatrix(id);
-
     }
 }
 
