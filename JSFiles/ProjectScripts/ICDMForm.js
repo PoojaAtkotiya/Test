@@ -10,6 +10,7 @@ var sendToLevel = 0;
 var collListItem = null;
 var currentContext;
 var hostweburl;
+var fileInfos = [];
 
 $(document).ready(function () {
     hostweburl = "https://bajajelect.sharepoint.com/sites/MTDEV";
@@ -66,6 +67,42 @@ function onSuccess(sender, args) {
 
 function onFail(sender, args) {
     console.log(args.get_message());
+}
+
+function blob() {
+    var input = document.getElementById("exampleFormControlFile1");
+    var fileCount = input.files.length;
+    console.log(fileCount);
+    for (var i = 0; i < fileCount; i++) {
+        var fileName = input.files[i].name;
+        console.log(fileName);
+        var file = input.files[i];
+        var reader = new FileReader();
+        reader.onload = (function(file) {
+            return function(e) {
+                console.log(file.name);
+                fileInfos.push({
+                    "name": file.name,
+                    "content": e.target.result
+                });
+                console.log(fileInfos);
+            }
+        })(file);
+
+        reader.readAsArrayBuffer(file);
+    }
+
+    //End of for loop
+
+}
+
+function uploadListAttachments() {
+    var item = $pnp.sp.web.lists.getByTitle("demopoc2").items.getById(1);
+    item.attachmentFiles.addMultiple(fileInfos).then(v => {
+        console.log(v);
+    }).catch(function(err) {
+        alert(err);
+    });
 }
 
 function GetUsersForDDL(roleName, eleID) {
@@ -177,10 +214,12 @@ function SaveData(listname, listDataArray, sectionName) {
 
     //check if there any delegate user fillby section owner
     // $('#'+ sectionName).
+
+    ////Pending to make it dynamic
     if (!IsNullOrUndefined(listDataArray.SCMLUMDesignDelegateId)) {
         var array = [];
         array.push(listDataArray.SCMLUMDesignDelegateId);
-        listDataArray["SCMLUMDesignDelegateId"] = {"results" : array};
+        listDataArray["SCMLUMDesignDelegateId"] = { "results": array };
     }
 
     var isNewItem = true;
@@ -209,6 +248,8 @@ function SaveData(listname, listDataArray, sectionName) {
                 if (!IsNullOrUndefined(data) && !IsNullOrUndefined(data.d)) {
                     itemID = data.d.ID;
                 }
+                debugger
+                AddAttachments(itemID);
                 var web, clientContext;
                 SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
                     clientContext = new SP.ClientContext.get_current();
@@ -250,6 +291,39 @@ function SaveData(listname, listDataArray, sectionName) {
             }
         });
     }
+}
+
+function AddAttachments(itemId) {
+    debugger
+    var fileInput = $('#UploadArtworkAttachment');
+    var fileName = fileInput[0].files[0].name;
+    var reader = new FileReader();
+    reader.onload = function (e) {
+        var fileData = e.target.result;
+        var res11 = $.ajax({
+            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ItemCodeProProcessListName + "')/items(" + itemId + ")/AttachmentFiles/ add(FileName='" + fileName + "')",
+            method: "POST",
+            binaryStringRequestBody: true,
+            data: fileData,
+            processData: false,
+            async : false,
+            headers: {
+                "ACCEPT": "application/json;odata=verbose",
+                "X-RequestDigest": _spPageContextInfo.formDigestValue,
+                "content-length": fileData.byteLength
+            },
+            success: function (data) {
+                console.log(data);
+                console.log("attachment saved successfully. filename = " + fileName);
+            },
+            error: function (data) {
+                debugger;
+                console.log(data);
+            }
+        });
+    };
+    reader.readAsArrayBuffer(fileInput[0].files[0]);
+
 }
 
 //function TranListData(lookupId) {

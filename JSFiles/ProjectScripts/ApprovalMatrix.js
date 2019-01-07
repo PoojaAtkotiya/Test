@@ -927,21 +927,6 @@ function SaveFormFields(formFieldValues, requestId) {
         url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ItemCodeProProcessListName + "')/items(" + requestId + ")",
         type: "POST",
         data: JSON.stringify(listDataArray),
-        // ({
-        //     __metadata: {
-        //         type: GetItemTypeForListName(ItemCodeProProcessListName)
-        //     },
-        //     FormLevel: formFieldValues["FormLevel"].toString(),
-        //     NextApproverId: { "results": nextResults },
-        //     LastActionBy: !IsNullOrUndefined(formFieldValues["LastActionBy"]) ? formFieldValues["LastActionBy"].toString() : '',
-        //     LastActionByRole: formFieldValues["LastActionByRole"].toString(),
-        //     PendingWith: formFieldValues["PendingWith"].toString(),
-        //     Status: formFieldValues["Status"].toString(),
-        //     WorkflowStatus: formFieldValues["WorkflowStatus"].toString()
-        //     //ApprovalStatus : formFieldValues["ApprovalStatus"],
-        //     //LastActionPerformed : formFieldValues["LastActionPerformed"],
-        //     //IsReschedule: formFieldValues["IsReschedule"],
-        // }),
         headers:
             {
                 "Accept": "application/json;odata=verbose",
