@@ -189,22 +189,34 @@ function setUsersInDDL(allUsers, eleID) {
     }
 }
 
+function ICDM_SaveData(ele) {
+    if(ValidateForm(ele))
+    {
+        FormBusinessLogic();
+        SaveForm();
+    }
+}
 
+function FormBusinessLogic()
+{
+
+}
 
 function SaveFormData() {
     var mainListName = $('#divItemCodeForm').attr('mainlistname');
     if (mainListName != undefined && mainListName != '' && mainListName != null) {
         $('#divItemCodeForm').find('div[section]').not(".disabled").each(function (i, e) {
             var sectionName = $(e).attr('section');
+            var activeSectionId = $(e).attr('id');
             var listDataArray = {};
             $(e).find('input[listtype=main],select[listtype=main],radio[listtype=main],textarea[listtype=main],label[listtype=main],input[reflisttype=main],select[reflisttype=main],radio[reflisttype=main],textarea[reflisttype=main],label[reflisttype=main]').each(function () {
                 var elementId = $(this).attr('id');
                 var elementType = $(this).attr('controlType');
                 listDataArray = GetFormControlsValue(elementId, elementType, listDataArray);
             });
-            //if (ValidateFormControls('LUMMARKETINGINCHARGESECTION', false)) {
-            SaveData(mainListName, listDataArray, sectionName);
-            //}
+            if (ValidateFormControls(activeSectionId, false)) {
+                SaveData(mainListName, listDataArray, sectionName);
+            }
         });
     }
 }
@@ -266,9 +278,9 @@ function SaveData(listname, listDataArray, sectionName) {
                         ///Pending -- temporary
                         var param = [
                             SendToLevel = 0
-                        ]
+                        ] +
 
-                        SaveLocalApprovalMatrix(sectionName, itemID, listname, isNewItem, oListItem, ItemCodeApprovalMatrixListName, param);
+                            SaveLocalApprovalMatrix(sectionName, itemID, listname, isNewItem, oListItem, ItemCodeApprovalMatrixListName, param);
 
                         if (data != undefined && data != null && data.d != null) {
                             SaveTranListData(itemID);
@@ -433,6 +445,7 @@ function GetSetFormData() {
 function SaveForm() {
     var formValid = false;
     buttonActionStatus = "NextApproval";
+    //Object.keys(buttonActionStatus.NextApproval)
     formValid = true;
     if (formValid) {
         SaveFormData();

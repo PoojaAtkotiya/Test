@@ -713,7 +713,7 @@ function GetPermissionDictionary(tempApproverMatrix, nextLevel, isAllUserViewer)
                 }
                 ////Phase 2 :All members who will be in the DCR Process should be able to know the status of all DCR/DCN. 
                 //// else if (Convert.ToInt32(p.Levels) <= preLevel || (p.Levels == curLevel.ToString() && p.Status != ApproverStatus.PENDING))
-                else if (temp.Status != "Pending")//ApproverStatus.PENDING)
+                else if (temp.Status != ApproverStatus.PENDING)
                 {
                     /* All users 
                      * 1) who are less then previous level

@@ -1,6 +1,6 @@
 var spSiteUrl = _spPageContextInfo.webAbsoluteUrl;
 var rootUrl = "https://bajajelect.sharepoint.com/sites/WFRootDev/";
-
+var ApplicationShortName="ICDM";
 var applicationName = "Item Code Creation Preprocess";
 var formName = "Item Code Preprocess Form";
 var globalApprovalMatrixName = 'ApprovalMatrix';
@@ -25,7 +25,12 @@ var buttonActionStatus = {
     Hold: 43,
     Resume: 44,
     RestartToUpdate: 45
-};
+ };
+
+
+function Enum() { for (var i in arguments) { this[arguments[i]] = i; } }
+ //var buttonActionStatus= new Enum('None', 'SaveAsDraft'); 
+
 var jsFunctionValue = {
     Submit: 1,
     Guideline: 2,

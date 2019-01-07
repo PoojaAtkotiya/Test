@@ -8,8 +8,7 @@ var securityToken;
 var scriptbase; //= spSiteUrl + "/_layouts/15/";     ////_spPageContextInfo.layoutsUrl
 
 jQuery(document).ready(function () {
-
-    // KeyPressNumericValidation();   
+     KeyPressNumericValidation();   
 });
 
 function KeyPressNumericValidation() {
@@ -343,12 +342,432 @@ function setFieldValue(controlId, item, fieldType, fieldName) {
                 $("#" + controlId).val(dt).change();
             }
             break;
+        case "hidden":
+            $("#" + controlId).val(item[fieldName]);
+            break;
     }
 }
 
 function GetItemTypeForListName(name) {
     return "SP.Data." + name.charAt(0).toUpperCase() + name.split(" ").join("").slice(1) + "ListItem";
 }
+
+function ConfirmationDailog(options) {
+    $("#ConfirmDialog").remove();
+    var confirmDlg = "<div class='modal fade bs-example-modal-sm' tabindex='-1' role='dialog' id='ConfirmDialog' aria-labelledby='mySmallModalLabel'><div class='modal-dialog modal-sm'><div class='modal-content'><div class='modal-header'>" +
+        "<button type='button' class='close' data-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button><h4 class='modal-title' id='ModalTitle'>Modal title</h4></div><div class='modal-body' id='ModalContent'>" +
+        "</div><div class='modal-footer'><button type='button' id='btnYesPopup' isdialogclose='false' class='btn btn-default' data-dismiss='modal'>" +
+        "Yes</button><button type='button' id='btnNoPopup' isdialogclose='false' class='btn btn-default' data-dismiss='modal'>No</button> </div></div></div></div>";
+    $(confirmDlg).appendTo("body");
+    $("#ConfirmDialog #btnYesPopup").on("click", function () {
+        if (typeof (options.okCallback) !== "undefined" && options.okCallback != null) {
+            //options.okCallback();
+            ConfirmPopupYes(options.url, options.id, options.okCallback);
+        }
+    });
+    $("#ConfirmDialog #btnNoPopup").on("click", function () {
+        if (typeof (options.cancelCallback) !== "undefined" && options.cancelCallback != null) {
+            options.cancelCallback();
+        }
+    });
+    $("#ConfirmDialog #ModalTitle").text(options.title);
+    $("#ConfirmDialog #ModalContent").text(options.message);
+    $("#ConfirmDialog").modal('show').on('hidden.bs.modal', function () {
+        if (typeof (options.closeCallback) !== "undefined" && options.closeCallback != null) {
+            options.closeCallback();
+        }
+    });
+}
+
+function ConfirmPopupYes(url, id, okCallback) {
+    if (typeof (url) !== "undefined" && url != null) {
+        url = url;
+        $.ajax
+            ({
+                url: url,
+                type: "DELETE",
+                headers: {
+                    "accept": "application/json;odata=verbose",
+                    "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+                    "IF-MATCH": "*"
+                },
+                success: function (data) {
+                    if (typeof (okCallback) !== "undefined" && okCallback != null) {
+                        okCallback(id, data);
+                    }
+                }
+            });
+
+
+        //     jQuery.post(url, {
+        //         Id: id
+        //     }, function (data) {
+        //         if (typeof (okCallback) !== "undefined" && okCallback != null) {
+        //             okCallback(id, data);
+        //         }
+        //     }).fail(function (xhr) {
+        //         onAjaxError(xhr);
+        //     });
+    }
+    else {
+        if (typeof (okCallback) !== "undefined" && okCallback != null) {
+            okCallback();
+        }
+        //HideWaitDialog();
+    }
+}
+
+function AlertModal(title, msg, isExit, callback) {
+    $("div[id='PopupDialog']").remove();
+    var popupDlg = '<div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" id="PopupDialog" aria-labelledby="mySmallModalLabel"><div class="modal-dialog modal-sm"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="ModalTitle">Modal title</h4></div><div class="modal-body" id="ModalContent"></div><div class="modal-footer"><button type="button" id="ClosePopup" isdialogclose="false" class="btn btn-default" data-dismiss="modal">Close</button> </div></div></div></div>';
+    $(popupDlg).appendTo("body");
+    $("#PopupDialog #ModalTitle").text(title);
+    $("#PopupDialog #ModalContent").html(msg);
+    if (title == "Success") {
+        $("#PopupDialog .modal-header").addClass("bg-success text-white");
+    }
+    else if (title == "Error") {
+        $("#PopupDialog .modal-header").addClass("bg-danger text-white");
+    }
+    else if (title == "Validation") {
+        $("#PopupDialog .modal-header").addClass("bg-yellow text-white");
+    }
+    else if (title == "SessionTimeout") {
+        $("#PopupDialog .modal-header").addClass("bg-warning text-white");
+    }
+    $("#PopupDialog").modal('show').on('hidden.bs.modal', function () {
+        if (typeof (callback) !== 'undefined' && callback != null) {
+            callback();
+        }
+        if (typeof (isExit) !== 'undefined' && isExit == true) {
+            // Exit();
+        }
+        if (callback == null) {
+            $("div[id='PopupDialog']").hide();
+            $("div[id='PopupDialog']").remove();
+        }
+    });
+}
+
+function UserAborted(xhr) {
+    return !xhr.getAllResponseHeaders();
+}
+function onAjaxError(xhr) {
+    if (!UserAborted(xhr)) {
+        if (xhr.status.toString().substr(0, 1) == "4" || xhr.status == 504) {
+            AlertModal('SessionTimeout', "Session Timed out!!!");
+        }
+        else {
+            //This shortcut is not recommended way to track unauthorized action.
+            //if (xhr.responseText.indexOf("403.png") > 0) {
+            //    window.location = UnAuthorizationUrl;
+            //}
+            //else {
+            //    AlertModal("Error", "System error has occurred.", BootstrapDialog.TYPE_DANGER);
+            //}
+        }
+    }
+}
+
+function OnSuccess(data, status, xhr) {
+    try {
+        if (data.IsSucceed) {
+            if (data.IsFile) {
+                DownloadUploadedFile("<a data-url='" + data.ExtraData + "'/>", function () {
+                    ShowWaitDialog();
+                    setTimeout(function () {
+                        window.location = window.location.href + (window.location.href.indexOf('?') >= 0 ? "&" : "?");
+                    }, 2000)
+                });
+            } else {
+                var msg = '';
+                if (data.ExtraData != null) {
+                    msg = "<b>" + data.ExtraData + "</b>" + "<br>" + ParseMessage(data.Messages);
+                }
+                else {
+                    if ($("#ReferenceNo").length != 0) {
+                        msg = $("#ReferenceNo").html() + "<br>" + ParseMessage(data.Messages);
+                    }
+                    else {
+                        msg = ParseMessage(data.Messages);
+                    }
+                    ////msg = $("#ReferenceNo").html() + "<br>" + ParseMessage(data.Messages);
+                }
+                //AlertModal('Success', ParseMessage(data.Messages), true);
+                AlertModal('Success', msg, true);
+            }
+        } else {
+            AlertModal('Error', ParseMessage(data.Messages));
+        }
+    }
+    catch (e) { window.location.reload(); }
+}
+
+function OnFailure(xhr, status, error) {
+    try {
+        if (xhr.status.toString().substr(0, 1) == "4" || xhr.status == 504) {
+            AlertModal('SessionTimeout', ResourceManager.Message.SessionTimeOut);
+        }
+        else {
+            AlertModal('Error', ResourceManager.Message.Error);
+        }
+    }
+    catch (e) { window.location.reload(); }
+}
+
+
+function OnDelete(ele) {
+    var Id = $('#ListDetails_0__ItemId').val();
+    console.log("Id = " + Id);
+    ConfirmationDailog({
+        title: "Delete Request", message: "Are you sure to 'Delete'?", id: Id, url: "/NewArtwork/DeleteArwork", okCallback: function (id, data) {
+            ShowWaitDialog();
+            if (data.IsSucceed) {
+                AlertModal("Success", ParseMessage(data.Messages), true);
+            }
+            else {
+                AlertModal("Error", ParseMessage(data.Messages), true)
+            }
+
+
+        }
+    });
+}
+
+function ValidateForm(ele) {
+    var activediv = $('div[section]').not(".disabled")[0].outerHTML;
+    var form = '<form data-ajax="true" enctype="multipart/form-data" id="form0" method="post" novalidate="novalidate" autocomplete="off"/>';
+    var formList = $(form).append(activediv);
+    var isValid = true;
+    var dataAction = $(ele).attr("data-action");
+    var isPageRedirect = true;
+    var buttonCaption = $(ele).text().toLowerCase().trim();
+    if (buttonCaption == "hold" || buttonCaption == "resume") {
+        $("#Action").rules("remove", "required");
+    }
+
+    if (buttonCaption == "print") {
+        $('#printModel').modal('show');
+    }
+
+    if (buttonCaption != "print") {
+        formList.each(function () {            
+            if ($(this).find("input[id='ButtonCaption']").length == 0) {
+                var input = $("<input id='ButtonCaption' name='ButtonCaption' type='hidden'/>");
+                input.val($(ele).text());
+                $(this).append(input);
+            } else {
+                $(this).find("input[id='ButtonCaption']").val($(ele).text());
+            }
+
+            if ($(this).find("input[id='ButtonCaption']").val() != undefined && $(this).find("input[id='ButtonCaption']").val().trim() == "Submit" && $(this).find('.multiselectrequired').length > 0) {
+                if ($(this).find('.multiselectrequired').attr('data-val') == "true" && $(this).find('.multiselectrequired').attr('data-original-title') == '' && $(this).find('.multiselectrequired').attr('required') == 'required') {
+                    $(this).find('.multiselectrequired').next('div.btn-group').addClass('input-validation-error');
+                    $(this).find('.multiselectrequired').next('div.btn-group').next("span.field-validation-valid").addClass("field-validation-error");
+                    $(this).find('.multiselectrequired').next('div.btn-group').next("span.field-validation-error").removeClass("field-validation-valid");
+                    isValid = false;
+                }
+            }
+            else if ($(this).find("input[id='ButtonCaption']").val() != undefined && $(this).find("input[id='ButtonCaption']").val().trim() == 'Delegate' && $(this).find('.multiselectrequired').length > 0) {
+                $(this).find('.multiselectrequired').next('div.btn-group.input-validation-error').removeClass('input-validation-error');
+                $("form").validate().resetForm();
+            }
+
+            if ($(this).find(".amount").length > 0) {
+                $(this).find(".amount").each(function (i, e) {
+                    $(e).val($(e).val().replace(/,/g, ''));
+                });
+            }
+
+            if (dataAction == "1" || dataAction == "33") {
+                $(this).validate().settings.ignore = "*";
+                if (buttonCaption == "submit" || buttonCaption == "complete") {
+                    $(".field-validation-error").addClass("field-validation-valid");
+                    $(".field-validation-valid").removeClass("field-validation-error");
+                }
+            }
+            else if (dataAction == "22") {
+                $(this).validate().settings.ignore = "*";
+                $(".field-validation-error").addClass("field-validation-valid");
+                $(".field-validation-valid").removeClass("field-validation-error");
+                $(this).validate().settings.ignore = ":not(.requiredOnSendBack)";
+            }
+            else if (dataAction == "40") {
+                $(this).validate().settings.ignore = "*";
+                $(".field-validation-error").addClass("field-validation-valid");
+                $(".field-validation-valid").removeClass("field-validation-error");
+                $(this).validate().settings.ignore = ":not(.requiredOnReject)";
+            }
+            else if (dataAction == "41") {
+                $(this).validate().settings.ignore = "*";
+                $(".field-validation-error").addClass("field-validation-valid");
+                $(".field-validation-valid").removeClass("field-validation-error");
+                $(this).validate().settings.ignore = ":not(.requiredOnDelegate)";
+            }
+            else {
+                $(this).validate().settings.ignore = ":hidden";
+                if (buttonCaption == "save as draft") {
+                    $(".field-validation-error").addClass("field-validation-valid");
+                    $(".field-validation-valid").removeClass("field-validation-error");
+                }
+            }
+            if (buttonCaption == "save as draft" || buttonCaption == "resume") {
+                $(this).attr("data-ajax-success", "OnSuccessNoRedirect");
+            }
+            else if (buttonCaption == "complete" && !isPageRedirect) {
+                $(this).attr("data-ajax-success", "ConfirmSubmitNoRedirect");
+            }
+            else {
+                $(this).attr("data-ajax-success", $(this).attr("data-ajax-old-success"));
+            }
+            $(this).find("input[id='ActionStatus']").val($(ele).attr("data-action"));
+            $(this).find("input[id='SendBackTo']").val($(ele).attr("data-sendbackto"));
+            $(this).find("input[id='SendToRole']").val($(ele).attr("data-sendtorole"));
+
+            if (!$(this).valid()) {
+                isValid = false;
+                try {
+                    var validator = $(this).validate();
+                    $(validator.errorList).each(function (i, errorItem) {
+                        console.log("{ '" + errorItem.element.id + "' : '" + errorItem.message + "'}");
+                    });
+                }
+                catch (e1) {
+                    console.log(e1.message);
+                }
+            }
+        });
+    }
+    // if (isValid) {
+    //     if (buttonCaption != "save as draft") {
+    //         //confirm file Attachment need attach or not
+    //         var attachmsg = "Are you sure to '" + $.trim($(ele).text()) + "'?";
+    //         if ($(form).find("div[data-appname]").length != 0 && $(form).find("div[data-appname]").find("ul li").length == 0 && dataAction == "10") {
+    //             attachmsg = "Are you sure to '" + $.trim($(ele).text()) + "' without attachment?";
+    //         }
+
+    //         ConfirmationDailog({
+    //             title: "Confirm", message: attachmsg, okCallback: function (id, data) {
+    //                 //ShowWaitDialog();
+    //                 workflowSaveMethodName();
+    //             }
+    //         });
+    //     }
+    //     else {
+    //         workflowSaveMethodName();
+    //     }
+    // }
+    return isValid;
+}
+
+
+// function SetFormLevel(requestId, mainListName, tempApproverMatrix) {
+//     var web, clientContext;
+//     var previousLevel;
+//     var currentLevel;
+//     var nextLevel = "";
+//     var formLevel = "";
+//     var nextApprover = "";
+//     var nextApproverRole = "";
+//     var userEmail = "";
+//     // SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
+//     //     clientContext = new SP.ClientContext.get_current();
+//     //     web = clientContext.get_web();
+//     //     oList = web.get_lists().getByTitle(mainListName);
+//     //     var oListItem = oList.getItemById(requestId);
+
+//     //     clientContext.load(oListItem, 'FormLevel');
+//     //     clientContext.load(web);
+//     //     //clientContext.load(web, 'EffectiveBasePermissions');
+
+//     //     clientContext.executeQueryAsync(function () {
+//     //         previousLevel = oListItem.get_item('FormLevel').split("|")[0];
+//     //         currentLevel = oListItem.get_item('FormLevel').split("|")[1];
+//     //     }, function (sender, args) {
+//     //         console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
+//     //     });
+//     // });
+
+//     // $.ajax({
+//     //     url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + mainListName + "')/items(" + requestId + ")",
+//     //     type: "MERGE",
+//     //     data: JSON.stringify
+//     //         ({
+//     //             __metadata: {
+//     //                 type: GetItemTypeForListName(mainListName)
+//     //             },
+//     //             FormLevel: formLevel,
+//     //             NextApproverId: {
+//     //                 results: [nextApprover]
+//     //             }
+//     //         }),
+//     //     headers:
+//     //     {
+//     //         "Accept": "application/json;odata=verbose",
+//     //         "Content-Type": "application/json;odata=verbose",
+//     //         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+//     //         "IF-MATCH": "*"
+//     //     },
+//     //     success: function (data) {
+//     //         console.log("Item saved Successfully");
+//     //     },
+//     //     error: function (data) {
+//     //         console.log(data);
+//     //     }
+//     // });
+
+//     //ISALluserViewer logic pending
+//     tempApproverMatrix.filter(function (i) {
+//         if (i.ApproverId != undefined) {
+//             if (i.Levels == nextLevel && (i.Status == "Pending" || i.Status == "Hold" || i.Status == "Resume")) {
+//                 SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
+//                     var clientContext = new SP.ClientContext.get_current();
+//                     var oList = clientContext.get_web().get_lists().getByTitle(mainListName);
+
+//                     var oListItem = oList.getItemById(requestId);
+//                     var oUser = clientContext.get_web().ensureUser(i.Approver.results[0].EMail);
+//                     //this.oUser = clientContext.get_web().get_siteUsers().getByLoginName('DOMAIN\\alias');
+
+//                     oListItem.breakRoleInheritance(false, true); // break role inheritance first!
+
+//                     var roleDefBindingColl = SP.RoleDefinitionBindingCollection.newObject(clientContext);
+//                     roleDefBindingColl.add(clientContext.get_web().get_roleDefinitions().getByType(SP.RoleType.contributor));
+//                     oListItem.get_roleAssignments().add(oUser, roleDefBindingColl);
+
+//                     clientContext.load(oUser);
+//                     clientContext.load(oListItem);
+
+//                     clientContext.executeQueryAsync(Function.createDelegate(this, this.onQuerySucceeded), Function.createDelegate(this, this.onQueryFailed));
+//                 });
+//             }
+
+//             else if (i.Status != "Pending") {
+
+//                 SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
+//                     //alert('test');
+//                     var clientContext = new SP.ClientContext.get_current();
+//                     var oList = clientContext.get_web().get_lists().getByTitle(listName);
+
+//                     var oListItem = oList.getItemById(listData.ID);
+//                     var oUser = clientContext.get_web().ensureUser(i.ApproverId.EMail);
+//                     //this.oUser = clientContext.get_web().get_siteUsers().getByLoginName('DOMAIN\\alias');
+
+//                     oListItem.breakRoleInheritance(false, true); // break role inheritance first!
+
+//                     var roleDefBindingColl = SP.RoleDefinitionBindingCollection.newObject(clientContext);
+//                     roleDefBindingColl.add(clientContext.get_web().get_roleDefinitions().getByType(SP.RoleType.reader));
+//                     oListItem.get_roleAssignments().add(oUser, roleDefBindingColl);
+
+//                     clientContext.load(oUser);
+//                     clientContext.load(oListItem);
+
+//                     clientContext.executeQueryAsync(Function.createDelegate(this, this.onQuerySucceeded), Function.createDelegate(this, this.onQueryFailed));
+//                 });
+//             }
+//         }
+
+//     });
+// }
 
 function onQuerySucceeded(sender, args) {
     console.log("Success");
@@ -390,6 +809,7 @@ function GetFormControlsValue(id, elementType, listDataArray) {
             if (!IsNullOrUndefined(date)) {
                 listDataArray[id] = date;
             }
+            //listDataArray[id] = new Date(year.toString() + "-" + month.toString() + "-" + date.toString()).format("yyyy-MM-ddTHH:mm:ssZ")
             break;
         case "checkbox":
             listDataArray[id] = $(obj)[0]['checked'];
