@@ -8,8 +8,7 @@ var securityToken;
 var scriptbase; //= spSiteUrl + "/_layouts/15/";     ////_spPageContextInfo.layoutsUrl
 
 jQuery(document).ready(function () {
-
-    // KeyPressNumericValidation();   
+     KeyPressNumericValidation();   
 });
 
 function KeyPressNumericValidation() {
@@ -469,6 +468,198 @@ function onAjaxError(xhr) {
         }
     }
 }
+
+function OnSuccess(data, status, xhr) {
+    try {
+        if (data.IsSucceed) {
+            if (data.IsFile) {
+                DownloadUploadedFile("<a data-url='" + data.ExtraData + "'/>", function () {
+                    ShowWaitDialog();
+                    setTimeout(function () {
+                        window.location = window.location.href + (window.location.href.indexOf('?') >= 0 ? "&" : "?");
+                    }, 2000)
+                });
+            } else {
+                var msg = '';
+                if (data.ExtraData != null) {
+                    msg = "<b>" + data.ExtraData + "</b>" + "<br>" + ParseMessage(data.Messages);
+                }
+                else {
+                    if ($("#ReferenceNo").length != 0) {
+                        msg = $("#ReferenceNo").html() + "<br>" + ParseMessage(data.Messages);
+                    }
+                    else {
+                        msg = ParseMessage(data.Messages);
+                    }
+                    ////msg = $("#ReferenceNo").html() + "<br>" + ParseMessage(data.Messages);
+                }
+                //AlertModal('Success', ParseMessage(data.Messages), true);
+                AlertModal('Success', msg, true);
+            }
+        } else {
+            AlertModal('Error', ParseMessage(data.Messages));
+        }
+    }
+    catch (e) { window.location.reload(); }
+}
+
+function OnFailure(xhr, status, error) {
+    try {
+        if (xhr.status.toString().substr(0, 1) == "4" || xhr.status == 504) {
+            AlertModal('SessionTimeout', ResourceManager.Message.SessionTimeOut);
+        }
+        else {
+            AlertModal('Error', ResourceManager.Message.Error);
+        }
+    }
+    catch (e) { window.location.reload(); }
+}
+
+
+function OnDelete(ele) {
+    var Id = $('#ListDetails_0__ItemId').val();
+    console.log("Id = " + Id);
+    ConfirmationDailog({
+        title: "Delete Request", message: "Are you sure to 'Delete'?", id: Id, url: "/NewArtwork/DeleteArwork", okCallback: function (id, data) {
+            ShowWaitDialog();
+            if (data.IsSucceed) {
+                AlertModal("Success", ParseMessage(data.Messages), true);
+            }
+            else {
+                AlertModal("Error", ParseMessage(data.Messages), true)
+            }
+
+
+        }
+    });
+}
+
+function ValidateForm(ele) {
+    var activediv = $('div[section]').not(".disabled")[0].outerHTML;
+    var form = '<form data-ajax="true" enctype="multipart/form-data" id="form0" method="post" novalidate="novalidate" autocomplete="off"/>';
+    var formList = $(form).append(activediv);
+    var isValid = true;
+    var dataAction = $(ele).attr("data-action");
+    var isPageRedirect = true;
+    var buttonCaption = $(ele).text().toLowerCase().trim();
+    if (buttonCaption == "hold" || buttonCaption == "resume") {
+        $("#Action").rules("remove", "required");
+    }
+
+    if (buttonCaption == "print") {
+        $('#printModel').modal('show');
+    }
+
+    if (buttonCaption != "print") {
+        formList.each(function () {            
+            if ($(this).find("input[id='ButtonCaption']").length == 0) {
+                var input = $("<input id='ButtonCaption' name='ButtonCaption' type='hidden'/>");
+                input.val($(ele).text());
+                $(this).append(input);
+            } else {
+                $(this).find("input[id='ButtonCaption']").val($(ele).text());
+            }
+
+            if ($(this).find("input[id='ButtonCaption']").val() != undefined && $(this).find("input[id='ButtonCaption']").val().trim() == "Submit" && $(this).find('.multiselectrequired').length > 0) {
+                if ($(this).find('.multiselectrequired').attr('data-val') == "true" && $(this).find('.multiselectrequired').attr('data-original-title') == '' && $(this).find('.multiselectrequired').attr('required') == 'required') {
+                    $(this).find('.multiselectrequired').next('div.btn-group').addClass('input-validation-error');
+                    $(this).find('.multiselectrequired').next('div.btn-group').next("span.field-validation-valid").addClass("field-validation-error");
+                    $(this).find('.multiselectrequired').next('div.btn-group').next("span.field-validation-error").removeClass("field-validation-valid");
+                    isValid = false;
+                }
+            }
+            else if ($(this).find("input[id='ButtonCaption']").val() != undefined && $(this).find("input[id='ButtonCaption']").val().trim() == 'Delegate' && $(this).find('.multiselectrequired').length > 0) {
+                $(this).find('.multiselectrequired').next('div.btn-group.input-validation-error').removeClass('input-validation-error');
+                $("form").validate().resetForm();
+            }
+
+            if ($(this).find(".amount").length > 0) {
+                $(this).find(".amount").each(function (i, e) {
+                    $(e).val($(e).val().replace(/,/g, ''));
+                });
+            }
+
+            if (dataAction == "1" || dataAction == "33") {
+                $(this).validate().settings.ignore = "*";
+                if (buttonCaption == "submit" || buttonCaption == "complete") {
+                    $(".field-validation-error").addClass("field-validation-valid");
+                    $(".field-validation-valid").removeClass("field-validation-error");
+                }
+            }
+            else if (dataAction == "22") {
+                $(this).validate().settings.ignore = "*";
+                $(".field-validation-error").addClass("field-validation-valid");
+                $(".field-validation-valid").removeClass("field-validation-error");
+                $(this).validate().settings.ignore = ":not(.requiredOnSendBack)";
+            }
+            else if (dataAction == "40") {
+                $(this).validate().settings.ignore = "*";
+                $(".field-validation-error").addClass("field-validation-valid");
+                $(".field-validation-valid").removeClass("field-validation-error");
+                $(this).validate().settings.ignore = ":not(.requiredOnReject)";
+            }
+            else if (dataAction == "41") {
+                $(this).validate().settings.ignore = "*";
+                $(".field-validation-error").addClass("field-validation-valid");
+                $(".field-validation-valid").removeClass("field-validation-error");
+                $(this).validate().settings.ignore = ":not(.requiredOnDelegate)";
+            }
+            else {
+                $(this).validate().settings.ignore = ":hidden";
+                if (buttonCaption == "save as draft") {
+                    $(".field-validation-error").addClass("field-validation-valid");
+                    $(".field-validation-valid").removeClass("field-validation-error");
+                }
+            }
+            if (buttonCaption == "save as draft" || buttonCaption == "resume") {
+                $(this).attr("data-ajax-success", "OnSuccessNoRedirect");
+            }
+            else if (buttonCaption == "complete" && !isPageRedirect) {
+                $(this).attr("data-ajax-success", "ConfirmSubmitNoRedirect");
+            }
+            else {
+                $(this).attr("data-ajax-success", $(this).attr("data-ajax-old-success"));
+            }
+            $(this).find("input[id='ActionStatus']").val($(ele).attr("data-action"));
+            $(this).find("input[id='SendBackTo']").val($(ele).attr("data-sendbackto"));
+            $(this).find("input[id='SendToRole']").val($(ele).attr("data-sendtorole"));
+
+            if (!$(this).valid()) {
+                isValid = false;
+                try {
+                    var validator = $(this).validate();
+                    $(validator.errorList).each(function (i, errorItem) {
+                        console.log("{ '" + errorItem.element.id + "' : '" + errorItem.message + "'}");
+                    });
+                }
+                catch (e1) {
+                    console.log(e1.message);
+                }
+            }
+        });
+    }
+    // if (isValid) {
+    //     if (buttonCaption != "save as draft") {
+    //         //confirm file Attachment need attach or not
+    //         var attachmsg = "Are you sure to '" + $.trim($(ele).text()) + "'?";
+    //         if ($(form).find("div[data-appname]").length != 0 && $(form).find("div[data-appname]").find("ul li").length == 0 && dataAction == "10") {
+    //             attachmsg = "Are you sure to '" + $.trim($(ele).text()) + "' without attachment?";
+    //         }
+
+    //         ConfirmationDailog({
+    //             title: "Confirm", message: attachmsg, okCallback: function (id, data) {
+    //                 //ShowWaitDialog();
+    //                 workflowSaveMethodName();
+    //             }
+    //         });
+    //     }
+    //     else {
+    //         workflowSaveMethodName();
+    //     }
+    // }
+    return isValid;
+}
+
 
 // function SetFormLevel(requestId, mainListName, tempApproverMatrix) {
 //     var web, clientContext;
