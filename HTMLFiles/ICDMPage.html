@@ -213,14 +213,19 @@
                                                     <div class="col-md-6">
                                                         <div class="col-md-4 control-label">LUM Marketing Delegate User :</div>
                                                         <div class="col-md-8">
+<<<<<<< HEAD
                                                             <!-- <select class="form-control dynamic-control" listtype="master" UserRole="" listname="ApproverMaster" id="Role" controlType="combo"></select> -->
                                                             <select class="form-control dynamic-control" data-selected="LUMMarketingDelegateId" reflisttype="main" id="LUMMarketingDelegateId"
+=======
+                                                            <select class="form-control dynamic-control" required="true" data-selected="LUMMarketingDelegateId" reflisttype="main" id="LUMMarketingDelegateId"
+>>>>>>> 2edc312b31763120a26a132a639809a7f7803b65
                                                                 controlType="combo"></select>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6">
                                                         <div class="col-md-4 control-label">Comment :</div>
                                                         <div class="col-md-8">
+                                                        <!--Current Approver Comment-->
                                                             <!-- <textarea class="form-control dynamic-control" maxlength="1000" required="true" cols="40" rows="6" controlType="multitext"
                                                                 listtype="tran" listname="ItemCodeApprovalMatrix" id="Comments"></textarea> -->
                                                         </div>
@@ -230,14 +235,15 @@
                                             <div class="row">
                                                 <div class="form-group">
                                                     <div class="col-md-6">
-                                                        <div class="col-md-4 control-label">Attachment :</div>
+                                                        <div class="col-md-4 control-label">Artwork Attachment :</div>
                                                         <div class="col-md-8">
-                                                            <input id='UploadArtworkAttachment' type='file'>
+                                                            <input type="file" id="UploadArtworkAttachment" name="myfiles" multiple="multiple">
+                                                            <!-- <button type="button" onclick="uploadListAttachments();">Upload</button> -->
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6">
-                                                        <input type="file" id="UploadArtworkAttachment" name="myfiles" multiple="multiple">
-                                                        <!-- <button type="button" onclick="uploadListAttachments();">Upload</button> -->
+                                                        
+                                                        
                                                     </div>
                                                 </div>
                                             </div>

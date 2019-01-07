@@ -127,14 +127,10 @@ function SetApproversInApprovalMatrix(id) {
 function GetCurrentUserRole(id, mainListName) {
     var deferred = $.Deferred();
     web = currentContext.get_web();
-    //currentUser = web.get_currentUser();
     oList = web.get_lists().getByTitle(mainListName);
     var oListItem = oList.getItemById(id);
-
     currentContext.load(oListItem, 'EffectiveBasePermissions', 'HasUniqueRoleAssignments', 'FormLevel', 'Status');
-    //currentContext.load(currentUser);
     currentContext.load(web);
-
     currentContext.executeQueryAsync(function () {
 
         // console.log("Does the user has full permission in the web ? : "+oListItem.get_effectiveBasePermissions().has(SP.PermissionKind.manageWeb))
@@ -148,7 +144,6 @@ function GetCurrentUserRole(id, mainListName) {
             console.log("user has edit permission");
             tcurrentLevel = oListItem.get_item('FormLevel').split("|")[1];
 
-            //GetRoleFromApprovalMatrix(tcurrentLevel, id, currentUser.get_id());
             GetRoleFromApprovalMatrix(tcurrentLevel, id, currentUser.Id);
             GetButtons(id, currentUserRole, oListItem.get_item('Status'));
         }
@@ -166,53 +161,7 @@ function GetCurrentUserRole(id, mainListName) {
         console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
         deferred.reject(currentUserRole);
     });
-
-
     return deferred.promise();
-
-
-
-    // SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
-    //     clientContext = new SP.ClientContext.get_current();
-    //     web = clientContext.get_web();
-    //     currentUser = web.get_currentUser();
-    //     oList = web.get_lists().getByTitle(mainListName);
-    //     var oListItem = oList.getItemById(id);
-
-    //     clientContext.load(oListItem, 'EffectiveBasePermissions', 'HasUniqueRoleAssignments', 'FormLevel', 'Status');
-    //     clientContext.load(currentUser);
-    //     clientContext.load(web);
-    //     //clientContext.load(web, 'EffectiveBasePermissions');
-
-    //     clientContext.executeQueryAsync(function () {
-
-    //         // console.log("Does the user has full permission in the web ? : "+oListItem.get_effectiveBasePermissions().has(SP.PermissionKind.manageWeb))
-    //         // if(oListItem.get_effectiveBasePermissions().has(SP.PermissionKind.manageWeb) && oListItem.get_effectiveBasePermissions().has(SP.PermissionKind.viewListItems)){
-    //         //     console.log("user has ful control and read permission");
-    //         // }
-    //         // else if(oListItem.get_effectiveBasePermissions().has(SP.PermissionKind.manageWeb) && oListItem.get_effectiveBasePermissions().has(SP.PermissionKind.editListItems)){
-    //         //     console.log("user has ful control and edit permission");
-    //         // }             
-    //         if (oListItem.get_effectiveBasePermissions().has(SP.PermissionKind.editListItems)) {
-    //             console.log("user has edit permission");
-    //             tcurrentLevel = oListItem.get_item('FormLevel').split("|")[1];
-
-    //             GetRoleFromApprovalMatrix(tcurrentLevel);
-    //             GetButtons(id, currentUserRole, oListItem.get_item('Status'));
-    //         }
-    //         else if (oListItem.get_effectiveBasePermissions().has(SP.PermissionKind.viewListItems)) {
-    //             console.log("user has Read permission");
-    //             currentUserRole = "Viewer";
-    //             GetButtons(id, currentUserRole, oListItem.get_item('Status'));
-    //         }
-    //         else {
-    //             console.log("user doesn't have edit permission");
-    //         }
-
-    //     }, function (sender, args) {
-    //         console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
-    //     });
-    // });
 }
 
 function GetRoleFromApprovalMatrix(tcurrentLevel, requestId, currUserId) {
@@ -274,7 +223,6 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
         ////Save CurrentApprover as Creator in tempApprovalMatrix
         tempApproverMatrix.filter(function (temp) {
             if (temp.Role == "Creator") {
-                //temp.ApproverId = currentUser.Id;
                 temp.ApproverId = currentUser.Id;
                 temp.RequestIDId = requestId;
             }
@@ -625,7 +573,6 @@ function SetItemPermission(requestId, ItemCodeProProcessListName, userWithRoles)
                             userIds = userIds.substring(userIds.toString().lastIndexOf(','))[0];
                         }
                     }
-
                     if (!IsNullOrUndefined(userIds) && !IsStrNullOrEmpty(userIds)) {
                         var a = (userIds.toString().indexOf(',') != -1) ? userIds.split(',') : parseInt(userIds);
 
@@ -646,20 +593,15 @@ function SetItemPermission(requestId, ItemCodeProProcessListName, userWithRoles)
                             permItem.get_roleAssignments().add(this.oUser, roleDefBindingColl);
                             currentContext.load(oUser);
                             currentContext.load(permItem);
-                            console.log("userId = " + user + "   ,permission = " + permission);
-
                             currentContext.executeQueryAsync(function () {
                                 console.log("set permission : success User");
-
                             }, function () {
                                 console.log("set permission : failed");
-
                             }
                             );
                         }
                     });
                 }
-
             } catch (exc) {
                 debugger
                 console.log("catch : error while set permission");
@@ -676,7 +618,6 @@ function BreakRoleInheritance(requestId, ItemCodeProProcessListName) {
     web = currentContext.get_web();
     var oList = web.get_lists().getByTitle(ItemCodeProProcessListName);
     permItem = oList.getItemById(requestId);
-    //permItem.resetRoleInheritance();
     permItem.breakRoleInheritance(false, true); // break role inheritance first!
     currentContext.load(web);
     currentContext.load(permItem);
@@ -713,8 +654,7 @@ function GetPermissionDictionary(tempApproverMatrix, nextLevel, isAllUserViewer)
                 }
                 ////Phase 2 :All members who will be in the DCR Process should be able to know the status of all DCR/DCN. 
                 //// else if (Convert.ToInt32(p.Levels) <= preLevel || (p.Levels == curLevel.ToString() && p.Status != ApproverStatus.PENDING))
-                else if (temp.Status != ApproverStatus.PENDING)
-                {
+                else if (temp.Status != ApproverStatus.PENDING) {
                     /* All users 
                      * 1) who are less then previous level
                      * 2) who are not pending on current level
@@ -728,7 +668,6 @@ function GetPermissionDictionary(tempApproverMatrix, nextLevel, isAllUserViewer)
         });
 
         if (strReader.trim() == strContributer.trim()) {
-            // permissions.push(strContributer.trim(), isAllUserViewer ? SharePointPermission.READER : SharePointPermission.CONTRIBUTOR);
             var user = strContributer.trim();
             var permission = isAllUserViewer ? 'Read' : 'Contribute';
             permissions.push({ user: user, permission: permission });
@@ -904,7 +843,7 @@ function SaveFormFields(formFieldValues, requestId) {
     }
 
 
-    var listDataArray ={};
+    var listDataArray = {};
     listDataArray["__metadata"] = {
         "type": GetItemTypeForListName(ItemCodeProProcessListName)
     };
@@ -1003,14 +942,9 @@ function SetSectionWiseRoles(id) {
 
 function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previousLevel, actionperformed) {
     if (!IsNullOrUndefined(tempApproverMatrix) && tempApproverMatrix.length > 0 && !IsNullOrUndefined(currentUser.Id)) {
-
         if (currentLevel != previousLevel) {
             var currentUserId = currentUser.Id;
-            // if (IsNullOrUndefined(currentUserId)) {
-            //     currentUserId = currentUser.get_id();
-            // }
             var nextLevel = currentLevel;
-
             switch (actionperformed) {
                 case actionperformed = 'Delegate':
                 case actionperformed = 'NextApproval':
@@ -1024,13 +958,9 @@ function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previous
                     var nextLevelRow = tempApproverMatrix.sort(t => t.Levels).filter(function (temp) {
                         return (temp.Status != "Not Required" && !IsNullOrUndefined(temp.ApproverId) && temp.Levels > currentLevel);
                     })[0];
-
                     nextLevel = (!IsNullOrUndefined(nextLevelRow)) ? nextLevelRow.Levels : nextLevel;
-
                     var dueDate = null;
                     tempApproverMatrix.forEach(temp => {
-
-                        // console.log(temp.ApproverId.toString().includes(currentUserId));
                         if (!IsNullOrUndefined(temp.ApproverId) && temp.Levels == currentLevel && ((!IsNullOrUndefined(temp.ApproverId.results) && temp.ApproverId.results.length > 0) ? temp.ApproverId.results.some(item => item == currentUserId) : (temp.ApproverId.toString().indexOf(currentUserId) != -1))) {
                             temp.ApproveById = currentUserId;
                             temp.ApprovalDate = new Date().format("yyyy-MM-ddTHH:mm:ssZ");
