@@ -3,7 +3,6 @@ var currentUser;
 var approverMaster;
 var securityToken;
 var currentContext;
-//var executor = null;
 var hostweburl;
 var currentContext;
 var listDataArray = {};
@@ -363,14 +362,6 @@ function GetFormDigest() {
         method: "POST",
         headers: { "Accept": "application/json; odata=verbose" }
     });
-
-    //     return executor.executeAsync({
-    //         url: "https://bajajelect.sharepoint.com/sites/WFRootDev" + "/_api/contextinfo",
-    //         method: "POST",
-    //         headers: { "Accept": "application/json; odata=verbose" }
-    //     });
-
-
 }
 
 function BindDatePicker(selector) {
