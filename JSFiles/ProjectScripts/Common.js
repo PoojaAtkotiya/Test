@@ -637,17 +637,17 @@ function ValidateForm(ele) {
     //var activediv = $('div[section]').not(".disabled")[0].outerHTML;
     var formList = $('div[section]').not(".disabled").parent();
     var activedivId = $('div[section]').not(".disabled").attr('id');
-   // var parentDiv = $('div[section]').not(".disabled").parent();
+    // var parentDiv = $('div[section]').not(".disabled").parent();
     var innerActivediv = $('div[section]').not(".disabled");
     // var form = '<form data-ajax="true" enctype="multipart/form-data" id="form_' + activedivId + '" method="post" autocomplete="off"/>';
     // var formList = $(form).append(activediv);
     var isValid = true;
     var dataAction = $(ele).attr("data-action");
     var isPageRedirect = true;
-    var buttonCaption = $(ele).text().toLowerCase().trim();    
-   // resetFormValidator('#form_' + activedivId);
-   // $('#' + activedivId).remove();
-  //  $(document.body).find($(parentDiv)).append($(formList)[0].outerHTML);     
+    var buttonCaption = $(ele).text().toLowerCase().trim();
+    // resetFormValidator('#form_' + activedivId);
+    // $('#' + activedivId).remove();
+    //  $(document.body).find($(parentDiv)).append($(formList)[0].outerHTML);     
 
     if (buttonCaption == "hold" || buttonCaption == "resume") {
         $("#Action").rules("remove", "required");
@@ -784,7 +784,10 @@ function GetFormControlsValue(id, elementType, listDataArray) {
     var obj = '#' + id;
     switch (elementType) {
         case "text":
-            listDataArray[id] = $(obj).val();
+            debugger
+            if (!IsStrNullOrEmpty($(obj).val()) && !IsNullOrUndefined($(obj).val())) {
+                listDataArray[id] = $(obj).val();
+            }
             break;
         // case "number":
         //     listDataArray[id] = Number($(this).val());
@@ -805,12 +808,13 @@ function GetFormControlsValue(id, elementType, listDataArray) {
             listDataArray[id] = $(obj).val();
             break;
         case "date":
+            debugger
             var month = !IsNullOrUndefined($(obj).datepicker('getDate')) ? $(obj).datepicker('getDate').getMonth() + 1 : '';
             var date = !IsNullOrUndefined($(obj).datepicker('getDate')) ? $(obj).datepicker('getDate').getDate() : '';
             var year = !IsNullOrUndefined($(obj).datepicker('getDate')) ? $(obj).datepicker('getDate').getFullYear() : '';
             var date = new Date(year.toString() + "-" + month.toString() + "-" + date.toString()).format("yyyy-MM-ddTHH:mm:ssZ");
-            if (!IsNullOrUndefined(date)) {
-                listDataArray[id] = date;
+            if (date) {
+                listDataArray[id] = date; 
             }
             break;
         case "checkbox":
@@ -864,7 +868,7 @@ function SaveFormData() {
         $('#divItemCodeForm').find('div[section]').not(".disabled").each(function (i, e) {
             var sectionName = $(e).attr('section');
             var activeSectionId = $(e).attr('id');
-          
+
             $(e).find('input[listtype=main],select[listtype=main],radio[listtype=main],textarea[listtype=main],label[listtype=main],input[reflisttype=main],select[reflisttype=main],radio[reflisttype=main],textarea[reflisttype=main],label[reflisttype=main]').each(function () {
                 var elementId = $(this).attr('id');
                 var elementType = $(this).attr('controlType');
@@ -880,7 +884,7 @@ function SaveFormData() {
 
 function SaveData(listname, listDataArray, sectionName) {
     var itemType = GetItemTypeForListName(listname);
-    
+
 
     var isNewItem = true;
     if (listDataArray != null) {
