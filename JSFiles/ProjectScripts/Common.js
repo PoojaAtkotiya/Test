@@ -51,7 +51,6 @@ function onSuccess(sender, args) {
         GetGlobalApprovalMatrix(listItemId);
     }
 
-    debugger;
     setCustomApprovers();
 }
 
@@ -785,7 +784,6 @@ function GetFormControlsValue(id, elementType, listDataArray) {
     var obj = '#' + id;
     switch (elementType) {
         case "text":
-            debugger
             if (!IsStrNullOrEmpty($(obj).val()) && !IsNullOrUndefined($(obj).val())) {
                 listDataArray[id] = $(obj).val();
             }
@@ -809,13 +807,12 @@ function GetFormControlsValue(id, elementType, listDataArray) {
             listDataArray[id] = $(obj).val();
             break;
         case "date":
-            debugger
-            var month = !IsNullOrUndefined($(obj).datepicker('getDate')) ? $(obj).datepicker('getDate').getMonth() + 1 : '';
-            var date = !IsNullOrUndefined($(obj).datepicker('getDate')) ? $(obj).datepicker('getDate').getDate() : '';
-            var year = !IsNullOrUndefined($(obj).datepicker('getDate')) ? $(obj).datepicker('getDate').getFullYear() : '';
-            var date = new Date(year.toString() + "-" + month.toString() + "-" + date.toString()).format("yyyy-MM-ddTHH:mm:ssZ");
+            var month = !IsNullOrUndefined($(obj).datepicker('getDate')) ? $(obj).datepicker('getDate').getMonth() + 1 : null;
+            var date = !IsNullOrUndefined($(obj).datepicker('getDate')) ? $(obj).datepicker('getDate').getDate() : null;
+            var year = !IsNullOrUndefined($(obj).datepicker('getDate')) ? $(obj).datepicker('getDate').getFullYear() : null;
+            var date = (!IsNullOrUndefined(month) && !IsNullOrUndefined(date) && !IsNullOrUndefined(year)) ? new Date(year.toString() + "-" + month.toString() + "-" + date.toString()).format("yyyy-MM-ddTHH:mm:ssZ") : null;
             if (date) {
-                listDataArray[id] = date; 
+                listDataArray[id] = date;
             }
             break;
         case "checkbox":
@@ -913,7 +910,6 @@ function SaveData(listname, listDataArray, sectionName) {
                 if (!IsNullOrUndefined(data) && !IsNullOrUndefined(data.d)) {
                     itemID = data.d.ID;
                 }
-                debugger
                 ////AddAttachments(itemID);
                 ////AddAllAttachments(listname,itemID);
                 var web, clientContext;
