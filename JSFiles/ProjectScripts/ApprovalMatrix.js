@@ -181,6 +181,7 @@ function GetEnableSectionNames(id) {
                 var formList = $(form).append($("#" + sectionId)[0].outerHTML);
                 $('#' + sectionId).remove();
                 $(document.body).find($(parentDiv)).append($(formList)[0].outerHTML);
+                DatePickerControl('#divItemCodeForm');
             }
         });
         $("div .disabled .form-control").attr("disabled", "disabled");
