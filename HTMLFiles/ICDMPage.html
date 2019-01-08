@@ -142,11 +142,7 @@
                 }
 
             });
-            $('input[name="ItemPhasedOutWithEffectFrom"]').datepicker({
-                format: 'dd-mm-yyyy',
-                todayHighlight: true,
-                autoclose: true
-            });
+            DatePickerControl($('input[name="ItemPhasedOutWithEffectFrom"]'));
         });
     </script>
 </head>
@@ -328,8 +324,8 @@
                                                     <div class="col-md-6">
                                                         <div class="col-md-4 control-label">Item To Be Phased Out With Effect From :</div>
                                                         <div class="col-md-8">
-                                                            <div class="input-group date datepicker pastDisabled">
-                                                                <input type="text" class="form-control dynamic-control datepicker" listtype="main" id="ItemPhasedOutWithEffectFrom" controlType="date"
+                                                            <div id="dates" class="input-group date datepicker pastDisabled">
+                                                                <input type="text" class="form-control dynamic-control" listtype="main" id="ItemPhasedOutWithEffectFrom" controlType="date"
                                                                     name="ItemPhasedOutWithEffectFrom">
                                                                 <span class="input-group-addon">
                                                                     <span class="fa fa-calendar"></span>

@@ -11,7 +11,7 @@ var listDataArray = {};
 var scriptbase; //= spSiteUrl + "/_layouts/15/";     ////_spPageContextInfo.layoutsUrl
 
 jQuery(document).ready(function () {
-    BindDatePicker();
+    //   BindDatePicker("");
     KeyPressNumericValidation();
 
     hostweburl = "https://bajajelect.sharepoint.com/sites/MTDEV";
@@ -57,6 +57,16 @@ function onSuccess(sender, args) {
 
 function onFail(sender, args) {
     console.log(args.get_message());
+}
+
+function DatePickerControl(ele) {
+    $(ele).find('.datepicker').each(function () {
+        $(this).datepicker({
+            format: 'dd-mm-yyyy',
+            todayHighlight: true,
+            autoclose: true
+        });
+    });
 }
 
 function GetUsersForDDL(roleName, eleID) {
@@ -366,22 +376,23 @@ function GetFormDigest() {
 }
 
 function BindDatePicker(selector) {
-    if ($.trim(selector) != "") {
-        selector += selector + " ";
-    }
+    // if ($.trim(selector) != "") {
+    //     selector += selector + " ";
+    // }
     var todayDate = new Date();
-    $(selector + '.datepicker').each(function () {
+    $(selector).find('.datepicker').each(function () {
         var tempValue = $(this).find("input:first").val();
         $(this).datetimepicker({
             format: 'L', //for Date+++
             widgetParent: $(this).parent().is("td") ? "body" : null,
+            //widgetPositioning: $(this).parent().is("td") ? { horizontal: "left", vertical: "bottom" } : { horizontal: "auto", vertical: "auto" },
             minDate: $(this).hasClass("pastDisabled") ? new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate(), 00, 00, 00) : undefined
         }).on("dp.change", function () {
             $(this).find("input").change();
         });
         $(this).find("input:first").val(tempValue);
     });
-    $(selector + '.timepicker').each(function () {
+    $(selector).find('.timepicker').each(function () {
         var tempValue = $(this).find("input:first").val();
         $(this).datetimepicker({
             format: 'LT' //for Date+++
@@ -638,17 +649,17 @@ function ValidateForm(ele) {
     //var activediv = $('div[section]').not(".disabled")[0].outerHTML;
     var formList = $('div[section]').not(".disabled").parent();
     var activedivId = $('div[section]').not(".disabled").attr('id');
-   // var parentDiv = $('div[section]').not(".disabled").parent();
+    // var parentDiv = $('div[section]').not(".disabled").parent();
     var innerActivediv = $('div[section]').not(".disabled");
     // var form = '<form data-ajax="true" enctype="multipart/form-data" id="form_' + activedivId + '" method="post" autocomplete="off"/>';
     // var formList = $(form).append(activediv);
     var isValid = true;
     var dataAction = $(ele).attr("data-action");
     var isPageRedirect = true;
-    var buttonCaption = $(ele).text().toLowerCase().trim();    
-   // resetFormValidator('#form_' + activedivId);
-   // $('#' + activedivId).remove();
-  //  $(document.body).find($(parentDiv)).append($(formList)[0].outerHTML);     
+    var buttonCaption = $(ele).text().toLowerCase().trim();
+    // resetFormValidator('#form_' + activedivId);
+    // $('#' + activedivId).remove();
+    //  $(document.body).find($(parentDiv)).append($(formList)[0].outerHTML);     
 
     if (buttonCaption == "hold" || buttonCaption == "resume") {
         $("#Action").rules("remove", "required");
@@ -865,7 +876,7 @@ function SaveFormData() {
         $('#divItemCodeForm').find('div[section]').not(".disabled").each(function (i, e) {
             var sectionName = $(e).attr('section');
             var activeSectionId = $(e).attr('id');
-          
+
             $(e).find('input[listtype=main],select[listtype=main],radio[listtype=main],textarea[listtype=main],label[listtype=main],input[reflisttype=main],select[reflisttype=main],radio[reflisttype=main],textarea[reflisttype=main],label[reflisttype=main]').each(function () {
                 var elementId = $(this).attr('id');
                 var elementType = $(this).attr('controlType');
@@ -881,7 +892,7 @@ function SaveFormData() {
 
 function SaveData(listname, listDataArray, sectionName) {
     var itemType = GetItemTypeForListName(listname);
-    
+
 
     var isNewItem = true;
     if (listDataArray != null) {
