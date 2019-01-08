@@ -6,6 +6,7 @@ var currentContext;
 //var executor = null;
 var hostweburl;
 var currentContext;
+var listDataArray = {};
 
 
 var scriptbase; //= spSiteUrl + "/_layouts/15/";     ////_spPageContextInfo.layoutsUrl
@@ -49,6 +50,9 @@ function onSuccess(sender, args) {
     else {
         GetGlobalApprovalMatrix(listItemId);
     }
+
+    debugger;
+    setCustomApprovers();
 }
 
 function onFail(sender, args) {
@@ -761,7 +765,7 @@ function ValidateForm(ele) {
             //  workflowSaveMethodName();
         }
     }
-  //  $(document.body).find('#form_' + activedivId).remove();
+    //  $(document.body).find('#form_' + activedivId).remove();
     return isValid;
 }
 
@@ -805,7 +809,6 @@ function GetFormControlsValue(id, elementType, listDataArray) {
             if (!IsNullOrUndefined(date)) {
                 listDataArray[id] = date;
             }
-            //listDataArray[id] = new Date(year.toString() + "-" + month.toString() + "-" + date.toString()).format("yyyy-MM-ddTHH:mm:ssZ")
             break;
         case "checkbox":
             listDataArray[id] = $(obj)[0]['checked'];
@@ -851,6 +854,101 @@ function GetApproverMaster() {
             }
         });
 }
+
+function SaveFormData() {
+    var mainListName = $('#divItemCodeForm').attr('mainlistname');
+    if (mainListName != undefined && mainListName != '' && mainListName != null) {
+        $('#divItemCodeForm').find('div[section]').not(".disabled").each(function (i, e) {
+            var sectionName = $(e).attr('section');
+            var activeSectionId = $(e).attr('id');
+          
+            $(e).find('input[listtype=main],select[listtype=main],radio[listtype=main],textarea[listtype=main],label[listtype=main],input[reflisttype=main],select[reflisttype=main],radio[reflisttype=main],textarea[reflisttype=main],label[reflisttype=main]').each(function () {
+                var elementId = $(this).attr('id');
+                var elementType = $(this).attr('controlType');
+                listDataArray = GetFormControlsValue(elementId, elementType, listDataArray);
+            });
+
+            // if (ValidateFormControls(activeSectionId, false)) {
+            SaveData(mainListName, listDataArray, sectionName);
+            // }
+        });
+    }
+}
+
+function SaveData(listname, listDataArray, sectionName) {
+    var itemType = GetItemTypeForListName(listname);
+    
+
+    var isNewItem = true;
+    if (listDataArray != null) {
+        listDataArray["__metadata"] = {
+            "type": itemType
+        };
+        var url = '', headers = '';
+        if (listItemId != null && listItemId > 0 && listItemId != "") {
+
+            url = _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('" + listname + "')/items(" + listItemId + ")";
+            headers = { "Accept": "application/json;odata=verbose", "Content-Type": "application/json;odata=verbose", "X-RequestDigest": $("#__REQUESTDIGEST").val(), "IF-MATCH": "*", "X-HTTP-Method": "MERGE" };
+            isNewItem = false;
+        }
+        else {
+            url = _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + listname + "')/items";
+            headers = { "Accept": "application/json;odata=verbose", "Content-Type": "application/json;odata=verbose", "X-RequestDigest": $("#__REQUESTDIGEST").val() };
+        }
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: JSON.stringify(listDataArray),
+            headers: headers,
+            success: function (data) {
+                var itemID = listItemId;
+                if (!IsNullOrUndefined(data) && !IsNullOrUndefined(data.d)) {
+                    itemID = data.d.ID;
+                }
+                debugger
+                ////AddAttachments(itemID);
+                ////AddAllAttachments(listname,itemID);
+                var web, clientContext;
+                SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
+                    clientContext = new SP.ClientContext.get_current();
+                    web = clientContext.get_web();
+                    oList = web.get_lists().getByTitle(listname);
+                    var oListItem = oList.getItemById(itemID);
+
+                    clientContext.load(oListItem, 'FormLevel', 'ProposedBy');
+                    clientContext.load(web);
+                    clientContext.executeQueryAsync(function () {
+                        ///Pending -- temporary
+                        var param = [
+                            SendToLevel = 0
+                        ];
+
+                        SaveLocalApprovalMatrix(sectionName, itemID, listname, isNewItem, oListItem, ItemCodeApprovalMatrixListName, param);
+
+                        if (data != undefined && data != null && data.d != null) {
+                            SaveTranListData(itemID);
+                        }
+                        else {
+                            SaveTranListData(itemID);
+                        }
+                        alert("Data saved successfully");
+
+                    }, function (sender, args) {
+                        console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
+                    });
+                });
+
+
+            },
+            error: function (data) {
+                debugger;
+                console.log(data);
+            }
+        });
+    }
+}
+
+
 
 //function ValidateCollapseForm() {
 //    $(".card-body").each(function () {

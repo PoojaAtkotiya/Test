@@ -23,7 +23,7 @@ function GetGlobalApprovalMatrix(id) {
                 globalApprovalMatrix = data.d.results;
                 SetSectionWiseRoles(id = 0);
                 SetApprovalMatrix(id, '');
-                setCustomApprovers(tempApproverMatrix);
+                //setCustomApprovers(tempApproverMatrix);
                 GetButtons(id, currentUserRole, 'New');
             },
             error: function (data) {
@@ -48,7 +48,7 @@ function GetLocalApprovalMatrixData(id, mainListName) {
             localApprovalMatrixdata = data.d.results;
             SetSectionWiseRoles(id);
             SetApprovalMatrix(id, mainListName);
-            setCustomApprovers(tempApproverMatrix);
+            //setCustomApprovers(tempApproverMatrix);
         },
         error: function (data) {
             console.log(data);
@@ -838,20 +838,20 @@ function SaveFormFields(formFieldValues, requestId) {
     }
 
 
-    var listDataArray = {};
-    listDataArray["__metadata"] = {
+    var mainlistDataArray = {};
+    mainlistDataArray["__metadata"] = {
         "type": GetItemTypeForListName(ItemCodeProProcessListName)
     };
     if (!IsNullOrUndefined(formFieldValues['ProposedBy'])) {
-        listDataArray['ProposedById'] = formFieldValues['ProposedBy'];
+        mainlistDataArray['ProposedById'] = formFieldValues['ProposedBy'];
     }
-    listDataArray['FormLevel'] = formFieldValues["FormLevel"].toString();
-    listDataArray['NextApproverId'] = { "results": nextResults };
-    listDataArray['LastActionBy'] = !IsNullOrUndefined(formFieldValues["LastActionBy"]) ? formFieldValues["LastActionBy"].toString() : '';
-    listDataArray['LastActionByRole'] = formFieldValues["LastActionByRole"].toString();
-    listDataArray['PendingWith'] = formFieldValues["PendingWith"].toString();
-    listDataArray['Status'] = formFieldValues["Status"].toString();
-    listDataArray['WorkflowStatus'] = formFieldValues["WorkflowStatus"].toString();
+    mainlistDataArray['FormLevel'] = formFieldValues["FormLevel"].toString();
+    mainlistDataArray['NextApproverId'] = { "results": nextResults };
+    mainlistDataArray['LastActionBy'] = !IsNullOrUndefined(formFieldValues["LastActionBy"]) ? formFieldValues["LastActionBy"].toString() : '';
+    mainlistDataArray['LastActionByRole'] = formFieldValues["LastActionByRole"].toString();
+    mainlistDataArray['PendingWith'] = formFieldValues["PendingWith"].toString();
+    mainlistDataArray['Status'] = formFieldValues["Status"].toString();
+    mainlistDataArray['WorkflowStatus'] = formFieldValues["WorkflowStatus"].toString();
     //ApprovalStatus : formFieldValues["ApprovalStatus"],
     //LastActionPerformed : formFieldValues["LastActionPerformed"],
     //IsReschedule: formFieldValues["IsReschedule"],
@@ -860,7 +860,7 @@ function SaveFormFields(formFieldValues, requestId) {
     $.ajax({
         url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ItemCodeProProcessListName + "')/items(" + requestId + ")",
         type: "POST",
-        data: JSON.stringify(listDataArray),
+        data: JSON.stringify(mainlistDataArray),
         headers:
             {
                 "Accept": "application/json;odata=verbose",
