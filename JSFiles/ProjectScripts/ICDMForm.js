@@ -161,8 +161,7 @@ function SaveItemWiseAttachments(listname, fileListArray, itemID, elementId) {
         //     console.log("error while saving file name in multiline text field");
         // });
         console.log("files saved successfully in list = " + listname + "for listItemId = " + itemID);
-    }).catch(function (err) {
-        debugger;
+    }).catch(function (err) {       
         console.log(err);
         console.log("error while save attachment ib list = " + listname + "for listItemId = " + itemID)
     });

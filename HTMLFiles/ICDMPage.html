@@ -214,7 +214,7 @@
                                                     <div class="col-md-6">
                                                         <div class="col-md-4 control-label">LUM Marketing Delegate User :</div>
                                                         <div class="col-md-8">
-                                                            <select class="form-control dynamic-control" data-selected="LUMMarketingDelegateId" reflisttype="main" id="LUMMarketingDelegateId"
+                                                            <select class="form-control dynamic-control" name="LUMMarketingDelegateId" required="required" data-val-msg="Please select User." data-selected="LUMMarketingDelegateId" reflisttype="main" id="LUMMarketingDelegateId"
                                                                 controlType="combo"></select>
                                                         </div>
                                                     </div>
@@ -262,7 +262,7 @@
                                                         <div class="col-md-4 control-label">
                                                             <span class="text-danger text-default-light">*</span>Item Description :</div>
                                                         <div class="col-md-8">
-                                                            <input class="form-control dynamic-control" data-val="true" maxlength="1000" required="true" type="text" controlType="multitext"
+                                                            <input class="form-control dynamic-control" name="ItemDescription" maxlength="1000" required="required" type="text" controlType="multitext"
                                                                 listtype="main" id="ItemDescription" />
                                                         </div>
                                                     </div>
@@ -270,7 +270,7 @@
                                                         <div class="col-md-4 control-label">
                                                             <span class="text-danger text-default-light">*</span>Product Group :</div>
                                                         <div class="col-md-8">
-                                                            <select class="form-control dynamic-control" data-val="true" listtype="master" required="true" reflisttype="main" listname="ProductGroupMaster"
+                                                            <select class="form-control dynamic-control" name="ProductGroup"  listtype="master" required="required" reflisttype="main" listname="ProductGroupMaster"
                                                                 data-selected="ProductGroup" valuebindingcolumn="Title" textbindingcolumnn="Title"
                                                                 id="ProductGroup" controlType="combo"></select>
                                                         </div>
@@ -283,7 +283,7 @@
                                                         <div class="col-md-4 control-label">
                                                             <span class="text-danger text-default-light">*</span>Confirmed Order from Customer :</div>
                                                         <div class="col-md-8">
-                                                            <select class="form-control dynamic-control" required="true" id="ConfirmedOrderFromCustomer" reflisttype="main" data-selected="ConfirmedOrderFromCustomer"
+                                                            <select class="form-control dynamic-control" name="ConfirmedOrderFromCustomer" required="true" id="ConfirmedOrderFromCustomer" reflisttype="main" data-selected="ConfirmedOrderFromCustomer"
                                                                 valuebindingcolumn="Title" textbindingcolumnn="Title" listname="ConfirmedOrderMaster"
                                                                 listtype="master" controlType="combo"></select>
                                                         </div>
@@ -292,7 +292,7 @@
                                                         <div class="col-md-4 control-label">
                                                             <span class="text-danger text-default-light">*</span>Type of Packaging Required :</div>
                                                         <div class="col-md-8">
-                                                            <select class="form-control dynamic-control" required="true" data-selected="TypeOfPackaging" reflisttype="main" valuebindingcolumn="Title"
+                                                            <select class="form-control dynamic-control" name="TypeOfPackaging" required="true" data-selected="TypeOfPackaging" reflisttype="main" valuebindingcolumn="Title"
                                                                 textbindingcolumnn="Title" listtype="master" listname="TypeOfPackagingMaster"
                                                                 id="TypeOfPackaging" controlType="combo"></select>
                                                         </div>
