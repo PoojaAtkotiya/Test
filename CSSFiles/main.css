@@ -9679,6 +9679,12 @@ textarea {
     min-width: 100%;
     max-width: 100%;
 }
-.error{	
-    /* color: #d9534f; */
+.error{
+    display: block;  
+    border: 1px solid #dc6767!important;
+    font-size: 14px;
+}
+label.error{	
+    display: none!important;
 }		
+

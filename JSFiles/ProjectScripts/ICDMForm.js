@@ -8,7 +8,7 @@ var sendToLevel = 0;
 var collListItem = null;
 var fileInfos = [];
 
-$(document).ready(function () {
+$(document).ready(function () {   
     GetUsersForDDL("LUM Marketing Delegate", "LUMMarketingDelegateId");
     GetUsersForDDL("LUM Design Delegate", "SCMLUMDesignDelegateId");
 });
