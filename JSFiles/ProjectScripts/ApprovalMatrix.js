@@ -101,13 +101,8 @@ function SetApproversInApprovalMatrix(id) {
                     approverMaster.filter(function (a) {
                         if (t.Role == a.Role && a.UserSelection == true) {
                             if (a.UserNameId.results.length > 0) {
-                                // a.UserNameId.results.forEach(userId => {
-                                //     t.ApproverId = t.ApproverId + userId + ",";
-                                // });
                                 t.ApproverId = a.UserNameId.results;
                             }
-                            ////Trim , from last in approverId --------Pending ---- Not requried whwn array is passed
-                            // t.ApproverId = t.ApproverId.trim().substring(0, t.ApproverId.lastIndexOf(','));
                         }
                     });
                 }
@@ -839,16 +834,8 @@ function SaveFormFields(formFieldValues, requestId) {
     //For multiUser field of sharepoint list
     var nextResults = [];
     if (!IsNullOrUndefined(formFieldValues["NextApprover"]) && formFieldValues["NextApprover"].length > 0) {
-        // var a = (formFieldValues["NextApprover"].indexOf(',') != -1 ? formFieldValues["NextApprover"].split(',') : formFieldValues["NextApprover"]);
-        // if (!IsNullOrUndefined(a)) {
-        //     a.forEach(element => {
-        //         nextResults.push(parseInt(element));
-        //     });
-        // }
         nextResults = IsArray(formFieldValues["NextApprover"]) ? formFieldValues["NextApprover"] : nextResults;
     }
-
-
     var mainlistDataArray = {};
     mainlistDataArray["__metadata"] = {
         "type": GetItemTypeForListName(ItemCodeProProcessListName)

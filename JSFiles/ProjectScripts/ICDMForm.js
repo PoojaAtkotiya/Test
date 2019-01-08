@@ -2,84 +2,16 @@ var listName = ItemCodeProProcessListName;
 var appName = applicationName;
 var formName = "Item Code Preprocess Form";
 var masterDataArray;
-
-// var listItemId;
 var formData = {};
 var mainListData = {};
 var sendToLevel = 0;
 var collListItem = null;
-// var currentContext;
-// var hostweburl;
 var fileInfos = [];
 
 $(document).ready(function () {
-    // hostweburl = "https://bajajelect.sharepoint.com/sites/MTDEV";
-
-    // var scriptbase = hostweburl + "/_layouts/15/";
-
-    // // Load the js files and continue to
-    // // the execOperation function.
-    // $.getScript(scriptbase + "SP.Runtime.js",
-    //     function () {
-    //         $.getScript(scriptbase + "SP.js", loadConstants);
-    //     }
-    // );
     GetUsersForDDL("LUM Marketing Delegate", "LUMMarketingDelegateId");
     GetUsersForDDL("LUM Design Delegate", "SCMLUMDesignDelegateId");
 });
-
-
-// function loadConstants() {
-//     var clientContext = new SP.ClientContext("https://bajajelect.sharepoint.com/sites/MTDEV");
-//     this.oWebsite = clientContext.get_web();
-//     clientContext.load(this.oWebsite);
-//     clientContext.executeQueryAsync(
-//         Function.createDelegate(this, onSuccess),
-//         Function.createDelegate(this, onFail)
-//     );
-// }
-
-// function onSuccess(sender, args) {
-
-//     currentContext = SP.ClientContext.get_current();
-//     listItemId = getUrlParameter("ID");
-//     returnUrl = getUrlParameter("Source");
-//     ExecuteOrDelayUntilScriptLoaded(GetCurrentUserDetails, "sp.js");
-
-//     ////Get Current user details
-//     // GetCurrentUserDetails();
-
-//     GetAllMasterData();
-
-//     // GetUserName(roleName, html element Id)
-//     GetUsersForDDL("LUM Marketing Delegate", "LUMMarketingDelegateId");
-//     GetUsersForDDL("LUM Design Delegate", "SCMLUMDesignDelegateId");
-
-
-//     //For Temporary
-//     //GetApproverMaster();
-
-//     if (listItemId != null && listItemId > 0) {
-//         GetSetFormData();
-//     }
-//     else {
-//         GetGlobalApprovalMatrix(listItemId);
-//     }
-// }
-
-// function onFail(sender, args) {
-//     console.log(args.get_message());
-// }
-
-
-
-
-//Not in use -----------
-// function onGetUserFailed(sender, args) {
-//     console.log('onGetUserFailed : Request failed. ' + args.get_message() +
-//         '\n' + args.get_stackTrace());
-// }
-
 
 
 function ICDM_SaveData(ele) {
@@ -102,10 +34,6 @@ function FormBusinessLogic() {
     }
 
 }
-
-
-
-
 
 function AddAllAttachments(listname,itemID) {
     $('#divItemCodeForm').find('div[section]').not(".disabled").each(function (i, e) {
@@ -167,109 +95,6 @@ function SaveItemWiseAttachments(listname, fileListArray, itemID, elementId) {
     });
 }
 
-////requried if attachment using ajax call
-// function AddAttachments(itemId) {
-//     debugger
-//     var fileInput = $('#UploadArtworkAttachment');
-//     var fileName = fileInput[0].files[0].name;
-//     var reader = new FileReader();
-//     reader.onload = function (e) {
-//         var fileData = e.target.result;
-//         var res11 = $.ajax({
-//             url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ItemCodeProProcessListName + "')/items(" + itemId + ")/AttachmentFiles/ add(FileName='" + fileName + "')",
-//             method: "POST",
-//             binaryStringRequestBody: true,
-//             data: fileData,
-//             processData: false,
-//             async: false,
-//             headers: {
-//                 "ACCEPT": "application/json;odata=verbose",
-//                 "X-RequestDigest": _spPageContextInfo.formDigestValue,
-//                 "content-length": fileData.byteLength
-//             },
-//             success: function (data) {
-//                 console.log(data);
-//                 console.log("attachment saved successfully. filename = " + fileName);
-//             },
-//             error: function (data) {
-//                 debugger;
-//                 console.log(data);
-//             }
-//         });
-//     };
-//     reader.readAsArrayBuffer(fileInput[0].files[0]);
-
-// }
-
-//function TranListData(lookupId) {
-//    tranlistNameArray = [];
-//    $('input[listtype*=tran],select[listtype*=tran],radio[listtype*=tran],textarea[listtype*=tran]').each(function () {
-//        var listType = $(this).attr('listtype');
-//        var listname = $(this).attr('listname');
-//        if (tranlistNameArray.indexOf(listname) < 0) {
-//            tranlistNameArray.push(listname);
-//        }
-//    });
-
-//}
-
-//function GetTranListData(lookupId) {
-//    TranListData(lookupId);
-//    if (tranlistNameArray != null && tranlistNameArray.length > 0) {
-//        $(tranlistNameArray).each(function (i, e) {
-//            GetTranData(tranlistNameArray[i], lookupId);
-//        });
-//    }
-//}
-
-//function IsTranDataExists(tranlistname, lookupId) {
-
-//}
-
-//function GetTranData(tranlistname, lookupId) {
-//    if (tranlistname != undefined && tranlistname != '' && tranlistname != null) {
-//        $.ajax({
-//            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + tranlistname + "')/items?$select=Author/Title,*&$expand=Author&$filter=RequestID eq '" + lookupId + "'",
-//            type: "GET",
-//            async: false,
-//            headers:
-//            {
-//                "Accept": "application/json;odata=verbose",
-//                "Content-Type": "application/json;odata=verbose",
-//                "X-RequestDigest": $("#__REQUESTDIGEST").val()
-//            },
-//            success: function (data) {
-//                var item = data.d.results[0];
-//                if (item != null && item != '' & item != undefined) {
-//                    $('input[listname*=' + tranlistname + '],select[listname*=' + tranlistname + '],radio[listname*=' + tranlistname + '],textarea[listname*=' + tranlistname + ']').each(function () {
-//                        var elementId = $(this).attr('id');
-//                        var elementType = $(this).attr('controlType');
-
-//                        setFieldValue(elementId, item, elementType, elementId);
-//                    });
-//                }
-//                if (tranlistname == "ItemCodeApprovalMatrix") {
-//                    localApprovalMatrix = data;
-//                    if (listItemId > 0 && localApprovalMatrix != null && localApprovalMatrix != undefined && localApprovalMatrix.d.results.length > 0) {
-//                        localApprovalMatrix.d.results.filter(function (i) {
-//                            if (i.Status == "Pending" && i.ApproverId.results.indexOf(this.currentUser.Id) >= 0) {
-//                                activeSectionName = i.SectionName;
-//                                activeSectionName = activeSectionName.replace(/ /g, '').trim().toUpperCase();
-//                                $("#" + activeSectionName).removeClass("disabled");
-//                                $("div .disabled .form-control").attr("disabled", "disabled");
-//                            }
-//                        });
-//                    }
-//                }
-//            }
-
-//        });
-
-
-//    }
-//}
-
-
 function GetSetFormData() {
     GetTranListData(listItemId);
     var mainListName = $('#divItemCodeForm').attr('mainlistname');
@@ -316,7 +141,6 @@ function SaveForm() {
         alert("Please fill requied fields");
     }
 }
-
 
 function SendBack() {
     buttonActionStatus = "SendBack";
