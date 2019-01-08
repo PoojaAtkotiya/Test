@@ -428,7 +428,7 @@ function setFieldValue(controlId, item, fieldType, fieldName) {
         case "multitext":
             $("#" + controlId).val(item[fieldName]).change();
             break;
-        case "date":
+        case saveform:
             var dt = "";
             if (item[fieldName] && item[fieldName] != null) {
                 dt = new Date(item[fieldName]).format("dd-MM-yyyy");
@@ -645,21 +645,14 @@ function resetFormValidator(formId) {
 
 
 function ValidateForm(ele) {
-    //var activediv = $('div[section]').not(".disabled")[0].outerHTML;
-    var formList = $('div[section]').not(".disabled").parent();
-    var activedivId = $('div[section]').not(".disabled").attr('id');
-    // var parentDiv = $('div[section]').not(".disabled").parent();
-    var innerActivediv = $('div[section]').not(".disabled");
-    // var form = '<form data-ajax="true" enctype="multipart/form-data" id="form_' + activedivId + '" method="post" autocomplete="off"/>';
-    // var formList = $(form).append(activediv);
+      //Get Active Section
+    var formList = $('div[section]').not(".disabled").parent();  
+
     var isValid = true;
     var dataAction = $(ele).attr("data-action");
     var isPageRedirect = true;
     var buttonCaption = $(ele).text().toLowerCase().trim();
-    // resetFormValidator('#form_' + activedivId);
-    // $('#' + activedivId).remove();
-    //  $(document.body).find($(parentDiv)).append($(formList)[0].outerHTML);     
-
+    
     if (buttonCaption == "hold" || buttonCaption == "resume") {
         $("#Action").rules("remove", "required");
     }
@@ -770,17 +763,15 @@ function ValidateForm(ele) {
 
             ConfirmationDailog({
                 title: "Confirm", message: attachmsg, okCallback: function (id, data) {
-                    //ShowWaitDialog();
-                    //  workflowSaveMethodName();
+                    
                 }
             });
         }
         else {
-            //  workflowSaveMethodName();
+            saveDataCallback();
         }
-    }
-    //  $(document.body).find('#form_' + activedivId).remove();
-    return isValid;
+    }  
+    return isValid;      
 }
 
 function onQuerySucceeded(sender, args) {
