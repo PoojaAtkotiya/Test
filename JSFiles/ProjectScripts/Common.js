@@ -795,7 +795,7 @@ function GetFormControlsValue(id, elementType, listDataArray) {
     var obj = '#' + id;
     switch (elementType) {
         case "text":
-            if (!IsStrNullOrEmpty($(obj).val()) && !IsNullOrUndefined($(obj).val())) {
+            if (!IsStrNullOrEmpty($(obj).val())) {
                 listDataArray[id] = $(obj).val();
             }
             break;
