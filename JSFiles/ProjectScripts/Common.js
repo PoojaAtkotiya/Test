@@ -625,24 +625,35 @@ function resetFormValidator(formId) {
     $(formId).removeData('unobtrusiveValidation');
     $(formId).data('validator');
     $(formId).data('unobtrusiveValidation');
-    $.validator.unobtrusive.parse($(formId));
+    $.validator.unobtrusive.parse(formId);
 }
 
+// $(document).bind('bindForm', function (e) {
+//     var activedivId = $('div[section]').not(".disabled").attr('id');
+//     var parentDiv = $('div[section]').not(".disabled").parent();
+//     var form = '<form data-ajax="true" enctype="multipart/form-data" id="form_' + activedivId + '" method="post" autocomplete="off"/>';
+//     $('#' + activedivId).remove();
+//     $(document.body).find($(parentDiv)).append($(formList)[0].outerHTML);   
+//     resetFormValidator('#form_' + activedivId);  
+// });
+
+
 function ValidateForm(ele) {
-    var activediv = $('div[section]').not(".disabled")[0].outerHTML;
+    //var activediv = $('div[section]').not(".disabled")[0].outerHTML;
+    var formList = $('div[section]').not(".disabled").parent();
     var activedivId = $('div[section]').not(".disabled").attr('id');
-    var parentDiv = $('div[section]').not(".disabled").parent();
+   // var parentDiv = $('div[section]').not(".disabled").parent();
     var innerActivediv = $('div[section]').not(".disabled");
-    var form = '<form data-ajax="true" enctype="multipart/form-data" id="form_' + activedivId + '" method="post" autocomplete="off"/>';
-    var formList = $(form).append(activediv);
+    // var form = '<form data-ajax="true" enctype="multipart/form-data" id="form_' + activedivId + '" method="post" autocomplete="off"/>';
+    // var formList = $(form).append(activediv);
     var isValid = true;
     var dataAction = $(ele).attr("data-action");
     var isPageRedirect = true;
-    var buttonCaption = $(ele).text().toLowerCase().trim();
-    $('#' + activedivId).remove();
-    $(document.body).find($(parentDiv)).append($(formList)[0].outerHTML);
-    //$(parentDiv).append($(formList)[0].outerHTML);   
-    resetFormValidator('#form_' + activedivId);
+    var buttonCaption = $(ele).text().toLowerCase().trim();    
+   // resetFormValidator('#form_' + activedivId);
+   // $('#' + activedivId).remove();
+  //  $(document.body).find($(parentDiv)).append($(formList)[0].outerHTML);     
+
     if (buttonCaption == "hold" || buttonCaption == "resume") {
         $("#Action").rules("remove", "required");
     }
@@ -733,6 +744,7 @@ function ValidateForm(ele) {
                         //  AlertModal("Validation", errorItem.element.id + "' : '" + errorItem.message);
                         $("#" + errorItem.element.id).addClass("input-validation-error");
                         $("#" + errorItem.element.id).removeClass("field-validation-valid");
+                        $("#" + errorItem.element.id).next().remove();
                         console.log("{ '" + errorItem.element.id + "' : '" + errorItem.message + "'}");
                     });
                 }
@@ -746,7 +758,7 @@ function ValidateForm(ele) {
         if (buttonCaption != "save as draft") {
             //confirm file Attachment need attach or not
             var attachmsg = "Are you sure to '" + $.trim($(ele).text()) + "'?";
-            if ($(form).find("div[data-appname]").length != 0 && $(form).find("div[data-appname]").find("ul li").length == 0 && dataAction == "10") {
+            if ($(formList).find("div[data-appname]").length != 0 && $(formList).find("div[data-appname]").find("ul li").length == 0 && dataAction == "10") {
                 attachmsg = "Are you sure to '" + $.trim($(ele).text()) + "' without attachment?";
             }
 

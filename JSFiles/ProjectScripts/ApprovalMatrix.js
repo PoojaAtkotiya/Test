@@ -181,6 +181,11 @@ function GetEnableSectionNames(id) {
                 var sectionId = $(this).attr('id');
                 $("#" + sectionId).removeClass("disabled");
                 $("#" + sectionId).find(':input').removeAttr("disabled");
+                var parentDiv = $("#" + sectionId).parent();
+                var form = '<form data-ajax="true" enctype="multipart/form-data" id="form_' + sectionId + '" method="post" autocomplete="off"/>';
+                var formList = $(form).append($("#" + sectionId)[0].outerHTML);
+                $('#' + sectionId).remove();
+                $(document.body).find($(parentDiv)).append($(formList)[0].outerHTML);   
             }
         });
         $("div .disabled .form-control").attr("disabled", "disabled");
@@ -198,6 +203,12 @@ function GetEnableSectionNames(id) {
                 var sectionId = $(this).attr('id');
                 $("#" + sectionId).removeClass("disabled");
                 $("#" + sectionId).find(':input').removeAttr("disabled");
+
+                var parentDiv = $("#" + sectionId).parent();
+                var form = '<form data-ajax="true" enctype="multipart/form-data" id="form_' + sectionId + '" method="post" autocomplete="off"/>';
+                var formList = $(form).append($("#" + sectionId)[0].outerHTML);
+                $('#' + sectionId).remove();
+                $(document.body).find($(parentDiv)).append($(formList)[0].outerHTML);   
             }
         });
         $("div .disabled .form-control").attr("disabled", "disabled");
