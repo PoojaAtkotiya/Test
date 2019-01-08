@@ -746,7 +746,7 @@ function ValidateForm(ele) {
                     var validator = $(this).validate();
                     $(validator.errorList).each(function (i, errorItem) {
                         //  AlertModal("Validation", errorItem.element.id + "' : '" + errorItem.message);
-                        $("#" + errorItem.element.id).addClass("input-validation-error");
+                        $("#" + errorItem.element.id).addClass("field-validation-error");
                         $("#" + errorItem.element.id).removeClass("field-validation-valid");
                         $("#" + errorItem.element.id).next().remove();
                         console.log("{ '" + errorItem.element.id + "' : '" + errorItem.message + "'}");

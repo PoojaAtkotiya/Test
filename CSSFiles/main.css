@@ -8738,10 +8738,9 @@ ul.submenu {
 }
 
 .field-validation-error {
-    display: block;
-    margin: 2px;
-    color: #dc6767;
-    font-size: 12px;
+    display: block;  
+    border: 1px solid #dc6767!important;
+    font-size: 14px;
 }
 
 .table thead th, .table tbody th {
@@ -9680,3 +9679,6 @@ textarea {
     min-width: 100%;
     max-width: 100%;
 }
+.error{	
+    /* color: #d9534f; */
+}		
