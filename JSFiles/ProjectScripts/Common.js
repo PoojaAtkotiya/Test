@@ -932,7 +932,7 @@ function SaveData(listname, listDataArray, sectionName) {
                         else {
                             SaveTranListData(itemID);
                         }
-                        alert("Data saved successfully");
+                        AlertModal("Save", "Data saved successfully", false, null);
 
                     }, function (sender, args) {
                         console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
