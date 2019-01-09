@@ -1,6 +1,6 @@
 var spSiteUrl = _spPageContextInfo.webAbsoluteUrl;
 var rootUrl = "https://bajajelect.sharepoint.com/sites/WFRootDev/";
-var ApplicationShortName="ICDM";
+var ApplicationShortName = "ICDM";
 var applicationName = "Item Code Creation Preprocess";
 var formName = "Item Code Preprocess Form";
 var globalApprovalMatrixName = 'ApprovalMatrix';
@@ -25,10 +25,12 @@ var buttonActionStatus = {
     Hold: 43,
     Resume: 44,
     RestartToUpdate: 45
- };
+};
+
+Object.freeze(buttonActionStatus);
 
 
-function Enum() { for (var i in arguments) { this[arguments[i]] = i; } }
+//function Enum() { for (var i in arguments) { this[arguments[i]] = i; } }
  //var buttonActionStatus= new Enum('None', 'SaveAsDraft'); 
 
 var jsFunctionValue = {
@@ -63,6 +65,8 @@ var jsFunctionValue = {
     OnDelete: 30,
     ConfirmSubmitNoRedirect: 31
 }
+Object.freeze(jsFunctionValue);
+
 
 var ApproverStatus = {
     NOTASSIGNED: "Not Assigned",
@@ -73,6 +77,7 @@ var ApproverStatus = {
     SENDFORWARD: "Send Forward",
     NOTREQUIRED: "Not Required"
 }
+Object.freeze(ApproverStatus);
 
 var DayOfWeek = {
     Sunday: 0,
@@ -83,8 +88,11 @@ var DayOfWeek = {
     Friday: 5,
     Saturday: 6
 }
+Object.freeze(DayOfWeek);
+
 
 var SharePointPermission = {
     READER: "Read",
     CONTRIBUTOR: "Contribute"
 }
+Object.freeze(SharePointPermission);

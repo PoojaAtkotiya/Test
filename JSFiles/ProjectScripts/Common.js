@@ -646,14 +646,14 @@ function resetFormValidator(formId) {
 
 
 function ValidateForm(ele) {
-      //Get Active Section
-    var formList = $('div[section]').not(".disabled").parent();  
+    //Get Active Section
+    var formList = $('div[section]').not(".disabled").parent();
 
     var isValid = true;
     var dataAction = $(ele).attr("data-action");
     var isPageRedirect = true;
     var buttonCaption = $(ele).text().toLowerCase().trim();
-    
+
     if (buttonCaption == "hold" || buttonCaption == "resume") {
         $("#Action").rules("remove", "required");
     }
@@ -764,15 +764,15 @@ function ValidateForm(ele) {
 
             ConfirmationDailog({
                 title: "Confirm", message: attachmsg, okCallback: function (id, data) {
-                    
+
                 }
             });
         }
         else {
             saveDataCallback();
         }
-    }  
-    return isValid;      
+    }
+    return isValid;
 }
 
 function onQuerySucceeded(sender, args) {
@@ -914,7 +914,7 @@ function SaveData(listname, listDataArray, sectionName) {
                     itemID = data.d.ID;
                 }
                 ////AddAttachments(itemID);
-                ////AddAllAttachments(listname,itemID);
+                AddAllAttachments(listname, itemID);
                 var web, clientContext;
                 SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
                     clientContext = new SP.ClientContext.get_current();
