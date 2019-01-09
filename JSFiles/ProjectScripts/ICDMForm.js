@@ -16,16 +16,17 @@ $(document).ready(function () {
 
 function ICDM_SaveData(ele) {
     ValidateForm(ele, SaveDataCall);
-}
-function SaveDataCall(activeSection) {
-    var isError = FormBusinessLogic();
-
-    if (!isError) {
-        SaveForm();
+    function SaveDataCall(activeSection) {
+        var isError = FormBusinessLogic(activeSection);
+    
+        if (!isError) {
+            SaveForm(activeSection);
+        }
     }
 }
 
-function FormBusinessLogic() {
+
+function FormBusinessLogic(activeSection) {
     var isError = false;
     try {
         //check if there any delegate user fillby section owner
@@ -141,13 +142,13 @@ function GetSetFormData() {
     });
 }
 
-function SaveForm(dataAction) {
+function SaveForm(activeSection) {
     try {
         var formValid = false;
         //Object.keys(buttonActionStatus.NextApproval)
         formValid = true;
         if (formValid) {
-            SaveFormData();
+            SaveFormData(activeSection);
         } else {
             alert("Please fill requied fields");
         }

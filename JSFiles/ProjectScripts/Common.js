@@ -763,7 +763,7 @@ function ValidateForm(ele, saveCallBack) {
                 attachmsg = "Are you sure to '" + $.trim($(ele).text()) + "' without attachment?";
             }
             ConfirmationDailog({
-                title: "Confirm", message: attachmsg, okCallback: function(data){ 
+                title: "Confirm", message: attachmsg, okCallback: function (data) {
                     saveCallBack(activeSection);
                 }
             });
@@ -862,30 +862,25 @@ function GetApproverMaster() {
         });
 }
 
-function SaveFormData() {
+function SaveFormData(activeSection) {
     var mainListName = $('#divItemCodeForm').attr('mainlistname');
     if (mainListName != undefined && mainListName != '' && mainListName != null) {
-        $('#divItemCodeForm').find('div[section]').not(".disabled").each(function (i, e) {
-            var sectionName = $(e).attr('section');
-            var activeSectionId = $(e).attr('id');
 
-            $(e).find('input[listtype=main],select[listtype=main],radio[listtype=main],textarea[listtype=main],label[listtype=main],input[reflisttype=main],select[reflisttype=main],radio[reflisttype=main],textarea[reflisttype=main],label[reflisttype=main]').each(function () {
-                var elementId = $(this).attr('id');
-                var elementType = $(this).attr('controlType');
-                listDataArray = GetFormControlsValue(elementId, elementType, listDataArray);
-            });
+        var sectionName = $(activeSection).attr('section');
+        var activeSectionId = $(activeSection).attr('id');
 
-            // if (ValidateFormControls(activeSectionId, false)) {
-            SaveData(mainListName, listDataArray, sectionName);
-            // }
+        $(activeSection).find('input[listtype=main],select[listtype=main],radio[listtype=main],textarea[listtype=main],label[listtype=main],input[reflisttype=main],select[reflisttype=main],radio[reflisttype=main],textarea[reflisttype=main],label[reflisttype=main]').each(function () {
+            var elementId = $(this).attr('id');
+            var elementType = $(this).attr('controlType');
+            listDataArray = GetFormControlsValue(elementId, elementType, listDataArray);
         });
+
+        SaveData(mainListName, listDataArray, sectionName);
     }
 }
 
 function SaveData(listname, listDataArray, sectionName) {
     var itemType = GetItemTypeForListName(listname);
-
-
     var isNewItem = true;
     if (listDataArray != null) {
         listDataArray["__metadata"] = {
