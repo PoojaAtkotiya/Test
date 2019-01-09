@@ -15,25 +15,35 @@ $(document).ready(function () {
 
 
 function ICDM_SaveData(ele) {
-    if(ValidateForm(ele))
-    {
-         FormBusinessLogic();
-         SaveForm();       
+    ValidateForm(ele,SaveDataCall);
+}
+function SaveDataCall(activeSection) {
+    var isError = FormBusinessLogic();
+
+    if (!isError) {
+        SaveForm();
     }
 }
 
 function FormBusinessLogic() {
-    //check if there any delegate user fillby section owner
-    // $('#'+ sectionName).
+    var isError = false;
+    try {
+        //check if there any delegate user fillby section owner
+        // $('#'+ sectionName).
 
 
-    ////Pending to make it dynamic
-    if (!IsNullOrUndefined(listDataArray.SCMLUMDesignDelegateId)) {
-        var array = [];
-        array.push(listDataArray.SCMLUMDesignDelegateId);
-        listDataArray["SCMLUMDesignDelegateId"] = { "results": array };
+        ////Pending to make it dynamic
+        if (!IsNullOrUndefined(listDataArray.SCMLUMDesignDelegateId)) {
+            var array = [];
+            array.push(listDataArray.SCMLUMDesignDelegateId);
+            listDataArray["SCMLUMDesignDelegateId"] = { "results": array };
+        }
     }
-
+    catch (Exception) {
+        isError = true;
+        console.log("Error occured in FormBusinessLogic" + Exception);
+    }
+    return isError;
 }
 
 function AddAllAttachments(listname, itemID) {
@@ -132,13 +142,18 @@ function GetSetFormData() {
 }
 
 function SaveForm(dataAction) {
-    var formValid = false;
-    //Object.keys(buttonActionStatus.NextApproval)
-    formValid = true;
-    if (formValid) {
-        SaveFormData();
-    } else {
-        alert("Please fill requied fields");
+    try {
+        var formValid = false;
+        //Object.keys(buttonActionStatus.NextApproval)
+        formValid = true;
+        if (formValid) {
+            SaveFormData();
+        } else {
+            alert("Please fill requied fields");
+        }
+    }
+    catch (Exception) {
+        console.log("Error occured in SaveForm" + Exception);
     }
 }
 

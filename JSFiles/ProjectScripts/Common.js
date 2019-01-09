@@ -645,15 +645,16 @@ function resetFormValidator(formId) {
 // });
 
 
-function ValidateForm(ele) {
-      //Get Active Section
-    var formList = $('div[section]').not(".disabled").parent();  
+function ValidateForm(ele, saveCallBack) {
+    //Get Active Section
+    var activeSection = $('div[section]').not(".disabled");
+    var formList = $(activeSection).parent();
 
     var isValid = true;
     var dataAction = $(ele).attr("data-action");
     var isPageRedirect = true;
     var buttonCaption = $(ele).text().toLowerCase().trim();
-    
+
     if (buttonCaption == "hold" || buttonCaption == "resume") {
         $("#Action").rules("remove", "required");
     }
@@ -763,16 +764,13 @@ function ValidateForm(ele) {
             }
 
             ConfirmationDailog({
-                title: "Confirm", message: attachmsg, okCallback: function (id, data) {
-                    
-                }
+                title: "Confirm", message: attachmsg, okCallback: saveCallBack(activeSection)
             });
         }
         else {
-            saveDataCallback();
+            saveCallBack(activeSection);
         }
-    }  
-    return isValid;      
+    }
 }
 
 function onQuerySucceeded(sender, args) {
