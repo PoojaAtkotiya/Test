@@ -15,9 +15,10 @@ $(document).ready(function () {
 
 
 function ICDM_SaveData(ele) {
-    if (ValidateForm(ele)) {
-        FormBusinessLogic();
-        SaveForm(dataAction);
+    if(ValidateForm(ele))
+    {
+         FormBusinessLogic();
+         SaveForm();       
     }
 }
 
