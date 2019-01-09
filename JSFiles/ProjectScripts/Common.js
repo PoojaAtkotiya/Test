@@ -11,6 +11,7 @@ var actionPerformed;
 var scriptbase; //= spSiteUrl + "/_layouts/15/";     ////_spPageContextInfo.layoutsUrl
 
 jQuery(document).ready(function () {
+  
     //   BindDatePicker("");
     KeyPressNumericValidation();
 
@@ -22,8 +23,7 @@ jQuery(document).ready(function () {
         function () {
             $.getScript(scriptbase + "SP.js", loadConstants);
         }
-    );
-    HideWaitDialog();
+    );    
 });
 
 function loadConstants() {
@@ -37,7 +37,7 @@ function loadConstants() {
 }
 
 function onloadConstantsSuccess(sender, args) {
-
+    
     currentContext = SP.ClientContext.get_current();
     listItemId = getUrlParameter("ID");
     returnUrl = getUrlParameter("Source");
@@ -52,7 +52,7 @@ function onloadConstantsSuccess(sender, args) {
         GetGlobalApprovalMatrix(listItemId);
     }
 
-    setCustomApprovers();
+    setCustomApprovers();  
 }
 
 function onloadConstantsFail(sender, args) {
@@ -752,9 +752,7 @@ function ValidateForm(ele, saveCallBack) {
             else {
                 $(this).attr("data-ajax-success", $(this).attr("data-ajax-old-success"));
             }
-            $(this).find("input[id='ActionStatus']").val($(ele).attr("data-action"));
-            $(this).find("input[id='SendBackTo']").val($(ele).attr("data-sendbackto"));
-            $(this).find("input[id='SendToRole']").val($(ele).attr("data-sendtorole"));
+           
 
             if (!$(this).valid()) {
                 isValid = false;
@@ -775,6 +773,9 @@ function ValidateForm(ele, saveCallBack) {
         });
     }
     if (isValid) {
+        $("input[id='ActionStatus']").val($(ele).attr("data-action"));
+        $("input[id='SendBackTo']").val($(ele).attr("data-sendbackto"));
+        $("input[id='SendToRole']").val($(ele).attr("data-sendtorole"));
         ShowWaitDialog();
         if (buttonCaption != "save as draft") {
             //confirm file Attachment need attach or not

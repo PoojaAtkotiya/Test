@@ -73,6 +73,7 @@ function GetButtonsByRole(id, currentUserRole, formStatus) {
     btnli = btnli + '<li class="pull-left"><a id="btnExit" class="btn btn-default" onclick="Exit(this);" title="Exit without saving any data"  data-placement="bottom"><i class="fa fa-sign-out"></i>&nbsp;Home</a></li>';
 
     $('#dynamicButtonli').html(btnli);
+    HideWaitDialog();
 }
 
 

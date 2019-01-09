@@ -9,7 +9,7 @@ var ItemCodeProProcessListName = "ItemCodeProProcess";
 var ItemCodeApprovalMatrixListName = "ItemCodeApprovalMatrix";
 var ApproverMasterListName = "ApproverMaster";
 var buttonListName = 'Buttons';
-var buttonActionStatus = {
+const buttonActionStatus = {
     None: 1,
     SaveAsDraft: 2,
     Print: 7,
