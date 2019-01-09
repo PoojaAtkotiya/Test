@@ -140,24 +140,21 @@
                         formData[parenType] = $(this)[0].id;
                         break;
                 }
+
             });
-            $('input[name="ItemPhasedOutWithEffectFrom"]').datepicker({
-                format: 'dd-mm-yyyy',
-                todayHighlight: true,
-                autoclose: true
-            });
+            DatePickerControl($('input[name="ItemPhasedOutWithEffectFrom"]'));
         });
     </script>
 </head>
 
 <body>
     <div>
-        <!-- <div id="title-breadcrumb-option-demo" class="page-title-breadcrumb">
-            <div class="page-header pull-left">
-                <div class="page-title">Item Code Creation Pre-Process</div>
-            </div> -->
+       
         <ul class="header-nav header-nav-options nav navbar-nav navbar-right" id="dynamicButtonli"></ul>
-        <!-- </div> -->
+       <input type="hidden" id="ActionStatus" />
+       <input type="hidden" id="SendBackTo" />
+       <input type="hidden" id="SendToRole" />
+       
         <div id="tab-general">
             <div class="form-horizontal">
                 <div class="row mbl">
@@ -213,14 +210,15 @@
                                                     <div class="col-md-6">
                                                         <div class="col-md-4 control-label">LUM Marketing Delegate User :</div>
                                                         <div class="col-md-8">
-                                                            <!-- <select class="form-control dynamic-control" listtype="master" UserRole="" listname="ApproverMaster" id="Role" controlType="combo"></select> -->
-                                                            <select class="form-control dynamic-control" required="true" data-selected="LUMMarketingDelegateId" reflisttype="main" id="LUMMarketingDelegateId"
+                                                            <select class="form-control dynamic-control" name="LUMMarketingDelegateId" required="required" data-val-msg="Please select User."
+                                                                data-selected="LUMMarketingDelegateId" reflisttype="main" id="LUMMarketingDelegateId"
                                                                 controlType="combo"></select>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6">
                                                         <div class="col-md-4 control-label">Comment :</div>
                                                         <div class="col-md-8">
+                                                            <!--Current Approver Comment-->
                                                             <!-- <textarea class="form-control dynamic-control" maxlength="1000" required="true" cols="40" rows="6" controlType="multitext"
                                                                 listtype="tran" listname="ItemCodeApprovalMatrix" id="Comments"></textarea> -->
                                                         </div>
@@ -230,14 +228,15 @@
                                             <div class="row">
                                                 <div class="form-group">
                                                     <div class="col-md-6">
-                                                        <div class="col-md-4 control-label">Attachment :</div>
+                                                        <div class="col-md-4 control-label">Artwork Attachment :</div>
                                                         <div class="col-md-8">
-                                                            <input id='UploadArtworkAttachment' type='file'>
+                                                            <input type="file" class="form-control dynamic-control" id="UploadArtworkAttachment" name="myfiles" multiple="multiple" controlType="file">
+                                                            <!-- <button type="button" onclick="uploadListAttachments();">Upload</button> -->
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6">
-                                                        <input type="file" id="UploadArtworkAttachment" name="myfiles" multiple="multiple">
-                                                        <!-- <button type="button" onclick="uploadListAttachments();">Upload</button> -->
+
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -251,6 +250,7 @@
                                             <i class="fa fa-chevron-down"></i>
                                         </div>
                                     </div>
+
                                     <div id="LUMMKTDELEGATEESECTION" section="LUM Marketing Delegate Section" sectionOwner="" FillByRole="" class="card-body disabled">
                                         <div class="form-horizontal">
                                             <div class="row">
@@ -259,17 +259,17 @@
                                                         <div class="col-md-4 control-label">
                                                             <span class="text-danger text-default-light">*</span>Item Description :</div>
                                                         <div class="col-md-8">
-                                                            <input class="form-control dynamic-control" maxlength="1000" required="true" type="text" controlType="multitext" listtype="main"
-                                                                id="ItemDescription" />
+                                                            <input class="form-control dynamic-control" name="ItemDescription" maxlength="1000" required="required" type="text" controlType="multitext"
+                                                                listtype="main" id="ItemDescription" />
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6">
                                                         <div class="col-md-4 control-label">
                                                             <span class="text-danger text-default-light">*</span>Product Group :</div>
                                                         <div class="col-md-8">
-                                                            <select class="form-control dynamic-control" listtype="master" required="true" reflisttype="main" listname="ProductGroupMaster"
-                                                                data-selected="ProductGroup" valuebindingcolumn="Title" textbindingcolumnn="Title"
-                                                                id="ProductGroup" controlType="combo"></select>
+                                                            <select class="form-control dynamic-control" name="ProductGroup" listtype="master" required="required" reflisttype="main"
+                                                                listname="ProductGroupMaster" data-selected="ProductGroup" valuebindingcolumn="Title"
+                                                                textbindingcolumnn="Title" id="ProductGroup" controlType="combo"></select>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -280,7 +280,8 @@
                                                         <div class="col-md-4 control-label">
                                                             <span class="text-danger text-default-light">*</span>Confirmed Order from Customer :</div>
                                                         <div class="col-md-8">
-                                                            <select class="form-control dynamic-control" required="true" id="ConfirmedOrderFromCustomer" reflisttype="main" data-selected="ConfirmedOrderFromCustomer"
+                                                            <select class="form-control dynamic-control" name="ConfirmedOrderFromCustomer" required="true" id="ConfirmedOrderFromCustomer"
+                                                                reflisttype="main" data-selected="ConfirmedOrderFromCustomer"
                                                                 valuebindingcolumn="Title" textbindingcolumnn="Title" listname="ConfirmedOrderMaster"
                                                                 listtype="master" controlType="combo"></select>
                                                         </div>
@@ -289,9 +290,9 @@
                                                         <div class="col-md-4 control-label">
                                                             <span class="text-danger text-default-light">*</span>Type of Packaging Required :</div>
                                                         <div class="col-md-8">
-                                                            <select class="form-control dynamic-control" required="true" data-selected="TypeOfPackaging" reflisttype="main" valuebindingcolumn="Title"
-                                                                textbindingcolumnn="Title" listtype="master" listname="TypeOfPackagingMaster"
-                                                                id="TypeOfPackaging" controlType="combo"></select>
+                                                            <select class="form-control dynamic-control" name="TypeOfPackaging" required="true" data-selected="TypeOfPackaging" reflisttype="main"
+                                                                valuebindingcolumn="Title" textbindingcolumnn="Title" listtype="master"
+                                                                listname="TypeOfPackagingMaster" id="TypeOfPackaging" controlType="combo"></select>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -323,8 +324,8 @@
                                                     <div class="col-md-6">
                                                         <div class="col-md-4 control-label">Item To Be Phased Out With Effect From :</div>
                                                         <div class="col-md-8">
-                                                            <div class="input-group date datepicker pastDisabled">
-                                                                <input type="text" class="form-control dynamic-control datepicker" listtype="main" id="ItemPhasedOutWithEffectFrom" controlType="date"
+                                                            <div id="dates" class="input-group date datepicker pastDisabled">
+                                                                <input type="text" class="form-control dynamic-control" listtype="main" id="ItemPhasedOutWithEffectFrom" controlType="date"
                                                                     name="ItemPhasedOutWithEffectFrom">
                                                                 <span class="input-group-addon">
                                                                     <span class="fa fa-calendar"></span>
@@ -455,8 +456,8 @@
                                                     <div class="col-md-6">
                                                         <div class="col-md-4 control-label">LUM Design Delegate User:</div>
                                                         <div class="col-md-8">
-                                                            <select class="form-control dynamic-control" data-selected="SCMLUMDesignDelegateId" reflisttype="main" id="SCMLUMDesignDelegateId"
-                                                                controlType="combo"></select>
+                                                            <select class="form-control dynamic-control" name="SCMLUMDesignDelegateId" data-selected="SCMLUMDesignDelegateId" reflisttype="main"
+                                                                id="SCMLUMDesignDelegateId" controlType="combo"></select>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6">
@@ -592,6 +593,11 @@
             </div>
         </div>
     </div>
+    <div id="loading">
+            <div id="pageLoading">
+            </div>
+            <img id="loadingimage" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/images/loading.gif" alt="Please Wait" />
+        </div>
 </body>
 
 </html>

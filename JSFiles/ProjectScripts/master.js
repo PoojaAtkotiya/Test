@@ -38,12 +38,10 @@ function GetMasterData(masterlistname) {
                             var elementType = $(this).attr('controlType');
                             var valueBindingColumn = $(this).attr('valuebindingcolumn');
                             var textBindingColumnn = $(this).attr('textbindingcolumnn');
-
                             switch (elementType) {
                                 case "combo":
                                     $("#" + elementId).html('');
                                     $("#" + elementId).html("<option value=''>Select</option>");
-
                                     if (!IsNullOrUndefined(valueBindingColumn) && !IsNullOrUndefined(textBindingColumnn) && valueBindingColumn != '' && textBindingColumnn != '') {
                                         $(result).each(function (i, e) {
                                             var cmditem = result[i];
@@ -57,12 +55,9 @@ function GetMasterData(masterlistname) {
                                 case "listbox":
                                     break;
                             }
-
                         });
-
                         return masterDataArray;
                     }
-
                 },
                 error: function (data) {
                     console.log($("#" + elementId).html(data.responseJSON.error));
