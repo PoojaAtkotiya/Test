@@ -762,7 +762,6 @@ function ValidateForm(ele, saveCallBack) {
             if ($(formList).find("div[data-appname]").length != 0 && $(formList).find("div[data-appname]").find("ul li").length == 0 && dataAction == "10") {
                 attachmsg = "Are you sure to '" + $.trim($(ele).text()) + "' without attachment?";
             }
-
             ConfirmationDailog({
                 title: "Confirm", message: attachmsg, okCallback: saveCallBack(activeSection)
             });
