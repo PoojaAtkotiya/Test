@@ -908,7 +908,7 @@ function SaveData(listname, listDataArray, sectionName) {
                     itemID = data.d.ID;
                 }
                 ////AddAttachments(itemID);
-                ////AddAllAttachments(listname,itemID);
+                AddAllAttachments(listname, itemID);
                 var web, clientContext;
                 SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
                     clientContext = new SP.ClientContext.get_current();

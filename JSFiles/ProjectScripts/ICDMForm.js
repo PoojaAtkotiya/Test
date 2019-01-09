@@ -146,6 +146,7 @@ function SaveForm(activeSection) {
     try {
         var formValid = false;
         //Object.keys(buttonActionStatus.NextApproval)
+        buttonActionStatus = "NextApproval";
         formValid = true;
         if (formValid) {
             SaveFormData(activeSection);
