@@ -145,8 +145,6 @@ function GetSetFormData() {
 function SaveForm(activeSection) {
     try {
         var formValid = false;
-        //Object.keys(buttonActionStatus.NextApproval)
-        buttonActionStatus = "NextApproval";
         formValid = true;
         if (formValid) {
             SaveFormData(activeSection);
@@ -159,10 +157,10 @@ function SaveForm(activeSection) {
     }
 }
 
-function SendBack() {
-    buttonActionStatus = "SendBack";
-    SaveFormData();
-}
+// function SendBack() {
+//     buttonActionStatus = "SendBack";
+//     SaveFormData();
+// }
 
 function setCustomApprovers(tempApproverMatrix) {
     if (!IsNullOrUndefined(tempApproverMatrix) && tempApproverMatrix.length != -1) {

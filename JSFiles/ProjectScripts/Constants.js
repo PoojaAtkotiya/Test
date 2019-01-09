@@ -17,6 +17,7 @@ var buttonActionStatus = {
     BackToCreator: 12,
     Complete: 15,
     SendBack: 23,
+    SendForward : 25,
     Submit: 27,
     SaveAndStatusUpdate: 33,
     SaveAndNoStatusUpdate: 34,
@@ -28,10 +29,6 @@ var buttonActionStatus = {
 };
 
 Object.freeze(buttonActionStatus);
-
-
-//function Enum() { for (var i in arguments) { this[arguments[i]] = i; } }
- //var buttonActionStatus= new Enum('None', 'SaveAsDraft'); 
 
 var jsFunctionValue = {
     Submit: 1,

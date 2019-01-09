@@ -233,9 +233,10 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
     }
 
     ////get value from ActionStatus from html and convert int to string for action Performed
-    //var actionStatus = $("#ActionStatus").val();
-    //actionPerformed = Object.keys(buttonActionStatus).filter(k => k == actionStatus); // ["A", "B"]
-    actionPerformed = "NextApproval";
+    var actionStatus = $("#ActionStatus").val();
+    //var keys = Object.keys(buttonActionStatus).filter(k => buttonActionStatus[k] == actionStatus);
+    //actionPerformed = keys.toString();
+    actionPerformed = parseInt(actionStatus);
     ////Update status of all approvers in tempapprovalmatrix
     UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previousLevel, actionPerformed);
 
@@ -245,7 +246,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
         tempApproverMatrix.forEach(t => {
             t.RequestIDId = requestId;
         });
-        if (actionPerformed != "Send Back" && actionPerformed != "Forward" && tempApproverMatrix.some(t => t.Levels != currentLevel)) {
+        if (actionPerformed != buttonActionStatus.SendBack && actionPerformed != buttonActionStatus.Forward && tempApproverMatrix.some(t => t.Levels != currentLevel)) {
             ////Get Next Level
             var nextLevelRow = tempApproverMatrix.sort(t => t.Levels).filter(function (temp) {
                 return (temp.Status != "Not Required" && !IsNullOrUndefined(temp.ApproverId) && temp.Levels > currentLevel);
@@ -286,7 +287,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
             });
         }
         else {
-            if (actionPerformed == "NextApproval" || actionPerformed == "Delegate") {
+            if (actionPerformed == buttonActionStatus.NextApproval || actionPerformed == buttonActionStatus.Delegate) {
                 var approvers = tempApproverMatrix.sort(a => a.Levels).filter(a => a.Levels > currentLevel && !IsNullOrUndefined(a.ApproverId) && a.Status != "Not Required")[0];
                 if (!IsNullOrUndefined(approvers)) {
                     var listofNextApprovers = tempApproverMatrix.filter(temp => (temp.Levels == nextLevel && temp.Status == "Pending"));
@@ -319,7 +320,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
                 currentLevel = previousLevel;
             }
         }
-        if (actionPerformed == "SendBack" && !IsNullOrUndefined(sendToLevel)) {
+        if (actionPerformed == buttonActionStatus.SendBack && !IsNullOrUndefined(sendToLevel)) {
             nextLevel = sendToLevel;
             var listofNextApprovers = tempApproverMatrix.filter(temp => (temp.Levels == nextLevel && temp.Status == "Pending"));
             nextApprover = '';
@@ -347,7 +348,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
 
             });
         }
-        if (actionPerformed == "SendForward" && !IsNullOrUndefined(sendToLevel)) {
+        if (actionPerformed == buttonActionStatus.SendForward && !IsNullOrUndefined(sendToLevel)) {
             nextLevel = sendToLevel;
             var approvers = tempApproverMatrix.sort(a => a.Levels).filter(a => a.Levels >= nextLevel && !IsNullOrUndefined(a.ApproverId))[0];
             if (!IsNullOrUndefined(approvers)) {
@@ -376,8 +377,9 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
 
     var makeAllUsersViewer = false;
     var isTaskAssignMailSend = false;
+    debugger
     switch (actionPerformed) {
-        case "SaveAsDraft":
+        case buttonActionStatus.SaveAsDraft:
             nextLevel = currentLevel;
             currentLevel = previousLevel;
             formFieldValues['Status'] = "Draft";
@@ -427,8 +429,8 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
             currentLevel = previousLevel;
             formFieldValues['Status'] = "Ready to Publish";
             break;
-        case "Delegate":
-        case "NextApproval":
+        case buttonActionStatus.Delegate:
+        case buttonActionStatus.NextApproval:
             formFieldValues['LastactionPerformed'] = actionPerformed;
             formFieldValues['LastActionBy'] = currentUser.Id;
             formFieldValues['LastActionByRole'] = currentUserRole;
@@ -483,7 +485,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
             makeAllUsersViewer = true;
             isTaskAssignMailSend = true;
             break;
-        case "SendBack":
+        case buttonActionStatus.SendBack:
             formFieldValues['LastactionPerformed'] = actionPerformed;
             if (!IsNullOrUndefined(sendToLevel)) {
                 formFieldValues['NextApprover'] = nextApprover;
@@ -946,8 +948,8 @@ function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previous
             var currentUserId = currentUser.Id;
             var nextLevel = currentLevel;
             switch (actionPerformed) {
-                case actionPerformed = 'Delegate':
-                case actionPerformed = 'NextApproval':
+                case buttonActionStatus.Delegate:
+                case buttonActionStatus.NextApproval:
                     tempApproverMatrix.filter(function (temp) {
                         ////right now searched by user Id, it may requires to check by name 
                         if (!IsNullOrUndefined(temp.ApproverId) && temp.Levels == currentLevel && ((!IsNullOrUndefined(temp.ApproverId.results) && temp.ApproverId.results.length > 0) ? temp.ApproverId.results.some(item => item == currentUserId) : (temp.ApproverId.toString().indexOf(currentUserId) != -1))) {
