@@ -763,23 +763,15 @@ function ValidateForm(ele, saveCallBack) {
                 attachmsg = "Are you sure to '" + $.trim($(ele).text()) + "' without attachment?";
             }
             ConfirmationDailog({
-<<<<<<< HEAD
-                title: "Confirm", message: attachmsg, okCallback: function (id, data) {
-
+                title: "Confirm", message: attachmsg, okCallback: function(data){ 
+                    saveCallBack(activeSection);
                 }
-=======
-                title: "Confirm", message: attachmsg, okCallback: saveCallBack(activeSection)
->>>>>>> 595441733745fb4b710ea0f0f29e13d89a364b3d
             });
         }
         else {
             saveCallBack(activeSection);
         }
     }
-<<<<<<< HEAD
-    return isValid;
-=======
->>>>>>> 595441733745fb4b710ea0f0f29e13d89a364b3d
 }
 
 function onQuerySucceeded(sender, args) {
