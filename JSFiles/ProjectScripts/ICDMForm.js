@@ -8,7 +8,7 @@ var sendToLevel = 0;
 var collListItem = null;
 var fileInfos = [];
 
-$(document).ready(function () {  
+$(document).ready(function () {
     GetUsersForDDL("LUM Marketing Delegate", "LUMMarketingDelegateId");
     GetUsersForDDL("LUM Design Delegate", "SCMLUMDesignDelegateId");
 });
@@ -17,12 +17,12 @@ $(document).ready(function () {
 function ICDM_SaveData(ele) {
     if (ValidateForm(ele)) {
         FormBusinessLogic();
-        SaveForm();
+        SaveForm(dataAction);
     }
 }
 
 function FormBusinessLogic() {
-  //check if there any delegate user fillby section owner
+    //check if there any delegate user fillby section owner
     // $('#'+ sectionName).
 
 
@@ -35,19 +35,19 @@ function FormBusinessLogic() {
 
 }
 
-function AddAllAttachments(listname,itemID) {
+function AddAllAttachments(listname, itemID) {
     $('#divItemCodeForm').find('div[section]').not(".disabled").each(function (i, e) {
         var fileListArray = [];
         $(e).find('input[type="file"]').each(function () {
             var elementId = $(this).attr('id');
             var controlType = $(this).attr('controlType');
             // if (controlType == "file") {
-                debugger;
-                fileListArray = GetAttachmentValue(elementId, fileListArray);
-                //if (!IsNullOrUndefined(fileListArray)) {
-                    SaveItemWiseAttachments(listname, fileListArray, itemID, elementId);
-                //}
-           // }
+            debugger;
+            fileListArray = GetAttachmentValue(elementId, fileListArray);
+            //if (!IsNullOrUndefined(fileListArray)) {
+            SaveItemWiseAttachments(listname, fileListArray, itemID, elementId);
+            //}
+            // }
 
         });
 
@@ -56,7 +56,7 @@ function AddAllAttachments(listname,itemID) {
 }
 
 function GetAttachmentValue(elementId, fileListArray) {
-    var input =document.getElementById("UploadArtworkAttachment")
+    var input = document.getElementById("UploadArtworkAttachment")
     var fileCount = input.files.length;
     for (var i = 0; i < fileCount; i++) {
         var file = input.files[i];
@@ -89,7 +89,7 @@ function SaveItemWiseAttachments(listname, fileListArray, itemID, elementId) {
         //     console.log("error while saving file name in multiline text field");
         // });
         console.log("files saved successfully in list = " + listname + "for listItemId = " + itemID);
-    }).catch(function (err) {       
+    }).catch(function (err) {
         console.log(err);
         console.log("error while save attachment ib list = " + listname + "for listItemId = " + itemID)
     });
@@ -130,9 +130,8 @@ function GetSetFormData() {
     });
 }
 
-function SaveForm() {
+function SaveForm(dataAction) {
     var formValid = false;
-    buttonActionStatus = "NextApproval";
     //Object.keys(buttonActionStatus.NextApproval)
     formValid = true;
     if (formValid) {

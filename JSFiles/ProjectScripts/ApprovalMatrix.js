@@ -205,7 +205,7 @@ function GetEnableSectionNames(id) {
                 var formList = $(form).append($("#" + sectionId)[0].outerHTML);
                 $('#' + sectionId).remove();
                 $(document.body).find($(parentDiv)).append($(formList)[0].outerHTML);
-                DatePickerControl('#divItemCodeForm');              
+                DatePickerControl('#divItemCodeForm');
             }
         });
         $("div .disabled .form-control").attr("disabled", "disabled");
@@ -232,9 +232,11 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
         });
     }
 
+    ////get value from ActionStatus from html and convert int to string for action Performed
+    //// actionPerformed = 
+
     ////Update status of all approvers in tempapprovalmatrix
-    var actionperformed = buttonActionStatus;
-    UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previousLevel, actionperformed);
+    UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previousLevel, actionPerformed);
 
     ////Set NextApprover and NextApproverRole
     if (!IsNullOrUndefined(tempApproverMatrix) && tempApproverMatrix.length > 0) {
@@ -242,7 +244,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
         tempApproverMatrix.forEach(t => {
             t.RequestIDId = requestId;
         });
-        if (actionperformed != "Send Back" && actionperformed != "Forward" && tempApproverMatrix.some(t => t.Levels != currentLevel)) {
+        if (actionPerformed != "Send Back" && actionPerformed != "Forward" && tempApproverMatrix.some(t => t.Levels != currentLevel)) {
             ////Get Next Level
             var nextLevelRow = tempApproverMatrix.sort(t => t.Levels).filter(function (temp) {
                 return (temp.Status != "Not Required" && !IsNullOrUndefined(temp.ApproverId) && temp.Levels > currentLevel);
@@ -316,7 +318,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
                 currentLevel = previousLevel;
             }
         }
-        if (actionperformed == "SendBack" && !IsNullOrUndefined(sendToLevel)) {
+        if (actionPerformed == "SendBack" && !IsNullOrUndefined(sendToLevel)) {
             nextLevel = sendToLevel;
             var listofNextApprovers = tempApproverMatrix.filter(temp => (temp.Levels == nextLevel && temp.Status == "Pending"));
             nextApprover = '';
@@ -344,7 +346,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
 
             });
         }
-        if (actionperformed == "SendForward" && !IsNullOrUndefined(sendToLevel)) {
+        if (actionPerformed == "SendForward" && !IsNullOrUndefined(sendToLevel)) {
             nextLevel = sendToLevel;
             var approvers = tempApproverMatrix.sort(a => a.Levels).filter(a => a.Levels >= nextLevel && !IsNullOrUndefined(a.ApproverId))[0];
             if (!IsNullOrUndefined(approvers)) {
@@ -373,7 +375,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
 
     var makeAllUsersViewer = false;
     var isTaskAssignMailSend = false;
-    switch (actionperformed) {
+    switch (actionPerformed) {
         case "SaveAsDraft":
             nextLevel = currentLevel;
             currentLevel = previousLevel;
@@ -426,7 +428,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
             break;
         case "Delegate":
         case "NextApproval":
-            formFieldValues['LastActionPerformed'] = actionperformed;
+            formFieldValues['LastactionPerformed'] = actionPerformed;
             formFieldValues['LastActionBy'] = currentUser.Id;
             formFieldValues['LastActionByRole'] = currentUserRole;
             formFieldValues['PendingWith'] = nextApproverRole;
@@ -447,7 +449,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
             }
             break;
         case "BackToCreator":
-            formFieldValues['LastActionPerformed'] = actionperformed;
+            formFieldValues['LastactionPerformed'] = actionPerformed;
             formFieldValues['LastActionBy'] = currentUser.Id;
             formFieldValues['LastActionByRole'] = currentUserRole;
             formFieldValues['PendingWith'] = nextApproverRole;
@@ -481,7 +483,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
             isTaskAssignMailSend = true;
             break;
         case "SendBack":
-            formFieldValues['LastActionPerformed'] = actionperformed;
+            formFieldValues['LastactionPerformed'] = actionPerformed;
             if (!IsNullOrUndefined(sendToLevel)) {
                 formFieldValues['NextApprover'] = nextApprover;
                 formFieldValues['LastActionBy'] = currentUser.Id;
@@ -494,7 +496,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
         case "RestartToUpdate":
             // Since it is restart case so we need to reset currlevel = 0 ;
             currentLevel = 0;
-            formFieldValues['LastActionPerformed'] = actionPerformed;
+            formFieldValues['LastactionPerformed'] = actionPerformed;
             formFieldValues['NextApprover'] = nextApprover;
             formFieldValues['LastActionBy'] = currentUser.Id;
             formFieldValues['LastActionByRole'] = currentUserRole;
@@ -503,7 +505,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
             formFieldValues['Status'] = "Submitted";
             break;
         case "SendForward":
-            formFieldValues = { 'LastActionPerformed': actionPerformed };
+            formFieldValues = { 'LastactionPerformed': actionPerformed };
             if (!IsNullOrUndefined(sendToLevel)) {
                 nextLevel = sendToLevel;
                 formFieldValues['LastActionBy'] = currentUser.Id;
@@ -853,7 +855,7 @@ function SaveFormFields(formFieldValues, requestId) {
     mainlistDataArray['Status'] = formFieldValues["Status"].toString();
     mainlistDataArray['WorkflowStatus'] = formFieldValues["WorkflowStatus"].toString();
     //ApprovalStatus : formFieldValues["ApprovalStatus"],
-    //LastActionPerformed : formFieldValues["LastActionPerformed"],
+    //LastactionPerformed : formFieldValues["LastactionPerformed"],
     //IsReschedule: formFieldValues["IsReschedule"],
 
 
@@ -935,14 +937,14 @@ function SetSectionWiseRoles(id) {
     }
 }
 
-function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previousLevel, actionperformed) {
+function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previousLevel, actionPerformed) {
     if (!IsNullOrUndefined(tempApproverMatrix) && tempApproverMatrix.length > 0 && !IsNullOrUndefined(currentUser.Id)) {
         if (currentLevel != previousLevel) {
             var currentUserId = currentUser.Id;
             var nextLevel = currentLevel;
-            switch (actionperformed) {
-                case actionperformed = 'Delegate':
-                case actionperformed = 'NextApproval':
+            switch (actionPerformed) {
+                case actionPerformed = 'Delegate':
+                case actionPerformed = 'NextApproval':
                     tempApproverMatrix.filter(function (temp) {
                         ////right now searched by user Id, it may requires to check by name 
                         if (!IsNullOrUndefined(temp.ApproverId) && temp.Levels == currentLevel && ((!IsNullOrUndefined(temp.ApproverId.results) && temp.ApproverId.results.length > 0) ? temp.ApproverId.results.some(item => item == currentUserId) : (temp.ApproverId.toString().indexOf(currentUserId) != -1))) {

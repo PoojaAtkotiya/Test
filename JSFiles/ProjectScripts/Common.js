@@ -6,6 +6,7 @@ var currentContext;
 var hostweburl;
 var currentContext;
 var listDataArray = {};
+var actionPerformed;
 
 
 var scriptbase; //= spSiteUrl + "/_layouts/15/";     ////_spPageContextInfo.layoutsUrl
