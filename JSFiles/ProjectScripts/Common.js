@@ -645,16 +645,10 @@ function resetFormValidator(formId) {
 // });
 
 
-<<<<<<< HEAD
-function ValidateForm(ele) {
-    //Get Active Section
-    var formList = $('div[section]').not(".disabled").parent();
-=======
 function ValidateForm(ele, saveCallBack) {
     //Get Active Section
     var activeSection = $('div[section]').not(".disabled");
     var formList = $(activeSection).parent();
->>>>>>> 595441733745fb4b710ea0f0f29e13d89a364b3d
 
     var isValid = true;
     var dataAction = $(ele).attr("data-action");
