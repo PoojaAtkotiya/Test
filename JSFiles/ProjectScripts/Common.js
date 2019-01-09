@@ -752,9 +752,7 @@ function ValidateForm(ele, saveCallBack) {
             else {
                 $(this).attr("data-ajax-success", $(this).attr("data-ajax-old-success"));
             }
-            $(this).find("input[id='ActionStatus']").val($(ele).attr("data-action"));
-            $(this).find("input[id='SendBackTo']").val($(ele).attr("data-sendbackto"));
-            $(this).find("input[id='SendToRole']").val($(ele).attr("data-sendtorole"));
+           
 
             if (!$(this).valid()) {
                 isValid = false;
@@ -775,6 +773,9 @@ function ValidateForm(ele, saveCallBack) {
         });
     }
     if (isValid) {
+        $("input[id='ActionStatus']").val($(ele).attr("data-action"));
+        $("input[id='SendBackTo']").val($(ele).attr("data-sendbackto"));
+        $("input[id='SendToRole']").val($(ele).attr("data-sendtorole"));
         ShowWaitDialog();
         if (buttonCaption != "save as draft") {
             //confirm file Attachment need attach or not
