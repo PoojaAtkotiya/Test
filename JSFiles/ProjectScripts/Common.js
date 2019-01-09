@@ -8,7 +8,6 @@ var currentContext;
 var listDataArray = {};
 var actionPerformed;
 
-
 var scriptbase; //= spSiteUrl + "/_layouts/15/";     ////_spPageContextInfo.layoutsUrl
 
 jQuery(document).ready(function () {
@@ -24,6 +23,7 @@ jQuery(document).ready(function () {
             $.getScript(scriptbase + "SP.js", loadConstants);
         }
     );
+   
 });
 
 function loadConstants() {
@@ -31,12 +31,12 @@ function loadConstants() {
     this.oWebsite = clientContext.get_web();
     clientContext.load(this.oWebsite);
     clientContext.executeQueryAsync(
-        Function.createDelegate(this, onSuccess),
-        Function.createDelegate(this, onFail)
+        Function.createDelegate(this, onloadConstantsSuccess),
+        Function.createDelegate(this, onloadConstantsFail)
     );
 }
 
-function onSuccess(sender, args) {
+function onloadConstantsSuccess(sender, args) {
 
     currentContext = SP.ClientContext.get_current();
     listItemId = getUrlParameter("ID");
@@ -55,8 +55,21 @@ function onSuccess(sender, args) {
     setCustomApprovers();
 }
 
-function onFail(sender, args) {
+function onloadConstantsFail(sender, args) {
     console.log(args.get_message());
+}
+
+function ShowWaitDialog() {
+    try {
+        jQuery("#loading").show();
+    }
+    catch (ex) {
+        // blank catch to handle ie issue in case of CK editor
+    }
+}
+
+function HideWaitDialog() {
+    jQuery("#loading").hide();
 }
 
 function DatePickerControl(ele) {
@@ -474,6 +487,7 @@ function ConfirmationDailog(options) {
 }
 
 function ConfirmPopupYes(url, id, okCallback) {
+    ShowWaitDialog();
     if (typeof (url) !== "undefined" && url != null) {
         url = url;
         $.ajax
@@ -489,6 +503,11 @@ function ConfirmPopupYes(url, id, okCallback) {
                     if (typeof (okCallback) !== "undefined" && okCallback != null) {
                         okCallback(id, data);
                     }
+                    HideWaitDialog();
+                },
+                fail: function (xhr) {
+                    onAjaxError(xhr);
+                    HideWaitDialog();
                 }
             });
 
@@ -756,6 +775,7 @@ function ValidateForm(ele, saveCallBack) {
         });
     }
     if (isValid) {
+        ShowWaitDialog();
         if (buttonCaption != "save as draft") {
             //confirm file Attachment need attach or not
             var attachmsg = "Are you sure to '" + $.trim($(ele).text()) + "'?";
@@ -771,6 +791,7 @@ function ValidateForm(ele, saveCallBack) {
         else {
             saveCallBack(activeSection);
         }
+        HideWaitDialog();
     }
 }
 
@@ -932,7 +953,7 @@ function SaveData(listname, listDataArray, sectionName) {
                         else {
                             SaveTranListData(itemID);
                         }
-                        AlertModal("Save", "Data saved successfully", false, null);
+                        AlertModal("Success", "Data saved successfully", false, null);
 
                     }, function (sender, args) {
                         console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
@@ -942,7 +963,6 @@ function SaveData(listname, listDataArray, sectionName) {
 
             },
             error: function (data) {
-                debugger;
                 console.log(data);
             }
         });
