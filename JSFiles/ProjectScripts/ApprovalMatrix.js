@@ -163,6 +163,7 @@ function GetRoleFromApprovalMatrix(tcurrentLevel, requestId, currUserId) {
 }
 
 function GetEnableSectionNames(id) {
+    var formNames=$($('div').find('[mainlistname]')).attr('id');
     if (id == 0) {
         //get active section name
         var activeSectionItem = globalApprovalMatrix.filter(function (i) {
@@ -170,7 +171,8 @@ function GetEnableSectionNames(id) {
         })[0];
 
         activeSectionName = (!IsNullOrUndefined(activeSectionItem.SectionName) && !IsNullOrUndefined(activeSectionItem.SectionName.results) && !IsNullOrUndefined(activeSectionItem.SectionName.results.length > 0) && !IsNullOrUndefined(activeSectionItem.SectionName.results[0])) ? activeSectionItem.SectionName.results[0].Label : '';
-        $('#divItemCodeForm div .card-body').filter(function () {
+       
+         $('#'+formNames).find('div.card-body').filter(function () {
             var sectionName = $(this).attr('section');
             if (sectionName == activeSectionName) {
                 var sectionId = $(this).attr('id');
@@ -181,7 +183,7 @@ function GetEnableSectionNames(id) {
                 var formList = $(form).append($("#" + sectionId)[0].outerHTML);
                 $('#' + sectionId).remove();
                 $(document.body).find($(parentDiv)).append($(formList)[0].outerHTML);
-                DatePickerControl('#divItemCodeForm');
+                DatePickerControl(formNames);
             }
         });
         $("div .disabled .form-control").attr("disabled", "disabled");
@@ -193,7 +195,7 @@ function GetEnableSectionNames(id) {
         })[0];
 
         activeSectionName = activeSectionItem.SectionName;
-        $('#divItemCodeForm div .card-body').filter(function () {
+        $('#'+formNames).find('div.card-body').filter(function () {
             var sectionName = $(this).attr('section');
             if (sectionName == activeSectionName) {
                 var sectionId = $(this).attr('id');
@@ -205,7 +207,7 @@ function GetEnableSectionNames(id) {
                 var formList = $(form).append($("#" + sectionId)[0].outerHTML);
                 $('#' + sectionId).remove();
                 $(document.body).find($(parentDiv)).append($(formList)[0].outerHTML);
-                DatePickerControl('#divItemCodeForm');
+                DatePickerControl(formNames);
             }
         });
         $("div .disabled .form-control").attr("disabled", "disabled");
@@ -909,12 +911,13 @@ function UpdateWorkflowStatus(formFieldValues) {
 }
 
 function SetSectionWiseRoles(id) {
+    var formNames=$($('div').find('[mainlistname]')).attr('id');
     if (id == 0) {
         ////Get data from global approval matrix
         if (!IsNullOrUndefined(globalApprovalMatrix) && globalApprovalMatrix.length > 0) {
             ////Compare by Section Name
             globalApprovalMatrix.filter(function (g) {
-                $('#divItemCodeForm div').each(function () {
+                $('#'+formNames).find('div').each(function () {
                     var divSection = $(this).attr('section');
                     if (!IsNullOrUndefined(divSection) && !IsNullOrUndefined(g.SectionName) && !IsNullOrUndefined(g.SectionName.results[0]) && !IsNullOrUndefined(g.SectionName.results[0].Label) && g.SectionName.results[0].Label == divSection) {
                         //// if section name are same, get Role and FillByRole
@@ -929,7 +932,7 @@ function SetSectionWiseRoles(id) {
         if (!IsNullOrUndefined(localApprovalMatrixdata) && localApprovalMatrixdata.length > 0) {
             ////Compare by Section Name
             localApprovalMatrixdata.filter(function (l) {
-                $('#divItemCodeForm div').each(function () {
+                $(formName).find('div').each(function () {
                     var divSection = $(this).attr('section');
                     if (!IsNullOrUndefined(divSection) && !IsNullOrUndefined(l.SectionName) && l.SectionName == divSection) {
                         //// if section name are same, get Role and FillByRole
