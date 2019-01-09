@@ -235,7 +235,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
     ////get value from ActionStatus from html and convert int to string for action Performed
     //var actionStatus = $("#ActionStatus").val();
     //actionPerformed = Object.keys(buttonActionStatus).filter(k => k == actionStatus); // ["A", "B"]
-
+    actionPerformed = "NextApproval";
     ////Update status of all approvers in tempapprovalmatrix
     UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previousLevel, actionPerformed);
 
