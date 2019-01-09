@@ -645,9 +645,16 @@ function resetFormValidator(formId) {
 // });
 
 
+<<<<<<< HEAD
 function ValidateForm(ele) {
     //Get Active Section
     var formList = $('div[section]').not(".disabled").parent();
+=======
+function ValidateForm(ele, saveCallBack) {
+    //Get Active Section
+    var activeSection = $('div[section]').not(".disabled");
+    var formList = $(activeSection).parent();
+>>>>>>> 595441733745fb4b710ea0f0f29e13d89a364b3d
 
     var isValid = true;
     var dataAction = $(ele).attr("data-action");
@@ -761,18 +768,24 @@ function ValidateForm(ele) {
             if ($(formList).find("div[data-appname]").length != 0 && $(formList).find("div[data-appname]").find("ul li").length == 0 && dataAction == "10") {
                 attachmsg = "Are you sure to '" + $.trim($(ele).text()) + "' without attachment?";
             }
-
             ConfirmationDailog({
+<<<<<<< HEAD
                 title: "Confirm", message: attachmsg, okCallback: function (id, data) {
 
                 }
+=======
+                title: "Confirm", message: attachmsg, okCallback: saveCallBack(activeSection)
+>>>>>>> 595441733745fb4b710ea0f0f29e13d89a364b3d
             });
         }
         else {
-            saveDataCallback();
+            saveCallBack(activeSection);
         }
     }
+<<<<<<< HEAD
     return isValid;
+=======
+>>>>>>> 595441733745fb4b710ea0f0f29e13d89a364b3d
 }
 
 function onQuerySucceeded(sender, args) {
