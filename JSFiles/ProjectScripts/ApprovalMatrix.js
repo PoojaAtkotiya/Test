@@ -724,6 +724,7 @@ function SaveApprovalMatrixInList(tempApproverMatrix, approvalMatrixListName, is
                 url: url,
                 type: "POST",
                 headers: headers,
+                async: false,
                 data: JSON.stringify
                     ({
                         __metadata: {
@@ -793,6 +794,7 @@ function SaveApprovalMatrixInList(tempApproverMatrix, approvalMatrixListName, is
                 url: url,
                 type: "POST",
                 headers: headers,
+                async: false,
                 data: JSON.stringify
                     ({
                         __metadata: {
