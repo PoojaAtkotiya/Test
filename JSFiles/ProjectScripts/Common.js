@@ -11,6 +11,7 @@ var actionPerformed;
 var scriptbase; //= spSiteUrl + "/_layouts/15/";     ////_spPageContextInfo.layoutsUrl
 
 jQuery(document).ready(function () {
+  
     //   BindDatePicker("");
     KeyPressNumericValidation();
 
@@ -22,8 +23,7 @@ jQuery(document).ready(function () {
         function () {
             $.getScript(scriptbase + "SP.js", loadConstants);
         }
-    );
-    HideWaitDialog();
+    );    
 });
 
 function loadConstants() {
@@ -37,7 +37,7 @@ function loadConstants() {
 }
 
 function onloadConstantsSuccess(sender, args) {
-
+    
     currentContext = SP.ClientContext.get_current();
     listItemId = getUrlParameter("ID");
     returnUrl = getUrlParameter("Source");
@@ -52,7 +52,7 @@ function onloadConstantsSuccess(sender, args) {
         GetGlobalApprovalMatrix(listItemId);
     }
 
-    setCustomApprovers();
+    setCustomApprovers();  
 }
 
 function onloadConstantsFail(sender, args) {
