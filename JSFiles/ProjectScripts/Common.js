@@ -763,7 +763,9 @@ function ValidateForm(ele, saveCallBack) {
                 attachmsg = "Are you sure to '" + $.trim($(ele).text()) + "' without attachment?";
             }
             ConfirmationDailog({
-                title: "Confirm", message: attachmsg, okCallback: saveCallBack(activeSection)
+                title: "Confirm", message: attachmsg, okCallback: function(data){ 
+                    saveCallBack(activeSection);
+                }
             });
         }
         else {

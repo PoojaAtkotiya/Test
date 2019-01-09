@@ -15,7 +15,7 @@ $(document).ready(function () {
 
 
 function ICDM_SaveData(ele) {
-    ValidateForm(ele,SaveDataCall);
+    ValidateForm(ele, SaveDataCall);
 }
 function SaveDataCall(activeSection) {
     var isError = FormBusinessLogic();
