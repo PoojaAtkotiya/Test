@@ -558,6 +558,7 @@ function AlertModal(title, msg, isExit, callback) {
         if (callback == null) {
             $("div[id='PopupDialog']").hide();
             $("div[id='PopupDialog']").remove();
+            
         }
     });
 }
@@ -711,26 +712,26 @@ function ValidateForm(ele, saveCallBack) {
                 });
             }
 
-            if (dataAction == "1" || dataAction == "33") {
+            if (dataAction == "2" || dataAction == "34") {
                 $(this).validate().settings.ignore = "*";
                 if (buttonCaption == "submit" || buttonCaption == "complete") {
                     $(".error").addClass("valid");
                     $(".valid").removeClass("error");
                 }
             }
-            else if (dataAction == "22") {
+            else if (dataAction == "23") {
                 $(this).validate().settings.ignore = "*";
                 $(".error").addClass("valid");
                 $(".valid").removeClass("error");
                 $(this).validate().settings.ignore = ":not(.requiredOnSendBack)";
             }
-            else if (dataAction == "40") {
+            else if (dataAction == "41") {
                 $(this).validate().settings.ignore = "*";
                 $(".error").addClass("valid");
                 $(".valid").removeClass("error");
                 $(this).validate().settings.ignore = ":not(.requiredOnReject)";
             }
-            else if (dataAction == "41") {
+            else if (dataAction == "42") {
                 $(this).validate().settings.ignore = "*";
                 $(".error").addClass("valid");
                 $(".valid").removeClass("error");
@@ -780,7 +781,7 @@ function ValidateForm(ele, saveCallBack) {
         if (buttonCaption != "save as draft") {
             //confirm file Attachment need attach or not
             var attachmsg = "Are you sure to '" + $.trim($(ele).text()) + "'?";
-            if ($(formList).find("div[data-appname]").length != 0 && $(formList).find("div[data-appname]").find("ul li").length == 0 && dataAction == "10") {
+            if ($(formList).find("div[data-appname]").length != 0 && $(formList).find("div[data-appname]").find("ul li").length == 0 && dataAction == "11") {
                 attachmsg = "Are you sure to '" + $.trim($(ele).text()) + "' without attachment?";
             }
             ConfirmationDailog({
@@ -885,7 +886,7 @@ function GetApproverMaster() {
 }
 
 function SaveFormData(activeSection) {
-    var mainListName = $('#divItemCodeForm').attr('mainlistname');
+    var mainListName = $($('div').find('[mainlistname]')).attr('mainlistname');
     if (mainListName != undefined && mainListName != '' && mainListName != null) {
 
         var sectionName = $(activeSection).attr('section');
@@ -954,17 +955,20 @@ function SaveData(listname, listDataArray, sectionName) {
                         else {
                             SaveTranListData(itemID);
                         }
-                        AlertModal("Success", "Data saved successfully", false, null);
+                        HideWaitDialog();
+                        AlertModal("Success", "Data saved successfully", false, null);                      
 
                     }, function (sender, args) {
+                        HideWaitDialog();
                         console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
                     });
                 });
 
-
+               
             },
             error: function (data) {
                 console.log(data);
+                HideWaitDialog();
             }
         });
     }

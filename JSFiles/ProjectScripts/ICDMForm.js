@@ -108,7 +108,7 @@ function SaveItemWiseAttachments(listname, fileListArray, itemID, elementId) {
 
 function GetSetFormData() {
     GetTranListData(listItemId);
-    var mainListName = $('#divItemCodeForm').attr('mainlistname');
+    var mainListName = $($('div').find('[mainlistname]')).attr('mainlistname');
     $.ajax({
         url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + mainListName + "')/items(" + listItemId + ")?$select=Author/Title,*&$expand=Author",
         type: "GET",
