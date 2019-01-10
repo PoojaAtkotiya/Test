@@ -9,18 +9,57 @@ var ItemCodeProProcessListName = "ItemCodeProProcess";
 var ItemCodeApprovalMatrixListName = "ItemCodeApprovalMatrix";
 var ApproverMasterListName = "ApproverMaster";
 var buttonListName = 'Buttons';
+
+const constantKeys = {
+    SENDTOLEVEL: 'SendToLevel',
+    SENDTOROLE : 'SendToRole',
+    SENDBACKTO : 'SendBackTo',
+    ACTIONPERFORMED : 'ActionPerformed',
+};
+Object.freeze(constantKeys);
+
+////here button action status is set as per ID(list item id) not 'value' column as we are getting lookup id from buttons
 const buttonActionStatus = {
     None: 1,
     SaveAsDraft: 2,
+    Save: 3,
+    ReadyToPublish: 4,
+    SendMailNotification: 5,
+    Exit: 6,
     Print: 7,
+    Reschedule: 8,
+    Cancel: 9,
+    Replace: 10,
     NextApproval: 11,
     BackToCreator: 12,
+    Guidelines: 13,
+    ReAssign: 14,
     Complete: 15,
+    Forward: 16,
+    Integrate: 17,
+    SaveAsDraftAndSetPermission: 18,
+    SaveAndSetPermission: 19,
+    NextApprovalAndSetPermission: 20,
+    SendOAAP: 21,
+    MeetingConducted: 22,
     SendBack: 23,
-    SendForward : 25,
+    MeetingNotConducted: 24,
+    CopySchedule: 25,
+    SendForward: 26,
     Submit: 27,
+    Counducted: 28,
+    UpdateAndRepublish: 29,
+    GenerateLSMW: 30,
+    UpdateAndReschedule: 31,
+    ConfirmSave: 32,
     SaveAndStatusUpdate: 33,
     SaveAndNoStatusUpdate: 34,
+    SaveAndStatusUpdateWithEmail: 35,
+    SaveAndNoStatusUpdateWithEmail: 36,
+    SendForSAP: 37,
+    ReviseDate: 38,
+    RemovedTask: 39,
+    RemovedTask: 40,
     Rejected: 41,
     Delegate: 42,
     Hold: 43,
@@ -65,7 +104,7 @@ var jsFunctionValue = {
 Object.freeze(jsFunctionValue);
 
 
-var ApproverStatus = {
+const ApproverStatus = {
     NOTASSIGNED: "Not Assigned",
     PENDING: "Pending",
     APPROVED: "Approved",
@@ -76,7 +115,7 @@ var ApproverStatus = {
 }
 Object.freeze(ApproverStatus);
 
-var DayOfWeek = {
+const DayOfWeek = {
     Sunday: 0,
     Monday: 1,
     Tuesday: 2,
@@ -88,7 +127,7 @@ var DayOfWeek = {
 Object.freeze(DayOfWeek);
 
 
-var SharePointPermission = {
+const SharePointPermission = {
     READER: "Read",
     CONTRIBUTOR: "Contribute"
 }
