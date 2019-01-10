@@ -965,12 +965,7 @@ function SaveData(listname, listDataArray, sectionName) {
                     clientContext.load(oListItem, 'FormLevel', 'ProposedBy');
                     clientContext.load(web);
                     clientContext.executeQueryAsync(function () {
-                        ///Pending -- temporary
-                        var param = [
-                            SendToLevel = 0
-                        ];
-
-                        SaveLocalApprovalMatrix(sectionName, itemID, listname, isNewItem, oListItem, ItemCodeApprovalMatrixListName, param);
+                        SaveLocalApprovalMatrix(sectionName, itemID, listname, isNewItem, oListItem, ItemCodeApprovalMatrixListName);
 
                         debugger;
                         if (data != undefined && data != null && data.d != null) {
@@ -987,6 +982,10 @@ function SaveData(listname, listDataArray, sectionName) {
                         console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
                     });
                 });
+            },
+            error: function (data) {
+                console.log(data);
+                HideWaitDialog();
             }
         });
 

@@ -214,13 +214,29 @@ function GetEnableSectionNames(id) {
     }
 }
 
-function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem, mainListItem, approvalMatrixListName, param) {
+function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem, mainListItem, approvalMatrixListName) {
     var nextApprover = [], nextApproverRole = '';
     var previousLevel = mainListItem.get_item('FormLevel').split("|")[0];
     var currentLevel = mainListItem.get_item('FormLevel').split("|")[1];
     var nextLevel = currentLevel;
-    var sendToLevel = (!IsNullOrUndefined(param) && !IsNullOrUndefined(param["SendToLevel"])) ? param["SendToLevel"] : null;
     var formFieldValues = [];
+
+    ////get value from ActionStatus from html
+    var actionStatus = $("#ActionStatus").val();
+    var sendToRole = $("#SendToRole").val();
+    var sendBackTo = $("#SendBackTo").val();
+    //var keys = Object.keys(buttonActionStatus).filter(k => buttonActionStatus[k] == actionStatus);
+    //actionPerformed = keys.toString();
+    actionPerformed = parseInt(actionStatus);
+
+    ///Pending -- temporary
+    var param = {};
+    param[constantKeys.SENDTOLEVEL] = 0;                 // constantKeys.SENDTOLEVEL
+    param[constantKeys.SENDTOROLE] = sendToRole;
+    param[constantKeys.SENDBACKTO] = sendBackTo;
+    param[constantKeys.ACTIONPERFORMED] = actionPerformed;
+
+    var sendToLevel = ((constantKeys.SENDTOLEVEL in param) && !IsNullOrUndefined(param[constantKeys.SENDTOLEVEL])) ? param[constantKeys.SENDTOLEVEL] : null;
 
     if (isNewItem) {
         // var sectionOwner = currentUserRole;
@@ -234,13 +250,10 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
         });
     }
 
-    ////get value from ActionStatus from html
-    var actionStatus = $("#ActionStatus").val();
-    //var keys = Object.keys(buttonActionStatus).filter(k => buttonActionStatus[k] == actionStatus);
-    //actionPerformed = keys.toString();
-    actionPerformed = parseInt(actionStatus);
+
+
     ////Update status of all approvers in tempapprovalmatrix
-    UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previousLevel, actionPerformed);
+    UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previousLevel, actionPerformed, param);
 
     ////Set NextApprover and NextApproverRole
     if (!IsNullOrUndefined(tempApproverMatrix) && tempApproverMatrix.length > 0) {
@@ -853,18 +866,30 @@ function SaveFormFields(formFieldValues, requestId) {
     if (!IsNullOrUndefined(formFieldValues['ProposedBy'])) {
         mainlistDataArray['ProposedById'] = formFieldValues['ProposedBy'];
     }
-    mainlistDataArray['FormLevel'] = formFieldValues["FormLevel"].toString();
-    mainlistDataArray['NextApproverId'] = { "results": nextResults };
-    mainlistDataArray['LastActionBy'] = !IsNullOrUndefined(formFieldValues["LastActionBy"]) ? formFieldValues["LastActionBy"].toString() : '';
-    mainlistDataArray['LastActionByRole'] = formFieldValues["LastActionByRole"].toString();
-    mainlistDataArray['PendingWith'] = formFieldValues["PendingWith"].toString();
-    mainlistDataArray['Status'] = formFieldValues["Status"].toString();
-    mainlistDataArray['WorkflowStatus'] = formFieldValues["WorkflowStatus"].toString();
+    if (!IsNullOrUndefined(formFieldValues["FormLevel"])) {
+        mainlistDataArray['FormLevel'] = formFieldValues["FormLevel"].toString();
+    }
+    if (!IsNullOrUndefined(nextResults)) {
+        mainlistDataArray['NextApproverId'] = { "results": nextResults };
+    }
+    if (!IsNullOrUndefined(formFieldValues["LastActionBy"])) {
+        mainlistDataArray['LastActionBy'] = formFieldValues["LastActionBy"].toString();
+    }
+    if (!IsNullOrUndefined(formFieldValues["LastActionByRole"])) {
+        mainlistDataArray['LastActionByRole'] = formFieldValues["LastActionByRole"].toString();
+    }
+    if (!IsNullOrUndefined(formFieldValues["PendingWith"])) {
+        mainlistDataArray['PendingWith'] = formFieldValues["PendingWith"].toString();
+    }
+    if (!IsNullOrUndefined(formFieldValues["Status"])) {
+        mainlistDataArray['Status'] = formFieldValues["Status"].toString();
+    }
+    if (!IsNullOrUndefined(formFieldValues["WorkflowStatus"])) {
+        mainlistDataArray['WorkflowStatus'] = formFieldValues["WorkflowStatus"].toString();
+    }
     //ApprovalStatus : formFieldValues["ApprovalStatus"],
     //LastactionPerformed : formFieldValues["LastactionPerformed"],
     //IsReschedule: formFieldValues["IsReschedule"],
-
-
     $.ajax({
         url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ItemCodeProProcessListName + "')/items(" + requestId + ")",
         type: "POST",
@@ -944,7 +969,7 @@ function SetSectionWiseRoles(id) {
     }
 }
 
-function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previousLevel, actionPerformed) {
+function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previousLevel, actionPerformed, param) {
     if (!IsNullOrUndefined(tempApproverMatrix) && tempApproverMatrix.length > 0 && !IsNullOrUndefined(currentUser.Id)) {
         if (currentLevel != previousLevel) {
             var currentUserId = currentUser.Id;
@@ -961,6 +986,7 @@ function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previous
                 case buttonActionStatus.Save:
                 case buttonActionStatus.SaveAsDraft:
                 case buttonActionStatus.None:
+                    debugger
                     console.log("Save as draft condition => any approver=" + tempApproverMatrix.some(t => t.Levels == currentLevel));
                     if (tempApproverMatrix.some(t => t.Levels == currentLevel)) {
                         tempApproverMatrix.filter(function (temp) {
@@ -978,7 +1004,7 @@ function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previous
                     tempApproverMatrix.filter(function (temp) {
                         ////right now searched by user Id, it may requires to check by name 
                         if (!IsNullOrUndefined(temp.ApproverId) && temp.Levels == currentLevel && ((!IsNullOrUndefined(temp.ApproverId.results) && temp.ApproverId.results.length > 0) ? temp.ApproverId.results.some(item => item == currentUserId) : (temp.ApproverId.toString().indexOf(currentUserId) != -1))) {
-                            temp.Status = ApproverStatus.APPROVED; /// "Approved";  ////ApproverStatus.APPROVED;  -----Gives error as not defined
+                            temp.Status = ApproverStatus.APPROVED; /// "Approved";
                         }
                     });
                     ////Get Next Level
@@ -1000,85 +1026,92 @@ function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previous
                         }
                         else if (temp.Levels > nextLevel && temp.Status != "Not Required") {
                             temp.Status = ApproverStatus.NOTASSIGNED;   // "Not Assigned";
-                            temp.AssignDate = null;
-                            temp.DueDate = null;
-                            temp.Comments = '';
+                            // temp.AssignDate = null;
+                            // temp.DueDate = null;
+                            // temp.Comments = '';
                         }
                     });
                     break;
                 case buttonActionStatus.BackToCreator:
                 case buttonActionStatus.SendBack:
-                    // var sendtoRole = '';
-                    // if (param.ContainsKey(Parameter.SENDTOLEVEL) && param[Parameter.SENDTOLEVEL] != null && !string.IsNullOrEmpty(param[Parameter.SENDTOLEVEL])) {
-                    //     nextLevel = Convert.ToInt32(param[Parameter.SENDTOLEVEL]);
-                    // }
-                    // if (param.ContainsKey(Parameter.SENDTOROLE) && param[Parameter.SENDTOROLE] != null && !string.IsNullOrEmpty(param[Parameter.SENDTOROLE])) {
-                    //     sendtoRole = Convert.ToString(param[Parameter.SENDTOROLE]);
-                    // }
-
-                    // approvers.ForEach(p => {
-                    //     if (!string.IsNullOrEmpty(p.Approver) && p.Levels == currLevel.ToString() && p.Approver.Split(',').Contains(userEmail)) {
-                    //         p.ApproveBy = userEmail;
-                    //         p.ApprovalDate = DateTime.Now;
-                    //         p.Status = ApproverStatus.SENDBACK;
-                    //     }
-                    //     else if (Convert.ToInt32(p.Levels) == nextLevel) {
-                    //         if (string.IsNullOrEmpty(sendtoRole) || (!string.IsNullOrEmpty(sendtoRole) && p.Role == sendtoRole)) {
-                    //             p.DueDate = this.GetDueDate(DateTime.Now, Convert.ToInt32(p.Days));
-                    //             p.AssignDate = DateTime.Now;
-                    //             p.Status = ApproverStatus.PENDING;
-                    //         }
-                    //     }
-                    //     else if (Convert.ToInt32(p.Levels) > nextLevel) {
-                    //         p.Status = ApproverStatus.NOTASSIGNED;
-                    //         ////p.AssignDate = null;
-                    //         ////p.DueDate = null;
-                    //         //// p.Comments = string.Empty;
-                    //     }
-                    // });
+                    var sendtoRole = '';
+                    debugger;
+                    if ((constantKeys.SENDTOLEVEL in param) && !IsNullOrUndefined(param[constantKeys.SENDTOLEVEL])) {
+                        nextLevel = parseInt(param[constantKeys.SENDTOLEVEL]);
+                    }
+                    if ((constantKeys.SENDTOROLE in param) && !IsStrNullOrEmpty(param[constantKeys.SENDTOROLE])) {
+                        sendtoRole = param[constantKeys.SENDTOROLE];
+                    }
+                    tempApproverMatrix.forEach(temp => {
+                        if (!IsNullOrUndefined(temp.ApproverId) && temp.Levels == currentLevel && ((!IsNullOrUndefined(temp.ApproverId.results) && temp.ApproverId.results.length > 0) ? temp.ApproverId.results.some(item => item == currentUserId) : (temp.ApproverId.toString().indexOf(currentUserId) != -1))) {
+                            temp.ApproveById = currentUserId;
+                            temp.ApprovalDate = new Date().format("yyyy-MM-ddTHH:mm:ssZ");
+                            temp.Status = ApproverStatus.SENDBACK;
+                        }
+                        else if (temp.Levels == nextLevel) {
+                            if (IsStrNullOrEmpty(sendtoRole) || (!IsStrNullOrEmpty(sendtoRole) && temp.Role == sendtoRole)) {
+                                temp.DueDate = GetDueDate(new Date(), parseInt(temp.Days));
+                                temp.AssignDate = new Date().format("yyyy-MM-ddTHH:mm:ssZ");
+                                temp.Status = ApproverStatus.PENDING;
+                            }
+                        }
+                        else if (temp.Levels > nextLevel) {
+                            temp.Status = ApproverStatus.NOTASSIGNED;
+                        }
+                    });
                     break;
                 case buttonActionStatus.SendForward:
-                    // if (param.ContainsKey(Parameter.SENDTOLEVEL) && param[Parameter.SENDTOLEVEL] != null && !string.IsNullOrEmpty(param[Parameter.SENDTOLEVEL])) {
-                    //     nextLevel = Convert.ToInt32(param[Parameter.SENDTOLEVEL]);
-                    //     var approver = approvers.Where(p => Convert.ToInt32(p.Levels) >= nextLevel && !string.IsNullOrEmpty(p.Approver)).OrderBy(p => Convert.ToInt32(p.Levels)).FirstOrDefault();
-                    //     if (approver != null) {
-                    //         nextLevel = Convert.ToInt32(approver.Levels);
-                    //     }
-                    // }
-                    // approvers.ForEach(p => {
-                    //     if (!string.IsNullOrEmpty(p.Approver) && p.Levels == currLevel.ToString() && p.Approver.Split(',').Contains(userEmail)) {
-                    //         p.ApproveBy = userEmail;
-                    //         p.ApprovalDate = DateTime.Now;
-                    //         p.Status = ApproverStatus.SENDFORWARD;
-                    //     }
-                    //     else if (Convert.ToInt32(p.Levels) == nextLevel) {
-                    //         p.DueDate = this.GetDueDate(DateTime.Now, Convert.ToInt32(p.Days));
-                    //         p.AssignDate = DateTime.Now;
-                    //         p.Status = ApproverStatus.PENDING;
-                    //     }
-                    //     else if (Convert.ToInt32(p.Levels) > nextLevel) {
-                    //         p.Status = ApproverStatus.NOTASSIGNED;
-                    //         p.AssignDate = null;
-                    //         p.DueDate = null;
-                    //         p.Comments = string.Empty;
-                    //     }
-                    // });
+                    debugger
+                    if ((constantKeys.SENDTOLEVEL in param) && !IsNullOrUndefined(param[constantKeys.SENDTOLEVEL])) {
+                        nextLevel = parseInt(param[constantKeys.SENDTOLEVEL]);
+                        ////Get Next Level
+                        var nextLevelRow = tempApproverMatrix.sort(t => t.Levels).filter(function (temp) {
+                            return (!IsNullOrUndefined(temp.ApproverId) && temp.Levels >= nextLevel);
+                        })[0];
+                        nextLevel = (!IsNullOrUndefined(nextLevelRow)) ? nextLevelRow.Levels : nextLevel;
+                    }
+                    tempApproverMatrix.ForEach(temp => {
+                        if (!IsNullOrUndefined(temp.ApproverId) && temp.Levels == currentLevel && ((!IsNullOrUndefined(temp.ApproverId.results) && temp.ApproverId.results.length > 0) ? temp.ApproverId.results.some(item => item == currentUserId) : (temp.ApproverId.toString().indexOf(currentUserId) != -1))) {
+                            temp.ApproveById = currentUserId;
+                            temp.ApprovalDate = new Date().format("yyyy-MM-ddTHH:mm:ssZ");
+                            temp.Status = ApproverStatus.SENDFORWARD;
+                        }
+                        else if (temp.Levels == nextLevel) {
+                            temp.DueDate = GetDueDate(new Date(), parseInt(temp.Days));
+                            temp.AssignDate = new Date().format("yyyy-MM-ddTHH:mm:ssZ");
+                            temp.Status = ApproverStatus.PENDING;
+                        }
+                        else if (temp.Levels > nextLevel) {
+                            temp.Status = ApproverStatus.NOTASSIGNED;
+                            // temp.AssignDate = null;
+                            // temp.DueDate = null;
+                            // temp.Comments = string.Empty;
+                        }
+                    });
                     break;
                 case buttonActionStatus.Cancel:
                     break;
                 case buttonActionStatus.Rejected:
-                    // if (approvers.Any(p => p.Levels == currLevel.ToString() && (!string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail)))) {
-                    //     approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && (!string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail))).Status = ApproverStatus.APPROVED;
-                    //     approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && (!string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail))).ApprovalDate = DateTime.Now;
-                    //     approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && (!string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail))).ApproveBy = userEmail;
-                    // }
+                    debugger
+                    if (tempApproverMatrix.some(temp => temp.Levels == currentLevel) && !IsNullOrUndefined(temp.ApproverId) && ((!IsNullOrUndefined(temp.ApproverId.results) && temp.ApproverId.results.length > 0) ? temp.ApproverId.results.some(item => item == currentUserId) : (temp.ApproverId.toString().indexOf(currentUserId) != -1))) {
+                        var approvers = tempApproverMatrix.filter(temp => {
+                            return (temp.Levels == currentLevel && !IsNullOrUndefined(temp.ApproverId) && ((!IsNullOrUndefined(temp.ApproverId.results) && temp.ApproverId.results.length > 0) ? temp.ApproverId.results.some(item => item == currentUserId) : (temp.ApproverId.toString().indexOf(currentUserId) != -1)));
+                        })[0];
+                        approvers.Status = ApproverStatus.APPROVED;
+                        approvers.ApprovalDate = new Date().format("yyyy-MM-ddTHH:mm:ssZ");
+                        approvers.ApproveById = currentUserId;
+                    }
                     break;
                 case buttonActionStatus.Complete:
-                    // if (approvers.Any(p => p.Levels == currLevel.ToString() && !string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail))) {
-                    //     approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && (!string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail))).Status = ApproverStatus.APPROVED;
-                    //     approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && (!string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail))).ApprovalDate = DateTime.Now;
-                    //     approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && (!string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail))).ApproveBy = userEmail;
-                    // }
+                    debugger
+                    if (tempApproverMatrix.some(temp => temp.Levels == currentLevel) && !IsNullOrUndefined(temp.ApproverId) && ((!IsNullOrUndefined(temp.ApproverId.results) && temp.ApproverId.results.length > 0) ? temp.ApproverId.results.some(item => item == currentUserId) : (temp.ApproverId.toString().indexOf(currentUserId) != -1))) {
+                        var approvers = tempApproverMatrix.filter(temp => {
+                            return (temp.Levels == currentLevel && !IsNullOrUndefined(temp.ApproverId) && ((!IsNullOrUndefined(temp.ApproverId.results) && temp.ApproverId.results.length > 0) ? temp.ApproverId.results.some(item => item == currentUserId) : (temp.ApproverId.toString().indexOf(currentUserId) != -1)));
+                        })[0];
+                        approvers.Status = ApproverStatus.APPROVED;
+                        approvers.ApprovalDate = new Date().format("yyyy-MM-ddTHH:mm:ssZ");
+                        approvers.ApproveById = currentUserId;
+                    }
                     break;
                 case buttonActionStatus.MeetingConducted:
                 case buttonActionStatus.MeetingNotConducted:

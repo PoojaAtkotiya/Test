@@ -10,6 +10,14 @@ var ItemCodeApprovalMatrixListName = "ItemCodeApprovalMatrix";
 var ApproverMasterListName = "ApproverMaster";
 var buttonListName = 'Buttons';
 
+const constantKeys = {
+    SENDTOLEVEL: 'SendToLevel',
+    SENDTOROLE : 'SendToRole',
+    SENDBACKTO : 'SendBackTo',
+    ACTIONPERFORMED : 'ActionPerformed',
+};
+Object.freeze(constantKeys);
+
 ////here button action status is set as per ID(list item id) not 'value' column as we are getting lookup id from buttons
 const buttonActionStatus = {
     None: 1,
