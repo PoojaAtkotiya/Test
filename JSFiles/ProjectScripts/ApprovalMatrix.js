@@ -1008,77 +1008,77 @@ function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previous
                     break;
                 case buttonActionStatus.BackToCreator:
                 case buttonActionStatus.SendBack:
-                    var sendtoRole = '';
-                    if (param.ContainsKey(Parameter.SENDTOLEVEL) && param[Parameter.SENDTOLEVEL] != null && !string.IsNullOrEmpty(param[Parameter.SENDTOLEVEL])) {
-                        nextLevel = Convert.ToInt32(param[Parameter.SENDTOLEVEL]);
-                    }
-                    if (param.ContainsKey(Parameter.SENDTOROLE) && param[Parameter.SENDTOROLE] != null && !string.IsNullOrEmpty(param[Parameter.SENDTOROLE])) {
-                        sendtoRole = Convert.ToString(param[Parameter.SENDTOROLE]);
-                    }
+                    // var sendtoRole = '';
+                    // if (param.ContainsKey(Parameter.SENDTOLEVEL) && param[Parameter.SENDTOLEVEL] != null && !string.IsNullOrEmpty(param[Parameter.SENDTOLEVEL])) {
+                    //     nextLevel = Convert.ToInt32(param[Parameter.SENDTOLEVEL]);
+                    // }
+                    // if (param.ContainsKey(Parameter.SENDTOROLE) && param[Parameter.SENDTOROLE] != null && !string.IsNullOrEmpty(param[Parameter.SENDTOROLE])) {
+                    //     sendtoRole = Convert.ToString(param[Parameter.SENDTOROLE]);
+                    // }
 
-                    approvers.ForEach(p => {
-                        if (!string.IsNullOrEmpty(p.Approver) && p.Levels == currLevel.ToString() && p.Approver.Split(',').Contains(userEmail)) {
-                            p.ApproveBy = userEmail;
-                            p.ApprovalDate = DateTime.Now;
-                            p.Status = ApproverStatus.SENDBACK;
-                        }
-                        else if (Convert.ToInt32(p.Levels) == nextLevel) {
-                            if (string.IsNullOrEmpty(sendtoRole) || (!string.IsNullOrEmpty(sendtoRole) && p.Role == sendtoRole)) {
-                                p.DueDate = this.GetDueDate(DateTime.Now, Convert.ToInt32(p.Days));
-                                p.AssignDate = DateTime.Now;
-                                p.Status = ApproverStatus.PENDING;
-                            }
-                        }
-                        else if (Convert.ToInt32(p.Levels) > nextLevel) {
-                            p.Status = ApproverStatus.NOTASSIGNED;
-                            ////p.AssignDate = null;
-                            ////p.DueDate = null;
-                            //// p.Comments = string.Empty;
-                        }
-                    });
+                    // approvers.ForEach(p => {
+                    //     if (!string.IsNullOrEmpty(p.Approver) && p.Levels == currLevel.ToString() && p.Approver.Split(',').Contains(userEmail)) {
+                    //         p.ApproveBy = userEmail;
+                    //         p.ApprovalDate = DateTime.Now;
+                    //         p.Status = ApproverStatus.SENDBACK;
+                    //     }
+                    //     else if (Convert.ToInt32(p.Levels) == nextLevel) {
+                    //         if (string.IsNullOrEmpty(sendtoRole) || (!string.IsNullOrEmpty(sendtoRole) && p.Role == sendtoRole)) {
+                    //             p.DueDate = this.GetDueDate(DateTime.Now, Convert.ToInt32(p.Days));
+                    //             p.AssignDate = DateTime.Now;
+                    //             p.Status = ApproverStatus.PENDING;
+                    //         }
+                    //     }
+                    //     else if (Convert.ToInt32(p.Levels) > nextLevel) {
+                    //         p.Status = ApproverStatus.NOTASSIGNED;
+                    //         ////p.AssignDate = null;
+                    //         ////p.DueDate = null;
+                    //         //// p.Comments = string.Empty;
+                    //     }
+                    // });
                     break;
                 case buttonActionStatus.SendForward:
-                    if (param.ContainsKey(Parameter.SENDTOLEVEL) && param[Parameter.SENDTOLEVEL] != null && !string.IsNullOrEmpty(param[Parameter.SENDTOLEVEL])) {
-                        nextLevel = Convert.ToInt32(param[Parameter.SENDTOLEVEL]);
-                        var approver = approvers.Where(p => Convert.ToInt32(p.Levels) >= nextLevel && !string.IsNullOrEmpty(p.Approver)).OrderBy(p => Convert.ToInt32(p.Levels)).FirstOrDefault();
-                        if (approver != null) {
-                            nextLevel = Convert.ToInt32(approver.Levels);
-                        }
-                    }
-                    approvers.ForEach(p => {
-                        if (!string.IsNullOrEmpty(p.Approver) && p.Levels == currLevel.ToString() && p.Approver.Split(',').Contains(userEmail)) {
-                            p.ApproveBy = userEmail;
-                            p.ApprovalDate = DateTime.Now;
-                            p.Status = ApproverStatus.SENDFORWARD;
-                        }
-                        else if (Convert.ToInt32(p.Levels) == nextLevel) {
-                            p.DueDate = this.GetDueDate(DateTime.Now, Convert.ToInt32(p.Days));
-                            p.AssignDate = DateTime.Now;
-                            p.Status = ApproverStatus.PENDING;
-                        }
-                        else if (Convert.ToInt32(p.Levels) > nextLevel) {
-                            p.Status = ApproverStatus.NOTASSIGNED;
-                            p.AssignDate = null;
-                            p.DueDate = null;
-                            p.Comments = string.Empty;
-                        }
-                    });
+                    // if (param.ContainsKey(Parameter.SENDTOLEVEL) && param[Parameter.SENDTOLEVEL] != null && !string.IsNullOrEmpty(param[Parameter.SENDTOLEVEL])) {
+                    //     nextLevel = Convert.ToInt32(param[Parameter.SENDTOLEVEL]);
+                    //     var approver = approvers.Where(p => Convert.ToInt32(p.Levels) >= nextLevel && !string.IsNullOrEmpty(p.Approver)).OrderBy(p => Convert.ToInt32(p.Levels)).FirstOrDefault();
+                    //     if (approver != null) {
+                    //         nextLevel = Convert.ToInt32(approver.Levels);
+                    //     }
+                    // }
+                    // approvers.ForEach(p => {
+                    //     if (!string.IsNullOrEmpty(p.Approver) && p.Levels == currLevel.ToString() && p.Approver.Split(',').Contains(userEmail)) {
+                    //         p.ApproveBy = userEmail;
+                    //         p.ApprovalDate = DateTime.Now;
+                    //         p.Status = ApproverStatus.SENDFORWARD;
+                    //     }
+                    //     else if (Convert.ToInt32(p.Levels) == nextLevel) {
+                    //         p.DueDate = this.GetDueDate(DateTime.Now, Convert.ToInt32(p.Days));
+                    //         p.AssignDate = DateTime.Now;
+                    //         p.Status = ApproverStatus.PENDING;
+                    //     }
+                    //     else if (Convert.ToInt32(p.Levels) > nextLevel) {
+                    //         p.Status = ApproverStatus.NOTASSIGNED;
+                    //         p.AssignDate = null;
+                    //         p.DueDate = null;
+                    //         p.Comments = string.Empty;
+                    //     }
+                    // });
                     break;
                 case buttonActionStatus.Cancel:
                     break;
                 case buttonActionStatus.Rejected:
-                    if (approvers.Any(p => p.Levels == currLevel.ToString() && (!string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail)))) {
-                        approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && (!string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail))).Status = ApproverStatus.APPROVED;
-                        approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && (!string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail))).ApprovalDate = DateTime.Now;
-                        approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && (!string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail))).ApproveBy = userEmail;
-                    }
+                    // if (approvers.Any(p => p.Levels == currLevel.ToString() && (!string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail)))) {
+                    //     approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && (!string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail))).Status = ApproverStatus.APPROVED;
+                    //     approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && (!string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail))).ApprovalDate = DateTime.Now;
+                    //     approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && (!string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail))).ApproveBy = userEmail;
+                    // }
                     break;
                 case buttonActionStatus.Complete:
-                    if (approvers.Any(p => p.Levels == currLevel.ToString() && !string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail))) {
-                        approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && (!string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail))).Status = ApproverStatus.APPROVED;
-                        approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && (!string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail))).ApprovalDate = DateTime.Now;
-                        approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && (!string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail))).ApproveBy = userEmail;
-                    }
+                    // if (approvers.Any(p => p.Levels == currLevel.ToString() && !string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail))) {
+                    //     approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && (!string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail))).Status = ApproverStatus.APPROVED;
+                    //     approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && (!string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail))).ApprovalDate = DateTime.Now;
+                    //     approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && (!string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail))).ApproveBy = userEmail;
+                    // }
                     break;
                 case buttonActionStatus.MeetingConducted:
                 case buttonActionStatus.MeetingNotConducted:
