@@ -11,7 +11,7 @@ var scriptbase; //= spSiteUrl + "/_layouts/15/";     ////_spPageContextInfo.layo
 
 jQuery(document).ready(function () {
 
-    //   BindDatePicker("");
+   // BindDatePicker("");
     KeyPressNumericValidation();
 
     hostweburl = "https://bajajelect.sharepoint.com/sites/MTDEV";
@@ -74,7 +74,7 @@ function HideWaitDialog() {
 function DatePickerControl(ele) {
     $(ele).find('.datepicker').each(function () {
         $(this).datepicker({
-            format: 'dd-mm-yyyy',
+            format: 'mm-dd-yyyy',
             todayHighlight: true,
             autoclose: true
         });
@@ -688,8 +688,8 @@ function resetFormValidator(formId) {
 function ValidateForm(ele, saveCallBack) {
     //Get Active Section
     var activeSection = $('div[section]').not(".disabled");
-    var formList = $(activeSection).parent();
-
+    //  var formList = $(activeSection).parent();
+    var formList = $(activeSection);
     var isValid = true;
     var dataAction = $(ele).attr("data-action");
     var isPageRedirect = true;
@@ -775,22 +775,22 @@ function ValidateForm(ele, saveCallBack) {
             }
 
 
-            if (!$(this).valid()) {
-                isValid = false;
-                try {
-                    var validator = $(this).validate();
-                    $(validator.errorList).each(function (i, errorItem) {
-                        //  AlertModal("Validation", errorItem.element.id + "' : '" + errorItem.message);
-                        $("#" + errorItem.element.id).addClass("error");
-                        $("#" + errorItem.element.id).removeClass("valid");
-                        $("#" + errorItem.element.id).next().remove();
-                        console.log("{ '" + errorItem.element.id + "' : '" + errorItem.message + "'}");
-                    });
-                }
-                catch (e1) {
-                    console.log(e1.message);
-                }
-            }
+            // if (!$(this).valid()) {
+            //     isValid = false;
+            //     try {
+            //         var validator = $(this).validate();
+            //         $(validator.errorList).each(function (i, errorItem) {
+            //             //  AlertModal("Validation", errorItem.element.id + "' : '" + errorItem.message);
+            //             $("#" + errorItem.element.id).addClass("error");
+            //             $("#" + errorItem.element.id).removeClass("valid");
+            //             $("#" + errorItem.element.id).next().remove();
+            //             console.log("{ '" + errorItem.element.id + "' : '" + errorItem.message + "'}");
+            //         });
+            //     }
+            //     catch (e1) {
+            //         console.log(e1.message);
+            //     }
+            // }
         });
     }
     if (isValid) {
