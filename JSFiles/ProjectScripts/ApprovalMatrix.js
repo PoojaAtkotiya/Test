@@ -163,7 +163,7 @@ function GetRoleFromApprovalMatrix(tcurrentLevel, requestId, currUserId) {
 }
 
 function GetEnableSectionNames(id) {
-    var formNames=$($('div').find('[mainlistname]')).attr('id');
+    var formNames = $($('div').find('[mainlistname]')).attr('id');
     if (id == 0) {
         //get active section name
         var activeSectionItem = globalApprovalMatrix.filter(function (i) {
@@ -171,8 +171,8 @@ function GetEnableSectionNames(id) {
         })[0];
 
         activeSectionName = (!IsNullOrUndefined(activeSectionItem.SectionName) && !IsNullOrUndefined(activeSectionItem.SectionName.results) && !IsNullOrUndefined(activeSectionItem.SectionName.results.length > 0) && !IsNullOrUndefined(activeSectionItem.SectionName.results[0])) ? activeSectionItem.SectionName.results[0].Label : '';
-       
-         $('#'+formNames).find('div.card-body').filter(function () {
+
+        $('#' + formNames).find('div.card-body').filter(function () {
             var sectionName = $(this).attr('section');
             if (sectionName == activeSectionName) {
                 var sectionId = $(this).attr('id');
@@ -195,7 +195,7 @@ function GetEnableSectionNames(id) {
         })[0];
 
         activeSectionName = activeSectionItem.SectionName;
-        $('#'+formNames).find('div.card-body').filter(function () {
+        $('#' + formNames).find('div.card-body').filter(function () {
             var sectionName = $(this).attr('section');
             if (sectionName == activeSectionName) {
                 var sectionId = $(this).attr('id');
@@ -910,13 +910,13 @@ function UpdateWorkflowStatus(formFieldValues) {
 }
 
 function SetSectionWiseRoles(id) {
-    var formNames=$($('div').find('[mainlistname]')).attr('id');
+    var formNames = $($('div').find('[mainlistname]')).attr('id');
     if (id == 0) {
         ////Get data from global approval matrix
         if (!IsNullOrUndefined(globalApprovalMatrix) && globalApprovalMatrix.length > 0) {
             ////Compare by Section Name
             globalApprovalMatrix.filter(function (g) {
-                $('#'+formNames).find('div').each(function () {
+                $('#' + formNames).find('div').each(function () {
                     var divSection = $(this).attr('section');
                     if (!IsNullOrUndefined(divSection) && !IsNullOrUndefined(g.SectionName) && !IsNullOrUndefined(g.SectionName.results[0]) && !IsNullOrUndefined(g.SectionName.results[0].Label) && g.SectionName.results[0].Label == divSection) {
                         //// if section name are same, get Role and FillByRole
@@ -961,21 +961,16 @@ function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previous
                 case buttonActionStatus.Save:
                 case buttonActionStatus.SaveAsDraft:
                 case buttonActionStatus.None:
-                    Logger.Info("Save as draft condition => any approver=" + approvers.Any(p => p.Levels == currLevel.ToString()).ToString());
-                    ////if (approvers.Any(p => p.Levels == currLevel.ToString() && p.Approver.Contains(userEmail)))
-                    if (approvers.Any(p => p.Levels == currLevel.ToString())) {
-                        approvers.ForEach(p => {
-                            Logger.Info(p.Levels + "==" + currLevel.ToString() + " && " + p.Status + "==" + ApproverStatus.NOTASSIGNED);
-                            if (p.Levels == currLevel.ToString() && p.Status == ApproverStatus.NOTASSIGNED) {
-                                Logger.Info("condition true for => " + JsonConvert.SerializeObject(p));
-                                p.Status = ApproverStatus.PENDING;
-                                p.DueDate = this.GetDueDate(DateTime.Now, Convert.ToInt32(p.Days));
-                                p.AssignDate = DateTime.Now;
+                    console.log("Save as draft condition => any approver=" + tempApproverMatrix.some(t => t.Levels == currentLevel));
+                    if (tempApproverMatrix.some(t => t.Levels == currentLevel)) {
+                        tempApproverMatrix.filter(function (temp) {
+                            if (temp.Levels == currentLevel && temp.Status == ApproverStatus.NOTASSIGNED) {
+                                console.log("condition true for => " + JsonConvert.SerializeObject(temp));
+                                temp.Status = ApproverStatus.PENDING;
+                                temp.DueDate = GetDueDate(new Date(), parseInt(temp.Days));
+                                temp.AssignDate = new Date().format("yyyy-MM-ddTHH:mm:ssZ");
                             }
                         });
-                        ////approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && p.Approver.Contains(userEmail)).Status = ApproverStatus.PENDING;
-                        ////approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && p.Approver.Contains(userEmail)).DueDate = DateTime.Now.AddDays(approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && p.Approver.Contains(userEmail)).Days);
-                        ////approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && p.Approver.Contains(userEmail)).AssignDate = DateTime.Now;
                     }
                     break;
                 case buttonActionStatus.Delegate:
