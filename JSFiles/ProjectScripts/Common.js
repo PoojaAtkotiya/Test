@@ -7,7 +7,7 @@ var hostweburl;
 var currentContext;
 var listDataArray = {};
 var actionPerformed;
-
+var fileInfos=[];
 var scriptbase; //= spSiteUrl + "/_layouts/15/";     ////_spPageContextInfo.layoutsUrl
 
 jQuery(document).ready(function () {
@@ -25,7 +25,31 @@ jQuery(document).ready(function () {
         }
     );    
 });
-
+function BindAttachmentFiles() {
+    //Get the File Upload control id
+    var input = document.getElementById("UploadArtworkAttachment");
+    var fileCount = input.files.length;
+    console.log(fileCount);
+    for (var i = 0; i < fileCount; i++) {
+       var fileName = input.files[i].name;
+       console.log(fileName);
+       var file = input.files[i];
+       var reader = new FileReader();
+       reader.onload = (function(file) {
+          return function(e) {
+             console.log(file.name);
+             //Push the converted file into array
+                fileInfos.push({
+                   "name": file.name,
+                   "content": e.target.result
+                   });
+                console.log(fileInfos);
+                }
+          })(file);
+       reader.readAsArrayBuffer(file);
+     }
+ //End of for loop
+ }
 function loadConstants() {
     var clientContext = new SP.ClientContext("https://bajajelect.sharepoint.com/sites/MTDEV");
     this.oWebsite = clientContext.get_web();

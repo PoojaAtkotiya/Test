@@ -55,7 +55,7 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
     <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/jQueryFiles/jquery.validate.js"></script>
     <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/jQueryFiles/jquery.validate.unobtrusive.js"></script>
-
+ 
     <!-- <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/ApprovalMatrix.js"></script>
     <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/Button.js"></script>
     <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/Common.js"></script>
@@ -90,7 +90,12 @@
     <script type="text/javascript">
         var formData = {};
         $(document).ready(function () {
-
+        
+            $(document).on("change", "#UploadArtworkAttachment",function() {
+                BindAttachmentFiles();
+            });
+    
+            
             $('.form-control').change(function () {
                 var type = $(this).attr('controlType');
                 var id = $(this).attr('id');
@@ -143,7 +148,11 @@
 
             });
             DatePickerControl($('input[name="ItemPhasedOutWithEffectFrom"]'));
+        
         });
+
+       
+
     </script>
 </head>
 
