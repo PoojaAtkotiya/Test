@@ -214,7 +214,7 @@ function GetEnableSectionNames(id) {
     }
 }
 
-function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem, mainListItem, approvalMatrixListName, param) {
+function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem, mainListItem, approvalMatrixListName) {
     var nextApprover = [], nextApproverRole = '';
     var previousLevel = mainListItem.get_item('FormLevel').split("|")[0];
     var currentLevel = mainListItem.get_item('FormLevel').split("|")[1];
@@ -866,18 +866,30 @@ function SaveFormFields(formFieldValues, requestId) {
     if (!IsNullOrUndefined(formFieldValues['ProposedBy'])) {
         mainlistDataArray['ProposedById'] = formFieldValues['ProposedBy'];
     }
-    mainlistDataArray['FormLevel'] = formFieldValues["FormLevel"].toString();
-    mainlistDataArray['NextApproverId'] = { "results": nextResults };
-    mainlistDataArray['LastActionBy'] = !IsNullOrUndefined(formFieldValues["LastActionBy"]) ? formFieldValues["LastActionBy"].toString() : '';
-    mainlistDataArray['LastActionByRole'] = formFieldValues["LastActionByRole"].toString();
-    mainlistDataArray['PendingWith'] = formFieldValues["PendingWith"].toString();
-    mainlistDataArray['Status'] = formFieldValues["Status"].toString();
-    mainlistDataArray['WorkflowStatus'] = formFieldValues["WorkflowStatus"].toString();
+    if (!IsNullOrUndefined(formFieldValues["FormLevel"])) {
+        mainlistDataArray['FormLevel'] = formFieldValues["FormLevel"].toString();
+    }
+    if (!IsNullOrUndefined(nextResults)) {
+        mainlistDataArray['NextApproverId'] = { "results": nextResults };
+    }
+    if (!IsNullOrUndefined(formFieldValues["LastActionBy"])) {
+        mainlistDataArray['LastActionBy'] = formFieldValues["LastActionBy"].toString();
+    }
+    if (!IsNullOrUndefined(formFieldValues["LastActionByRole"])) {
+        mainlistDataArray['LastActionByRole'] = formFieldValues["LastActionByRole"].toString();
+    }
+    if (!IsNullOrUndefined(formFieldValues["PendingWith"])) {
+        mainlistDataArray['PendingWith'] = formFieldValues["PendingWith"].toString();
+    }
+    if (!IsNullOrUndefined(formFieldValues["Status"])) {
+        mainlistDataArray['Status'] = formFieldValues["Status"].toString();
+    }
+    if (!IsNullOrUndefined(formFieldValues["WorkflowStatus"])) {
+        mainlistDataArray['WorkflowStatus'] = formFieldValues["WorkflowStatus"].toString();
+    }
     //ApprovalStatus : formFieldValues["ApprovalStatus"],
     //LastactionPerformed : formFieldValues["LastactionPerformed"],
     //IsReschedule: formFieldValues["IsReschedule"],
-
-
     $.ajax({
         url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ItemCodeProProcessListName + "')/items(" + requestId + ")",
         type: "POST",

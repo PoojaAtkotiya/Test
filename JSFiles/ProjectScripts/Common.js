@@ -942,7 +942,7 @@ function SaveData(listname, listDataArray, sectionName) {
                     clientContext.load(oListItem, 'FormLevel', 'ProposedBy');
                     clientContext.load(web);
                     clientContext.executeQueryAsync(function () {
-                        SaveLocalApprovalMatrix(sectionName, itemID, listname, isNewItem, oListItem, ItemCodeApprovalMatrixListName, param);
+                        SaveLocalApprovalMatrix(sectionName, itemID, listname, isNewItem, oListItem, ItemCodeApprovalMatrixListName);
 
                         if (data != undefined && data != null && data.d != null) {
                             SaveTranListData(itemID);
