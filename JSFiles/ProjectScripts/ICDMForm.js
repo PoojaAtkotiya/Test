@@ -13,17 +13,105 @@ $(document).ready(function () {
     GetUsersForDDL("LUM Design Delegate", "SCMLUMDesignDelegateId");
 });
 
+function GetSetFormData() {
+    GetTranListData(listItemId);
+    var mainListName = $($('div').find('[mainlistname]')).attr('mainlistname');
+    AjaxCall(
+        {
+            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + mainListName + "')/items(" + listItemId + ")?$select=Author/Title,*&$expand=Author",
+            httpmethod: 'GET',
+            calldatatype: 'JSON',
+            isAsync: false,
+            sucesscallbackfunction: function (data) { onGetSetFormDataSuccess(data) }
+        })
+    // $.ajax({
+    //     url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + mainListName + "')/items(" + listItemId + ")?$select=Author/Title,*&$expand=Author",
+    //     type: "GET",
+    //     async: false,
+    //     headers:
+    //         {
+    //             "Accept": "application/json;odata=verbose",
+    //             "Content-Type": "application/json;odata=verbose",
+    //             "X-RequestDigest": $("#__REQUESTDIGEST").val()
+    //         },
+    //     success: function (data) {
+    //         mainListData = data.d;
+    //         var item = data.d;
+    //         if (item != null && item != '' & item != undefined) {
+    //             $('.dynamic-control').each(function () {
+    //                 var listType = $(this).attr('listtype');
+    //                 var reflisttype = $(this).attr('reflisttype');
+    //                 var elementId = $(this).attr('id');
+    //                 var elementType = $(this).attr('controlType');
+    //                 if (listType == 'main' || reflisttype == 'main') {
+    //                     setFieldValue(elementId, item, elementType, elementId);
+    //                 }
+    //             });
+    //         }
+    //         GetLocalApprovalMatrixData(listItemId, mainListName);
+    //     },
+    //     error: function (data) {
+    //         console.log(data);
+    //     }
+    // });
+}
+
+function onGetSetFormDataSuccess(data) {
+    var mainListName = $($('div').find('[mainlistname]')).attr('mainlistname');
+    mainListData = data;
+    var item = data;
+    if (item != null && item != '' & item != undefined) {
+        $('.dynamic-control').each(function () {
+            var listType = $(this).attr('listtype');
+            var reflisttype = $(this).attr('reflisttype');
+            var elementId = $(this).attr('id');
+            var elementType = $(this).attr('controlType');
+            if (listType == 'main' || reflisttype == 'main') {
+                setFieldValue(elementId, item, elementType, elementId);
+            }
+        });
+    }
+    GetLocalApprovalMatrixData(listItemId, mainListName);
+}
+
+function setCustomApprovers(tempApproverMatrix) {
+    if (!IsNullOrUndefined(tempApproverMatrix) && tempApproverMatrix.length != -1) {
+        var smsIncharge = null;
+        var smsDelegate = null;
+        tempApproverMatrix.filter(function (temp) {
+            if (temp.Role == "SMS Incharge" && !IsNullOrUndefined(temp.ApproverId)) {
+                smsIncharge = temp.ApproverId;
+            }
+            else if (temp.Role == "SMS Delegate" && !IsNullOrUndefined(temp.ApproverId)) {
+                smsDelegate = temp.ApproverId;
+            }
+        });
+        if (smsIncharge != null) {
+            tempApproverMatrix.filter(function (temp) {
+                if (temp.Role == "Final SMS Incharge" && temp.Status != "Not Required") {
+                    temp.ApproverId = smsIncharge;
+                }
+            });
+        }
+        if (smsDelegate != null) {
+            tempApproverMatrix.filter(function (temp) {
+                if (temp.Role == "Final SMS Delegate" && temp.Status != "Not Required") {
+                    temp.ApproverId = smsDelegate;
+                }
+            });
+        }
+    }
+}
 
 function ICDM_SaveData(ele) {
     ValidateForm(ele, SaveDataCallBack);
     function SaveDataCallBack(activeSection) {
-        var isError = FormBusinessLogic(activeSection);    
+        var isError = FormBusinessLogic(activeSection);
         if (!isError) {
             SaveForm(activeSection);
         }
     }
 }
-
 
 function FormBusinessLogic(activeSection) {
     var isError = false;
@@ -44,6 +132,15 @@ function FormBusinessLogic(activeSection) {
         console.log("Error occured in FormBusinessLogic" + Exception);
     }
     return isError;
+}
+
+function SaveForm(activeSection) {
+    try {
+        SaveFormData(activeSection);
+    }
+    catch (Exception) {
+        console.log("Error occured in SaveForm" + Exception);
+    }
 }
 
 function AddAllAttachments(listname, itemID) {
@@ -106,86 +203,8 @@ function SaveItemWiseAttachments(listname, fileListArray, itemID, elementId) {
     });
 }
 
-function GetSetFormData() {
-    GetTranListData(listItemId);
-    var mainListName = $($('div').find('[mainlistname]')).attr('mainlistname');
-    $.ajax({
-        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + mainListName + "')/items(" + listItemId + ")?$select=Author/Title,*&$expand=Author",
-        type: "GET",
-        async: false,
-        headers:
-            {
-                "Accept": "application/json;odata=verbose",
-                "Content-Type": "application/json;odata=verbose",
-                "X-RequestDigest": $("#__REQUESTDIGEST").val()
-            },
-        success: function (data) {
-            mainListData = data.d;
-            var item = data.d;
-            if (item != null && item != '' & item != undefined) {
-                $('.dynamic-control').each(function () {
-                    var listType = $(this).attr('listtype');
-                    var reflisttype = $(this).attr('reflisttype');
-                    var elementId = $(this).attr('id');
-                    var elementType = $(this).attr('controlType');
-                    if (listType == 'main' || reflisttype == 'main') {
-                        setFieldValue(elementId, item, elementType, elementId);
-                    }
-                });
-            }
-            GetLocalApprovalMatrixData(listItemId, mainListName);
-        },
-        error: function (data) {
-            console.log(data);
-        }
-    });
-}
-
-function SaveForm(activeSection) {
-    try {
-        var formValid = false;
-        formValid = true;
-        if (formValid) {
-            SaveFormData(activeSection);
-        } else {
-            alert("Please fill requied fields");
-        }
-    }
-    catch (Exception) {
-        console.log("Error occured in SaveForm" + Exception);
-    }
-}
-
 // function SendBack() {
 //     buttonActionStatus = "SendBack";
 //     SaveFormData();
 // }
 
-function setCustomApprovers(tempApproverMatrix) {
-    if (!IsNullOrUndefined(tempApproverMatrix) && tempApproverMatrix.length != -1) {
-        var smsIncharge = null;
-        var smsDelegate = null;
-        tempApproverMatrix.filter(function (temp) {
-            if (temp.Role == "SMS Incharge" && !IsNullOrUndefined(temp.ApproverId)) {
-                smsIncharge = temp.ApproverId;
-            }
-            else if (temp.Role == "SMS Delegate" && !IsNullOrUndefined(temp.ApproverId)) {
-                smsDelegate = temp.ApproverId;
-            }
-        });
-        if (smsIncharge != null) {
-            tempApproverMatrix.filter(function (temp) {
-                if (temp.Role == "Final SMS Incharge" && temp.Status != "Not Required") {
-                    temp.ApproverId = smsIncharge;
-                }
-            });
-        }
-        if (smsDelegate != null) {
-            tempApproverMatrix.filter(function (temp) {
-                if (temp.Role == "Final SMS Delegate" && temp.Status != "Not Required") {
-                    temp.ApproverId = smsDelegate;
-                }
-            });
-        }
-    }
-}

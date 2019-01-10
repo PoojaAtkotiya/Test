@@ -7,11 +7,10 @@ var hostweburl;
 var currentContext;
 var listDataArray = {};
 var actionPerformed;
-
 var scriptbase; //= spSiteUrl + "/_layouts/15/";     ////_spPageContextInfo.layoutsUrl
 
 jQuery(document).ready(function () {
-  
+
     //   BindDatePicker("");
     KeyPressNumericValidation();
 
@@ -23,7 +22,7 @@ jQuery(document).ready(function () {
         function () {
             $.getScript(scriptbase + "SP.js", loadConstants);
         }
-    );    
+    );
 });
 
 function loadConstants() {
@@ -37,7 +36,7 @@ function loadConstants() {
 }
 
 function onloadConstantsSuccess(sender, args) {
-    
+
     currentContext = SP.ClientContext.get_current();
     listItemId = getUrlParameter("ID");
     returnUrl = getUrlParameter("Source");
@@ -52,7 +51,7 @@ function onloadConstantsSuccess(sender, args) {
         GetGlobalApprovalMatrix(listItemId);
     }
 
-    setCustomApprovers();  
+    setCustomApprovers();
 }
 
 function onloadConstantsFail(sender, args) {
@@ -84,32 +83,53 @@ function DatePickerControl(ele) {
 
 function GetUsersForDDL(roleName, eleID) {
     //sync call to avoid conflicts in deriving role wise users
-    jQuery.ajax({
-        async: false,
-        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('ApproverMaster')/items?$select=Role,UserSelection,UserName/Id,UserName/Title&$expand=UserName/Id&$expand=UserName/Id&$filter= (Role eq '" + roleName + "') and (UserSelection eq 1)",
-        type: "GET",
-        headers: { "Accept": "application/json;odata=verbose" },
-        success: function (data, textStatus, xhr) {
-            var dataResults = data.d.results;
-            var allUsers = [];
-            if (!IsNullOrUndefined(dataResults) && dataResults.length != -1) {
-                $.each(dataResults, function (index, item) {
-                    dataResults.forEach(users => {
-                        if (!IsNullOrUndefined(users.UserName) && !IsNullOrUndefined(users.UserName.results) && users.UserName.results.length > 0) {
-                            users.UserName.results.forEach(user => {
-                                allUsers.push({ userId: user.Id, userName: user.Title })
-                            });
-                        }
-                    });
-
-                });
+    AjaxCall(
+        {
+            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('ApproverMaster')/items?$select=Role,UserSelection,UserName/Id,UserName/Title&$expand=UserName/Id&$expand=UserName/Id&$filter= (Role eq '" + roleName + "') and (UserSelection eq 1)",
+            httpmethod: 'GET',
+            calldatatype: 'JSON',
+            isAsync: false,
+            sucesscallbackfunction: function (data) {
+                OnGetUsersForDDLSuccess(data, eleID);
             }
-            setUsersInDDL(allUsers, eleID);
-        },
-        error: function (error, textStatus) {
-            console.log(error);
-        }
-    });
+        });
+    // jQuery.ajax({
+    //     async: false,
+    //     url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('ApproverMaster')/items?$select=Role,UserSelection,UserName/Id,UserName/Title&$expand=UserName/Id&$expand=UserName/Id&$filter= (Role eq '" + roleName + "') and (UserSelection eq 1)",
+    //     type: "GET",
+    //     headers: { "Accept": "application/json;odata=verbose" },
+    //     success: function (data, textStatus, xhr) {
+    //         var dataResults = data.d.results;
+    //         var allUsers = [];
+    //         if (!IsNullOrUndefined(dataResults) && dataResults.length != -1) {
+    //             $.each(dataResults, function (index, item) {
+    //                 dataResults.forEach(users => {
+    //                     if (!IsNullOrUndefined(users.UserName) && !IsNullOrUndefined(users.UserName.results) && users.UserName.results.length > 0) {
+    //                         users.UserName.results.forEach(user => {
+    //                             allUsers.push({ userId: user.Id, userName: user.Title })
+    //                         });
+    //                     }
+    //                 });
+
+    //             });
+    //         }
+    //         setUsersInDDL(allUsers, eleID);
+    //     },
+    //     error: function (error, textStatus) {
+    //         console.log(error);
+    //     }
+    // });
+}
+
+function OnGetUsersForDDLSuccess(data, eleID) {
+    var dataResults = data.value[0].UserName;
+    var allUsers = [];
+    if (!IsNullOrUndefined(dataResults) && dataResults.length != -1) {
+        $.each(dataResults, function (index, user) {
+            allUsers.push({ userId: user.Id, userName: user.Title })
+        });
+    }
+    setUsersInDDL(allUsers, eleID);
 }
 
 function setUsersInDDL(allUsers, eleID) {
@@ -558,7 +578,7 @@ function AlertModal(title, msg, isExit, callback) {
         if (callback == null) {
             $("div[id='PopupDialog']").hide();
             $("div[id='PopupDialog']").remove();
-            
+
         }
     });
 }
@@ -753,7 +773,7 @@ function ValidateForm(ele, saveCallBack) {
             else {
                 $(this).attr("data-ajax-success", $(this).attr("data-ajax-old-success"));
             }
-           
+
 
             if (!$(this).valid()) {
                 isValid = false;
@@ -920,12 +940,15 @@ function SaveData(listname, listDataArray, sectionName) {
             url = _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + listname + "')/items";
             headers = { "Accept": "application/json;odata=verbose", "Content-Type": "application/json;odata=verbose", "X-RequestDigest": $("#__REQUESTDIGEST").val() };
         }
-        $.ajax({
+
+        AjaxCall({
             url: url,
-            type: "POST",
-            data: JSON.stringify(listDataArray),
+            postData: JSON.stringify(listDataArray),
+            httpmethod: 'POST',
+            calldatatype: 'JSON',
             headers: headers,
-            success: function (data) {
+            contentType: 'application/json; charset=utf-8',
+            sucesscallbackfunction: function (data) {
                 var itemID = listItemId;
                 if (!IsNullOrUndefined(data) && !IsNullOrUndefined(data.d)) {
                     itemID = data.d.ID;
@@ -949,6 +972,7 @@ function SaveData(listname, listDataArray, sectionName) {
 
                         SaveLocalApprovalMatrix(sectionName, itemID, listname, isNewItem, oListItem, ItemCodeApprovalMatrixListName, param);
 
+                        debugger;
                         if (data != undefined && data != null && data.d != null) {
                             SaveTranListData(itemID);
                         }
@@ -956,137 +980,131 @@ function SaveData(listname, listDataArray, sectionName) {
                             SaveTranListData(itemID);
                         }
                         HideWaitDialog();
-                        AlertModal("Success", "Data saved successfully", false, null);                      
+                        AlertModal("Success", "Data saved successfully", false, null);
 
                     }, function (sender, args) {
                         HideWaitDialog();
                         console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
                     });
                 });
-
-               
-            },
-            error: function (data) {
-                console.log(data);
-                HideWaitDialog();
             }
         });
+
+        // $.ajax({
+        //     url: url,
+        //     type: "POST",
+        //     data: JSON.stringify(listDataArray),
+        //     headers: headers,
+        //     success: function (data) {
+
+        //         var itemID = listItemId;
+        //         if (!IsNullOrUndefined(data) && !IsNullOrUndefined(data.d)) {
+        //             itemID = data.d.ID;
+        //         }
+        //         ////AddAttachments(itemID);
+        //         AddAllAttachments(listname, itemID);
+        //         var web, clientContext;
+        //         SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
+        //             clientContext = new SP.ClientContext.get_current();
+        //             web = clientContext.get_web();
+        //             oList = web.get_lists().getByTitle(listname);
+        //             var oListItem = oList.getItemById(itemID);
+
+        //             clientContext.load(oListItem, 'FormLevel', 'ProposedBy');
+        //             clientContext.load(web);
+        //             clientContext.executeQueryAsync(function () {
+        //                 ///Pending -- temporary
+        //                 var param = [
+        //                     SendToLevel = 0
+        //                 ];
+
+        //                 SaveLocalApprovalMatrix(sectionName, itemID, listname, isNewItem, oListItem, ItemCodeApprovalMatrixListName, param);
+
+        //                 if (data != undefined && data != null && data.d != null) {
+        //                     SaveTranListData(itemID);
+        //                 }
+        //                 else {
+        //                     SaveTranListData(itemID);
+        //                 }
+        //                 HideWaitDialog();
+        //                 AlertModal("Success", "Data saved successfully", false, null);
+
+        //             }, function (sender, args) {
+        //                 HideWaitDialog();
+        //                 console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
+        //             });
+        //         });
+
+        //     },
+        //     error: function (data) {
+        //         console.log(data);
+        //         HideWaitDialog();
+        //     }
+        // });
     }
 }
+function AjaxCall(options) {
+    var url = options.url;
+    var postData = options.postData;
+    var httpmethod = options.httpmethod;
+    var calldatatype = options.calldatatype;
+    var headers = options.headers == undefined ? "" : options.headers;
+    var sucesscallbackfunction = options.sucesscallbackfunction;
+    var contentType = options.contentType == undefined ? "application/x-www-form-urlencoded;charset=UTF-8" : options.contentType;
+    var showLoading = options.showLoading == undefined ? true : options.showLoading;
+    var isAsync = options.isAsync == undefined ? true : options.isAsync;
 
+    jQuery.ajax({
+        type: httpmethod,
+        url: url,
+        data: postData,
+        headers: headers,
+        global: showLoading,
+        dataType: calldatatype,
+        contentType: contentType,
+        async: isAsync,
+        success: function (data) {
+            if (data && data.Status != undefined && data.Status == "VALIDATION_ERROR") {
+                ShowError(data.Data);
+            }
+            else {
+                if (sucesscallbackfunction != '') {
+                    sucesscallbackfunction(data);
+                }
+            }
+        },
+        error: function (xhr, textStatus, errorThrown) {
 
+            if (!UserAborted(xhr)) {
+                // if (xhr.status == 403) {
+                //     window.location = LoginindexUrl;
+                // }
+                // //This shortcut is not recommended way to track unauthorized action. 
+                // if (xhr.responseText.indexOf("403.png") > 0) {
+                //     window.location = UnAuthorizationUrl;
+                // }
+                // else {
+                AlertModal("Error", "Oops! Something went wrong");
+                //}
 
-//function ValidateCollapseForm() {
-//    $(".card-body").each(function () {
-//        if ($(this).hasClass("collapse")) {
-//            var form = $(this).find("form");
-//            if (form.length == 0) {
-//                form = $(this).parents("form");
-//            }
-//            if (form.length > 0 && !form.hasClass("disabled")) {
-//                $(this).removeClass("collapse");
-//                $(this).addClass("in").css("height", "auto");
-//            }
-//        }
-//    });
-//}
+            }
 
-//function SubmitNoRedirect(ele) {
-//    ValidateCollapseForm();
-//    var formList = $("form[data-ajax='true']:visible").not(".disabled");
+        }
+    });
+}
 
-//    var isValid = true;
-//    var dataAction = $(ele).attr("data-action");
-//    formList.each(function () {
+function UserAborted(xhr) {
+    return !xhr.getAllResponseHeaders();
+}
 
-//        if ($(this).find(".amount").length > 0) {
-//            $(this).find(".amount").each(function (i, e) {
-//                $(e).val($(e).val().replace(/,/g, ''));
-//            });
-//        }
-//        if (dataAction == "1" || dataAction == "33") {
-//            $(this).validate().settings.ignore = "*";
-//        }
-//        else if (dataAction == "22") {
-//            $(this).validate().settings.ignore = "*";
-//            $(".field-validation-error").addClass("field-validation-valid");
-//            $(".field-validation-valid").removeClass("field-validation-error");
-//            $(this).validate().settings.ignore = ":not(.requiredOnSendBack)";
-//        }
-//        else if (dataAction == "41") {
-//            $(this).validate().settings.ignore = "*";
-//            $(".field-validation-error").addClass("field-validation-valid");
-//            $(".field-validation-valid").removeClass("field-validation-error");
-//            $(this).validate().settings.ignore = ":not(.requiredOnDelegate)";
-//        }
-//        else {
-//            $(this).validate().settings.ignore = ":hidden";
-//            $(".field-validation-error").addClass("field-validation-valid");
-//            $(".field-validation-valid").removeClass("field-validation-error");
-//        }
-//        $(this).attr("data-ajax-success", "OnSuccessNoRedirect");
-//        $(this).find("input[id='ActionStatus']").val($(ele).attr("data-action"));
-//        $(this).find("input[id='SendBackTo']").val($(ele).attr("data-sendbackto"));
-//        $(this).find("input[id='SendToRole']").val($(ele).attr("data-sendtorole"));
-//        if ($(this).find("input[id='ButtonCaption']").length == 0) {
-//            var input = $("<input id='ButtonCaption' name='ButtonCaption' type='hidden'/>");
-//            input.val($(ele).text());
-//            $(this).append(input);
-//        } else {
-//            $(this).find("input[id='ButtonCaption']").val($(ele).text());
-//        }
-//        if ($(this).find("#tblquotation").length > 0)
-//            isValid = ValidateTableQuotation($(this));
+function ShowError(ModelStateErrors) {
+    jQuery('input').removeClass("input-validation-error")
+    var messages = "";
+    jQuery(ModelStateErrors).each(function (i, e) {
+        jQuery('[name="' + e.Key + '"]').addClass("input-validation-error");
+        messages += "<li>" + e.Value[0] + "</li>";
+    });
+    messages = "<div><h5>" + getMessage("errorTitle") + "</h5><ul>" + messages + "</ul></div>";
+    AlertModal(getMessage("error"), messages, function () { })
+}
 
-//        if ($(this).find("#tblPaymentTerms").length > 0)
-//            isValid = ValidateTablePaymentTerms($(this));
-
-//        if ($(this).find("#tblExpenseCategory").length > 0)
-//            isValid = ValidateTableExpenseCategory($(this));
-
-//        if (!$(this).valid()) {
-//            isValid = false;
-//            try {
-//                var validator = $(this).validate();
-//                $(validator.errorList).each(function (i, errorItem) {
-//                    console.log("{ '" + errorItem.element.id + "' : '" + errorItem.message + "'}");
-//                });
-//            }
-//            catch (e1) {
-//                console.log(e1.message);
-//            }
-//        }
-//    });
-//    if (isValid) {
-//        //// ShowWaitDialog();
-//        //alert(_spPageContextInfo.webAbsoluteUrl);
-//        //jQuery.ajax({
-//        //    type: "GET",
-//        //    url: _spPageContextInfo.webAbsoluteUrl +  "/Master/GetTocken",
-//        //    global: true,
-//        //    contentType: "application/x-www-form-urlencoded;charset=UTF-8",
-//        //    async: true,
-//        //    cache: false,
-//        //    success: function (result) {
-//        //        securityToken = result;
-//                $(formList[0]).submit();
-
-//        //    },
-//        //    error: function (xhr, textStatus, errorThrown) {
-//        //      //  HideWaitDialog();
-//        //     //   onAjaxError(xhr);
-//        //    }
-
-//        //});
-
-
-//    } else {
-//        if ($(".field-validation-error:first").length > 0) {
-//            //$("html,body").animate({ "scrollTop": $(".field-validation-error:first").offset().top - 100 });
-//            $("html,body").animate({ "scrollTop": $(".field-validation-error:first").parents(".card:first").offset().top - 100 });
-//            setTimeout(function () {
-//                $(".field-validation-error:first").parent().find("select,input,textarea").first().focus();
-//            }, 10);
-//        }
-//    }
-//}
