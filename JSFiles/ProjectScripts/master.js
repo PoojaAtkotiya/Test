@@ -18,18 +18,19 @@ function GetAllMasterData() {
 function GetMasterData(masterlistname) {
     masterDataArray = null;
     if (!IsNullOrUndefined(masterlistname) && masterlistname != '') {
-        $.ajax
-            ({
+        AjaxCall(
+            {
                 url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('" + masterlistname + "')/items",
-                type: "GET",
-                async: false,
+                httpmethod: 'GET',
+                calldatatype: 'JSON',
+                isAsync: false,
                 headers:
                     {
                         "Accept": "application/json;odata=verbose",
                         "Content-Type": "application/json;odata=verbose",
                         "X-RequestDigest": $("#__REQUESTDIGEST").val()
                     },
-                success: function (data) {
+                sucesscallbackfunction: function (data) {
                     if (!IsNullOrUndefined(data) && !IsNullOrUndefined(data.d) && !IsNullOrUndefined(data.d.results)) {
                         var result = data.d.results;
                         masterDataArray = result;
@@ -58,11 +59,54 @@ function GetMasterData(masterlistname) {
                         });
                         return masterDataArray;
                     }
-                },
-                error: function (data) {
-                    console.log($("#" + elementId).html(data.responseJSON.error));
                 }
             });
+
+        // $.ajax
+        //     ({
+        //         url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('" + masterlistname + "')/items",
+        //         type: "GET",
+        //         async: false,
+        //         headers:
+        //             {
+        //                 "Accept": "application/json;odata=verbose",
+        //                 "Content-Type": "application/json;odata=verbose",
+        //                 "X-RequestDigest": $("#__REQUESTDIGEST").val()
+        //             },
+        //         success: function (data) {
+        //             if (!IsNullOrUndefined(data) && !IsNullOrUndefined(data.d) && !IsNullOrUndefined(data.d.results)) {
+        //                 var result = data.d.results;
+        //                 masterDataArray = result;
+        //                 $('input[listname*=' + masterlistname + '],select[listname*=' + masterlistname + ']').each(function () {
+        //                     var elementId = $(this).attr('id');
+        //                     var elementType = $(this).attr('controlType');
+        //                     var valueBindingColumn = $(this).attr('valuebindingcolumn');
+        //                     var textBindingColumnn = $(this).attr('textbindingcolumnn');
+        //                     switch (elementType) {
+        //                         case "combo":
+        //                             $("#" + elementId).html('');
+        //                             $("#" + elementId).html("<option value=''>Select</option>");
+        //                             if (!IsNullOrUndefined(valueBindingColumn) && !IsNullOrUndefined(textBindingColumnn) && valueBindingColumn != '' && textBindingColumnn != '') {
+        //                                 $(result).each(function (i, e) {
+        //                                     var cmditem = result[i];
+        //                                     var opt = $("<option/>");
+        //                                     opt.text(cmditem[textBindingColumnn]);
+        //                                     opt.attr("value", cmditem[valueBindingColumn]);
+        //                                     opt.appendTo($("#" + elementId));
+        //                                 });
+        //                             }
+        //                             break;
+        //                         case "listbox":
+        //                             break;
+        //                     }
+        //                 });
+        //                 return masterDataArray;
+        //             }
+        //         },
+        //         error: function (data) {
+        //             console.log($("#" + elementId).html(data.responseJSON.error));
+        //         }
+        //     });
     }
     else {
         console.log("Master List Name is undefined.");

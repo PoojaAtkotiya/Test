@@ -163,7 +163,7 @@ function GetRoleFromApprovalMatrix(tcurrentLevel, requestId, currUserId) {
 }
 
 function GetEnableSectionNames(id) {
-    var formNames = $($('div').find('[mainlistname]')).attr('id');
+    var formNames ='#' + $($('div').find('[mainlistname]')).attr('id');
     if (id == 0) {
         //get active section name
         var activeSectionItem = globalApprovalMatrix.filter(function (i) {
@@ -172,7 +172,7 @@ function GetEnableSectionNames(id) {
 
         activeSectionName = (!IsNullOrUndefined(activeSectionItem.SectionName) && !IsNullOrUndefined(activeSectionItem.SectionName.results) && !IsNullOrUndefined(activeSectionItem.SectionName.results.length > 0) && !IsNullOrUndefined(activeSectionItem.SectionName.results[0])) ? activeSectionItem.SectionName.results[0].Label : '';
 
-        $('#' + formNames).find('div.card-body').filter(function () {
+        $(formNames).find('div.card-body').filter(function () {
             var sectionName = $(this).attr('section');
             if (sectionName == activeSectionName) {
                 var sectionId = $(this).attr('id');
@@ -195,7 +195,7 @@ function GetEnableSectionNames(id) {
         })[0];
 
         activeSectionName = activeSectionItem.SectionName;
-        $('#' + formNames).find('div.card-body').filter(function () {
+        $(formNames).find('div.card-body').filter(function () {
             var sectionName = $(this).attr('section');
             if (sectionName == activeSectionName) {
                 var sectionId = $(this).attr('id');
