@@ -232,7 +232,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
         });
     }
 
-    ////get value from ActionStatus from html and convert int to string for action Performed
+    ////get value from ActionStatus from html
     var actionStatus = $("#ActionStatus").val();
     //var keys = Object.keys(buttonActionStatus).filter(k => buttonActionStatus[k] == actionStatus);
     //actionPerformed = keys.toString();
@@ -377,7 +377,6 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
 
     var makeAllUsersViewer = false;
     var isTaskAssignMailSend = false;
-    debugger
     switch (actionPerformed) {
         case buttonActionStatus.SaveAsDraft:
             nextLevel = currentLevel;
@@ -385,46 +384,46 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
             formFieldValues['Status'] = "Draft";
             formFieldValues['NextApprover'] = currentUser.Id;
             break;
-        case "SaveAndStatusUpdate":
-        case "SaveAndStatusUpdateWithEmail":
-        case "ConfirmSave":
+        case buttonActionStatus.SaveAndStatusUpdate:
+        case buttonActionStatus.SaveAndStatusUpdateWithEmail:
+        case buttonActionStatus.ConfirmSave:
             formFieldValues['Status'] = "Save";
             break;
-        case "Save":
+        case buttonActionStatus.Save:
             formFieldValues['Status'] = "Save";
             makeAllUsersViewer = true;
             break;
-        case "Submit":
+        case buttonActionStatus.Submit:
             nextLevel = currentLevel;
             currentLevel = previousLevel;
             formFieldValues['Status'] = "Submitted";
             makeAllUsersViewer = true;
             break;
-        case "Hold":
+        case buttonActionStatus.Hold:
             formFieldValues['Status'] = "Hold";
             formFieldValues['HoldDate'] = new Date().toLocaleDateString();
             formFieldValues['LastActionBy'] = currentUser.Id;
             formFieldValues['LastActionByRole'] = currentUserRole;
             formFieldValues['PendingWith'] = currentUserRole;
             break;
-        case "Resume":
+        case buttonActionStatus.Resume:
             formFieldValues['Status'] = "Submitted";
             formFieldValues['LastActionBy'] = currentUser.Id;
             formFieldValues['LastActionByRole'] = currentUserRole;
             formFieldValues['PendingWith'] = currentUserRole;
             break;
-        case "UpdateAndRepublish":
+        case buttonActionStatus.UpdateAndRepublish:
             nextLevel = currentLevel;
             currentLevel = previousLevel;
             formFieldValues['Status'] = "Update & Republish";
             break;
-        case "Reschedule":
+        case buttonActionStatus.Reschedule:
             nextLevel = currentLevel;
             currentLevel = previousLevel;
             formFieldValues['Status'] = "Re-Scheduled";
             formFieldValues['IsReschedule'] = false;
             break;
-        case "ReadyToPublish":
+        case buttonActionStatus.ReadyToPublish:
             nextLevel = currentLevel;
             currentLevel = previousLevel;
             formFieldValues['Status'] = "Ready to Publish";
@@ -451,7 +450,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
                 isTaskAssignMailSend = true;
             }
             break;
-        case "BackToCreator":
+        case buttonActionStatus.BackToCreator:
             formFieldValues['LastactionPerformed'] = actionPerformed;
             formFieldValues['LastActionBy'] = currentUser.Id;
             formFieldValues['LastActionByRole'] = currentUserRole;
@@ -460,7 +459,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
             formFieldValues['FormLevel'] = currentLevel + "|" + nextLevel;
             formFieldValues['Status'] = "Sent Back";
             break;
-        case "Cancel":
+        case buttonActionStatus.Cancel:
             nextLevel = currentLevel;
             currentLevel = previousLevel;
             makeAllUsersViewer = true;
@@ -468,7 +467,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
             formFieldValues['PendingWith'] = '';
             formFieldValues['Status'] = "Cancelled";
             break;
-        case "Rejected":
+        case buttonActionStatus.Rejected:
             nextLevel = currentLevel;
             currentLevel = previousLevel;
             makeAllUsersViewer = true;
@@ -476,7 +475,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
             formFieldValues['NextApprover'] = '';
             formFieldValues['PendingWith'] = '';
             break;
-        case "Complete":
+        case buttonActionStatus.Complete:
             formFieldValues['ApprovalStatus'] = "Completed";
             formFieldValues['Status'] = "Completed";
             formFieldValues['FormLevel'] = currentLevel + "|" + currentLevel;
@@ -496,7 +495,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
                 formFieldValues['Status'] = "Sent Back";
             }
             break;
-        case "RestartToUpdate":
+        case buttonActionStatus.RestartToUpdate:
             // Since it is restart case so we need to reset currlevel = 0 ;
             currentLevel = 0;
             formFieldValues['LastactionPerformed'] = actionPerformed;
@@ -507,7 +506,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
             formFieldValues['FormLevel'] = currentLevel + "|" + nextLevel;
             formFieldValues['Status'] = "Submitted";
             break;
-        case "SendForward":
+        case buttonActionStatus.SendForward:
             formFieldValues = { 'LastactionPerformed': actionPerformed };
             if (!IsNullOrUndefined(sendToLevel)) {
                 nextLevel = sendToLevel;
@@ -948,12 +947,40 @@ function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previous
             var currentUserId = currentUser.Id;
             var nextLevel = currentLevel;
             switch (actionPerformed) {
+                case buttonActionStatus.SaveAndStatusUpdate:
+                case buttonActionStatus.SaveAndStatusUpdateWithEmail:
+                case buttonActionStatus.SaveAndNoStatusUpdate:
+                case buttonActionStatus.SaveAndNoStatusUpdateWithEmail:
+                case buttonActionStatus.Submit:
+                case buttonActionStatus.Reschedule:
+                case buttonActionStatus.UpdateAndRepublish:
+                case buttonActionStatus.ReadyToPublish:
+                case buttonActionStatus.Save:
+                case buttonActionStatus.SaveAsDraft:
+                case buttonActionStatus.None:
+                    Logger.Info("Save as draft condition => any approver=" + approvers.Any(p => p.Levels == currLevel.ToString()).ToString());
+                    ////if (approvers.Any(p => p.Levels == currLevel.ToString() && p.Approver.Contains(userEmail)))
+                    if (approvers.Any(p => p.Levels == currLevel.ToString())) {
+                        approvers.ForEach(p => {
+                            Logger.Info(p.Levels + "==" + currLevel.ToString() + " && " + p.Status + "==" + ApproverStatus.NOTASSIGNED);
+                            if (p.Levels == currLevel.ToString() && p.Status == ApproverStatus.NOTASSIGNED) {
+                                Logger.Info("condition true for => " + JsonConvert.SerializeObject(p));
+                                p.Status = ApproverStatus.PENDING;
+                                p.DueDate = this.GetDueDate(DateTime.Now, Convert.ToInt32(p.Days));
+                                p.AssignDate = DateTime.Now;
+                            }
+                        });
+                        ////approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && p.Approver.Contains(userEmail)).Status = ApproverStatus.PENDING;
+                        ////approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && p.Approver.Contains(userEmail)).DueDate = DateTime.Now.AddDays(approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && p.Approver.Contains(userEmail)).Days);
+                        ////approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && p.Approver.Contains(userEmail)).AssignDate = DateTime.Now;
+                    }
+                    break;
                 case buttonActionStatus.Delegate:
                 case buttonActionStatus.NextApproval:
                     tempApproverMatrix.filter(function (temp) {
                         ////right now searched by user Id, it may requires to check by name 
                         if (!IsNullOrUndefined(temp.ApproverId) && temp.Levels == currentLevel && ((!IsNullOrUndefined(temp.ApproverId.results) && temp.ApproverId.results.length > 0) ? temp.ApproverId.results.some(item => item == currentUserId) : (temp.ApproverId.toString().indexOf(currentUserId) != -1))) {
-                            temp.Status = "Approved";  ////ApproverStatus.APPROVED;  -----Gives error as not defined
+                            temp.Status = ApproverStatus.APPROVED; /// "Approved";  ////ApproverStatus.APPROVED;  -----Gives error as not defined
                         }
                     });
                     ////Get Next Level
@@ -966,20 +993,99 @@ function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previous
                         if (!IsNullOrUndefined(temp.ApproverId) && temp.Levels == currentLevel && ((!IsNullOrUndefined(temp.ApproverId.results) && temp.ApproverId.results.length > 0) ? temp.ApproverId.results.some(item => item == currentUserId) : (temp.ApproverId.toString().indexOf(currentUserId) != -1))) {
                             temp.ApproveById = currentUserId;
                             temp.ApprovalDate = new Date().format("yyyy-MM-ddTHH:mm:ssZ");
-                            temp.Status = "Approved";
+                            temp.Status = ApproverStatus.APPROVED; ////"Approved";
                         }
                         else if (temp.Levels == nextLevel && (temp.Status != "Approved" && temp.Status != "Not Required")) {
                             temp.DueDate = GetDueDate(new Date(), parseInt(temp.Days));
                             temp.AssignDate = new Date().format("yyyy-MM-ddTHH:mm:ssZ");
-                            temp.Status = "Pending";
+                            temp.Status = ApproverStatus.PENDING; //"Pending";
                         }
                         else if (temp.Levels > nextLevel && temp.Status != "Not Required") {
-                            temp.Status = "Not Assigned";
+                            temp.Status = ApproverStatus.NOTASSIGNED;   // "Not Assigned";
                             temp.AssignDate = null;
                             temp.DueDate = null;
                             temp.Comments = '';
                         }
                     });
+                    break;
+                case buttonActionStatus.BackToCreator:
+                case buttonActionStatus.SendBack:
+                    var sendtoRole = '';
+                    if (param.ContainsKey(Parameter.SENDTOLEVEL) && param[Parameter.SENDTOLEVEL] != null && !string.IsNullOrEmpty(param[Parameter.SENDTOLEVEL])) {
+                        nextLevel = Convert.ToInt32(param[Parameter.SENDTOLEVEL]);
+                    }
+                    if (param.ContainsKey(Parameter.SENDTOROLE) && param[Parameter.SENDTOROLE] != null && !string.IsNullOrEmpty(param[Parameter.SENDTOROLE])) {
+                        sendtoRole = Convert.ToString(param[Parameter.SENDTOROLE]);
+                    }
+
+                    approvers.ForEach(p => {
+                        if (!string.IsNullOrEmpty(p.Approver) && p.Levels == currLevel.ToString() && p.Approver.Split(',').Contains(userEmail)) {
+                            p.ApproveBy = userEmail;
+                            p.ApprovalDate = DateTime.Now;
+                            p.Status = ApproverStatus.SENDBACK;
+                        }
+                        else if (Convert.ToInt32(p.Levels) == nextLevel) {
+                            if (string.IsNullOrEmpty(sendtoRole) || (!string.IsNullOrEmpty(sendtoRole) && p.Role == sendtoRole)) {
+                                p.DueDate = this.GetDueDate(DateTime.Now, Convert.ToInt32(p.Days));
+                                p.AssignDate = DateTime.Now;
+                                p.Status = ApproverStatus.PENDING;
+                            }
+                        }
+                        else if (Convert.ToInt32(p.Levels) > nextLevel) {
+                            p.Status = ApproverStatus.NOTASSIGNED;
+                            ////p.AssignDate = null;
+                            ////p.DueDate = null;
+                            //// p.Comments = string.Empty;
+                        }
+                    });
+                    break;
+                case buttonActionStatus.SendForward:
+                    if (param.ContainsKey(Parameter.SENDTOLEVEL) && param[Parameter.SENDTOLEVEL] != null && !string.IsNullOrEmpty(param[Parameter.SENDTOLEVEL])) {
+                        nextLevel = Convert.ToInt32(param[Parameter.SENDTOLEVEL]);
+                        var approver = approvers.Where(p => Convert.ToInt32(p.Levels) >= nextLevel && !string.IsNullOrEmpty(p.Approver)).OrderBy(p => Convert.ToInt32(p.Levels)).FirstOrDefault();
+                        if (approver != null) {
+                            nextLevel = Convert.ToInt32(approver.Levels);
+                        }
+                    }
+                    approvers.ForEach(p => {
+                        if (!string.IsNullOrEmpty(p.Approver) && p.Levels == currLevel.ToString() && p.Approver.Split(',').Contains(userEmail)) {
+                            p.ApproveBy = userEmail;
+                            p.ApprovalDate = DateTime.Now;
+                            p.Status = ApproverStatus.SENDFORWARD;
+                        }
+                        else if (Convert.ToInt32(p.Levels) == nextLevel) {
+                            p.DueDate = this.GetDueDate(DateTime.Now, Convert.ToInt32(p.Days));
+                            p.AssignDate = DateTime.Now;
+                            p.Status = ApproverStatus.PENDING;
+                        }
+                        else if (Convert.ToInt32(p.Levels) > nextLevel) {
+                            p.Status = ApproverStatus.NOTASSIGNED;
+                            p.AssignDate = null;
+                            p.DueDate = null;
+                            p.Comments = string.Empty;
+                        }
+                    });
+                    break;
+                case buttonActionStatus.Cancel:
+                    break;
+                case buttonActionStatus.Rejected:
+                    if (approvers.Any(p => p.Levels == currLevel.ToString() && (!string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail)))) {
+                        approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && (!string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail))).Status = ApproverStatus.APPROVED;
+                        approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && (!string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail))).ApprovalDate = DateTime.Now;
+                        approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && (!string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail))).ApproveBy = userEmail;
+                    }
+                    break;
+                case buttonActionStatus.Complete:
+                    if (approvers.Any(p => p.Levels == currLevel.ToString() && !string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail))) {
+                        approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && (!string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail))).Status = ApproverStatus.APPROVED;
+                        approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && (!string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail))).ApprovalDate = DateTime.Now;
+                        approvers.FirstOrDefault(p => p.Levels == currLevel.ToString() && (!string.IsNullOrWhiteSpace(p.Approver) && p.Approver.Split(',').Contains(userEmail))).ApproveBy = userEmail;
+                    }
+                    break;
+                case buttonActionStatus.MeetingConducted:
+                case buttonActionStatus.MeetingNotConducted:
+                default:
+                    break;
             }
         }
     }
