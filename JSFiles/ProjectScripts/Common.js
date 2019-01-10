@@ -11,7 +11,7 @@ var actionPerformed;
 var scriptbase; //= spSiteUrl + "/_layouts/15/";     ////_spPageContextInfo.layoutsUrl
 
 jQuery(document).ready(function () {
-  
+
     //   BindDatePicker("");
     KeyPressNumericValidation();
 
@@ -23,7 +23,7 @@ jQuery(document).ready(function () {
         function () {
             $.getScript(scriptbase + "SP.js", loadConstants);
         }
-    );    
+    );
 });
 
 function loadConstants() {
@@ -37,7 +37,7 @@ function loadConstants() {
 }
 
 function onloadConstantsSuccess(sender, args) {
-    
+
     currentContext = SP.ClientContext.get_current();
     listItemId = getUrlParameter("ID");
     returnUrl = getUrlParameter("Source");
@@ -52,7 +52,7 @@ function onloadConstantsSuccess(sender, args) {
         GetGlobalApprovalMatrix(listItemId);
     }
 
-    setCustomApprovers();  
+    setCustomApprovers();
 }
 
 function onloadConstantsFail(sender, args) {
@@ -558,7 +558,7 @@ function AlertModal(title, msg, isExit, callback) {
         if (callback == null) {
             $("div[id='PopupDialog']").hide();
             $("div[id='PopupDialog']").remove();
-            
+
         }
     });
 }
@@ -753,7 +753,7 @@ function ValidateForm(ele, saveCallBack) {
             else {
                 $(this).attr("data-ajax-success", $(this).attr("data-ajax-old-success"));
             }
-           
+
 
             if (!$(this).valid()) {
                 isValid = false;
@@ -942,11 +942,6 @@ function SaveData(listname, listDataArray, sectionName) {
                     clientContext.load(oListItem, 'FormLevel', 'ProposedBy');
                     clientContext.load(web);
                     clientContext.executeQueryAsync(function () {
-                        ///Pending -- temporary
-                        var param = [
-                            SendToLevel = 0
-                        ];
-
                         SaveLocalApprovalMatrix(sectionName, itemID, listname, isNewItem, oListItem, ItemCodeApprovalMatrixListName, param);
 
                         if (data != undefined && data != null && data.d != null) {
@@ -956,7 +951,7 @@ function SaveData(listname, listDataArray, sectionName) {
                             SaveTranListData(itemID);
                         }
                         HideWaitDialog();
-                        AlertModal("Success", "Data saved successfully", false, null);                      
+                        AlertModal("Success", "Data saved successfully", false, null);
 
                     }, function (sender, args) {
                         HideWaitDialog();
@@ -964,7 +959,7 @@ function SaveData(listname, listDataArray, sectionName) {
                     });
                 });
 
-               
+
             },
             error: function (data) {
                 console.log(data);
