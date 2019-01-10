@@ -9,6 +9,7 @@ var listDataArray = {};
 var actionPerformed;
 var fileInfos=[];
 var scriptbase; //= spSiteUrl + "/_layouts/15/";     ////_spPageContextInfo.layoutsUrl
+var fileIdCounter = 0;
 
 jQuery(document).ready(function () {
   
@@ -26,6 +27,8 @@ jQuery(document).ready(function () {
     );    
 });
 function BindAttachmentFiles() {
+    var output = [];
+ 
     //Get the File Upload control id
     var input = document.getElementById("UploadArtworkAttachment");
     var fileCount = input.files.length;
@@ -33,6 +36,8 @@ function BindAttachmentFiles() {
     for (var i = 0; i < fileCount; i++) {
        var fileName = input.files[i].name;
        console.log(fileName);
+       fileIdCounter++;
+       var fileId = fileIdCounter;
        var file = input.files[i];
        var reader = new FileReader();
        reader.onload = (function(file) {
@@ -41,15 +46,31 @@ function BindAttachmentFiles() {
              //Push the converted file into array
                 fileInfos.push({
                    "name": file.name,
-                   "content": e.target.result
+                   "content": e.target.result,
+                   "id":fileId
                    });
                 console.log(fileInfos);
                 }
           })(file);
        reader.readAsArrayBuffer(file);
-     }
+       var removeLink = "<a id =\"removeFile_"+ fileId + "\" href=\"javascript:removeFiles(" + fileId + ")\" data-fileid=\"" + fileId + "\">Remove</a>";
+       output.push("<li><strong>", escape(file.name), escape(fileId), removeLink, "</li> ");
+    }
+     $('#UploadArtworkAttachment').next().append(output.join(""));
+ 
  //End of for loop
  }
+
+ function removeFiles(fileId) {
+    
+    for (var i = 0; i < fileInfos.length; ++i) {
+        if (fileInfos[i].id === fileId)
+        fileInfos.splice(i, 1);
+    }
+    var item = document.getElementById("fileList");
+    item.children[fileId].remove;
+    
+}
 function loadConstants() {
     var clientContext = new SP.ClientContext("https://bajajelect.sharepoint.com/sites/MTDEV");
     this.oWebsite = clientContext.get_web();
