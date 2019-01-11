@@ -10,11 +10,10 @@ var actionPerformed;
 var scriptbase; //= spSiteUrl + "/_layouts/15/";     ////_spPageContextInfo.layoutsUrl
 
 jQuery(document).ready(function () {
-
-   // BindDatePicker("");
+    // BindDatePicker("");
     KeyPressNumericValidation();
-    LoadWaitDialog();
-    hostweburl = "https://bajajelect.sharepoint.com/sites/MTDEV";
+   // LoadWaitDialog();
+    hostweburl = hostWebURL;
     var scriptbase = hostweburl + "/_layouts/15/";
     // Load the js files and continue to
     // the execOperation function.
@@ -25,17 +24,16 @@ jQuery(document).ready(function () {
     );
 });
 
-function LoadWaitDialog()
-{
+function LoadWaitDialog() {
     jQuery(document).ajaxStart(function () {
         ShowWaitDialog();
     }).ajaxStop(function () {
         HideWaitDialog();
-    })
+    });
 }
 
 function loadConstants() {
-    var clientContext = new SP.ClientContext("https://bajajelect.sharepoint.com/sites/MTDEV");
+    var clientContext = new SP.ClientContext(hostWebURL);
     this.oWebsite = clientContext.get_web();
     clientContext.load(this.oWebsite);
     clientContext.executeQueryAsync(
@@ -102,32 +100,6 @@ function GetUsersForDDL(roleName, eleID) {
                 OnGetUsersForDDLSuccess(data, eleID);
             }
         });
-    // jQuery.ajax({
-    //     async: false,
-    //     url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('ApproverMaster')/items?$select=Role,UserSelection,UserName/Id,UserName/Title&$expand=UserName/Id&$expand=UserName/Id&$filter= (Role eq '" + roleName + "') and (UserSelection eq 1)",
-    //     type: "GET",
-    //     headers: { "Accept": "application/json;odata=verbose" },
-    //     success: function (data, textStatus, xhr) {
-    //         var dataResults = data.d.results;
-    //         var allUsers = [];
-    //         if (!IsNullOrUndefined(dataResults) && dataResults.length != -1) {
-    //             $.each(dataResults, function (index, item) {
-    //                 dataResults.forEach(users => {
-    //                     if (!IsNullOrUndefined(users.UserName) && !IsNullOrUndefined(users.UserName.results) && users.UserName.results.length > 0) {
-    //                         users.UserName.results.forEach(user => {
-    //                             allUsers.push({ userId: user.Id, userName: user.Title })
-    //                         });
-    //                     }
-    //                 });
-
-    //             });
-    //         }
-    //         setUsersInDDL(allUsers, eleID);
-    //     },
-    //     error: function (error, textStatus) {
-    //         console.log(error);
-    //     }
-    // });
 }
 
 function OnGetUsersForDDLSuccess(data, eleID) {
@@ -378,20 +350,34 @@ function ValidateFormControls(divObjectId, IgnoreBlankValues) {
 }
 
 function GetCurrentUserDetails() {
-    var url = "https://bajajelect.sharepoint.com/sites/MTDEV/_api/web/currentuser";
-    $.ajax({
-        url: url,
-        headers: {
-            Accept: "application/json;odata=verbose"
-        },
-        async: false,
-        success: function (data) {
-            currentUser = data.d; // Data will have user object      
-        },
-        eror: function (data) {
-            alert("An error occurred. Please try again.");
-        }
-    });
+    AjaxCall(
+        {
+            url: "https://bajajelect.sharepoint.com/sites/MTDEV/_api/web/currentuser",
+            httpmethod: 'GET',
+            calldatatype: 'JSON',
+            isAsync: false,
+            headers: {
+                Accept: "application/json;odata=verbose"
+            },
+            sucesscallbackfunction: function (data) {
+                currentUser = data.d;
+            }
+        });
+
+    // var url = "https://bajajelect.sharepoint.com/sites/MTDEV/_api/web/currentuser";
+    // $.ajax({
+    //     url: url,
+    //     headers: {
+    //         Accept: "application/json;odata=verbose"
+    //     },
+    //     async: false,
+    //     success: function (data) {
+    //         currentUser = data.d; // Data will have user object      
+    //     },
+    //     eror: function (data) {
+    //         alert("An error occurred. Please try again.");
+    //     }
+    // });
 }
 
 function getUrlParameter(name) {
@@ -408,8 +394,6 @@ function cancel() {
 }
 
 function GetFormDigest() {
-
-
     return $.ajax({
         url: "https://bajajelect.sharepoint.com/sites/WFRootDev" + "/_api/contextinfo",
         method: "POST",
@@ -516,29 +500,48 @@ function ConfirmationDailog(options) {
 }
 
 function ConfirmPopupYes(url, id, okCallback) {
-    //ShowWaitDialog();
+    ShowWaitDialog();
     if (typeof (url) !== "undefined" && url != null) {
         url = url;
-        $.ajax
-            ({
+        AjaxCall(
+            {
                 url: url,
-                type: "DELETE",
+                httpmethod: 'DELETE',
+                calldatatype: 'JSON',
+                isAsync: false,
                 headers: {
                     "accept": "application/json;odata=verbose",
                     "X-RequestDigest": $("#__REQUESTDIGEST").val(),
                     "IF-MATCH": "*"
                 },
-                success: function (data) {
+                sucesscallbackfunction: function (data) {
                     if (typeof (okCallback) !== "undefined" && okCallback != null) {
                         okCallback(id, data);
                     }
-                    //HideWaitDialog();
-                },
-                fail: function (xhr) {
-                    onAjaxError(xhr);
-                    //HideWaitDialog();
+                    HideWaitDialog();
                 }
             });
+
+        // $.ajax
+        //     ({
+        //         url: url,
+        //         type: "DELETE",
+        //         headers: {
+        //             "accept": "application/json;odata=verbose",
+        //             "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+        //             "IF-MATCH": "*"
+        //         },
+        //         success: function (data) {
+        //             if (typeof (okCallback) !== "undefined" && okCallback != null) {
+        //                 okCallback(id, data);
+        //             }
+        //             HideWaitDialog();
+        //         },
+        //         fail: function (xhr) {
+        //             onAjaxError(xhr);
+        //             HideWaitDialog();
+        //         }
+        //     });
 
 
         //     jQuery.post(url, {
@@ -555,7 +558,7 @@ function ConfirmPopupYes(url, id, okCallback) {
         if (typeof (okCallback) !== "undefined" && okCallback != null) {
             okCallback();
         }
-        ////HideWaitDialog();
+        //HideWaitDialog();
     }
 }
 
@@ -617,7 +620,7 @@ function OnSuccess(data, status, xhr) {
         if (data.IsSucceed) {
             if (data.IsFile) {
                 DownloadUploadedFile("<a data-url='" + data.ExtraData + "'/>", function () {
-                    //ShowWaitDialog();
+                    ShowWaitDialog();
                     setTimeout(function () {
                         window.location = window.location.href + (window.location.href.indexOf('?') >= 0 ? "&" : "?");
                     }, 2000)
@@ -664,7 +667,7 @@ function OnDelete(ele) {
     console.log("Id = " + Id);
     ConfirmationDailog({
         title: "Delete Request", message: "Are you sure to 'Delete'?", id: Id, url: "/NewArtwork/DeleteArwork", okCallback: function (id, data) {
-            //ShowWaitDialog();
+            ShowWaitDialog();
             if (data.IsSucceed) {
                 AlertModal("Success", ParseMessage(data.Messages), true);
             }
@@ -806,7 +809,7 @@ function ValidateForm(ele, saveCallBack) {
         $("input[id='ActionStatus']").val($(ele).attr("data-action"));
         $("input[id='SendBackTo']").val($(ele).attr("data-sendbackto"));
         $("input[id='SendToRole']").val($(ele).attr("data-sendtorole"));
-        //ShowWaitDialog();
+        ShowWaitDialog();
         if (buttonCaption != "save as draft") {
             //confirm file Attachment need attach or not
             var attachmsg = "Are you sure to '" + $.trim($(ele).text()) + "'?";
@@ -822,7 +825,7 @@ function ValidateForm(ele, saveCallBack) {
         else {
             saveCallBack(activeSection);
         }
-        //HideWaitDialog();
+        HideWaitDialog();
     }
 }
 
@@ -894,24 +897,41 @@ function GetFormControlsValue(id, elementType, listDataArray) {
 }
 
 function GetApproverMaster() {
-    $.ajax
-        ({
+    AjaxCall(
+        {
             url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('" + ApproverMasterListName + "')/items",
-            type: "GET",
-            async: false,
-            headers:
-                {
-                    "Accept": "application/json;odata=verbose",
-                    "Content-Type": "application/json;odata=verbose",
-                    "X-RequestDigest": $("#__REQUESTDIGEST").val()
-                },
-            success: function (data) {
-                approverMaster = data.d.results;
+            httpmethod: 'GET',
+            calldatatype: 'JSON',
+            isAsync: false,
+            headers: {
+                "Accept": "application/json;odata=verbose",
+                "Content-Type": "application/json;odata=verbose",
+                "X-RequestDigest": $("#__REQUESTDIGEST").val()
             },
-            error: function (data) {
-                console.log(data.responseJSON.error);
+            sucesscallbackfunction: function (data) {
+                approverMaster = data.d.results;
             }
         });
+
+
+    // $.ajax
+    //     ({
+    //         url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('" + ApproverMasterListName + "')/items",
+    //         type: "GET",
+    //         async: false,
+    //         headers:
+    //             {
+    //                 "Accept": "application/json;odata=verbose",
+    //                 "Content-Type": "application/json;odata=verbose",
+    //                 "X-RequestDigest": $("#__REQUESTDIGEST").val()
+    //             },
+    //         success: function (data) {
+    //             approverMaster = data.d.results;
+    //         },
+    //         error: function (data) {
+    //             console.log(data.responseJSON.error);
+    //         }
+    //     });
 }
 
 function SaveFormData(activeSection) {
@@ -983,18 +1003,18 @@ function SaveData(listname, listDataArray, sectionName) {
                         else {
                             SaveTranListData(itemID);
                         }
-                        //HideWaitDialog();
+                        HideWaitDialog();
                         AlertModal("Success", "Data saved successfully", false, null);
 
                     }, function (sender, args) {
-                        //HideWaitDialog();
+                        HideWaitDialog();
                         console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
                     });
                 });
             },
             error: function (data) {
                 console.log(data);
-                //HideWaitDialog();
+                HideWaitDialog();
             }
         });
 
@@ -1034,11 +1054,11 @@ function SaveData(listname, listDataArray, sectionName) {
         //                 else {
         //                     SaveTranListData(itemID);
         //                 }
-        //                 //HideWaitDialog();
+        //                 HideWaitDialog();
         //                 AlertModal("Success", "Data saved successfully", false, null);
 
         //             }, function (sender, args) {
-        //                 //HideWaitDialog();
+        //                 HideWaitDialog();
         //                 console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
         //             });
         //         });
@@ -1046,7 +1066,7 @@ function SaveData(listname, listDataArray, sectionName) {
         //     },
         //     error: function (data) {
         //         console.log(data);
-        //         //HideWaitDialog();
+        //         HideWaitDialog();
         //     }
         // });
     }
@@ -1057,7 +1077,7 @@ function OnSuccessNoRedirect(data, status, xhr) {
         if (data.IsSucceed) {
             if (data.IsFile) {
                 DownloadUploadedFile("<a data-url='" + data.ExtraData + "'/>", function () {
-                    //ShowWaitDialog();
+                    ShowWaitDialog();
                     setTimeout(function () {
                         window.location = window.location.href + (window.location.href.indexOf('?') >= 0 ? "&" : "?");
                     }, 2000)
@@ -1065,10 +1085,10 @@ function OnSuccessNoRedirect(data, status, xhr) {
             } else {
                 AlertModal('Success', ParseMessage(data.Messages), false, function () {
                     if (window.location.href.indexOf('&id=' + data.ItemID + "&") >= 0) {
-                         //ShowWaitDialog();
+                        ShowWaitDialog();
                         window.location = window.location.href;
                     } else {
-                         //ShowWaitDialog();
+                        ShowWaitDialog();
                         window.location = window.location.href.replace("&id={ItemId}&", "&id=" + data.ItemID + "&").replace("&id=", "&id=" + data.ItemID + "&");
                     }
                 });
