@@ -163,7 +163,7 @@ function GetRoleFromApprovalMatrix(tcurrentLevel, requestId, currUserId) {
 }
 
 function GetEnableSectionNames(id) {
-    var formNames ='#' + $($('div').find('[mainlistname]')).attr('id');
+    var formNames = '#' + $($('div').find('[mainlistname]')).attr('id');
     if (id == 0) {
         //get active section name
         var activeSectionItem = globalApprovalMatrix.filter(function (i) {
@@ -578,61 +578,111 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
 
 function SetItemPermission(requestId, ItemCodeProProcessListName, userWithRoles) {
 
-    BreakRoleInheritance(requestId, ItemCodeProProcessListName).done(function () {
-        var roleDefBindingColl = null;
-        var users = [];
-        userWithRoles.forEach((element) => {
-            try {
-                roleDefBindingColl = SP.RoleDefinitionBindingCollection.newObject(currentContext);
-                var userIds = element.user;
-                var permission = element.permission;
-                if (!IsNullOrUndefined(userIds) && !IsStrNullOrEmpty(userIds) && !IsNullOrUndefined(permission) && !IsStrNullOrEmpty(permission)) {
+    // BreakRoleInheritance(requestId, ItemCodeProProcessListName).done(function () {
+    //     var roleDefBindingColl = null;
+    //     var users = [];
+    //     userWithRoles.forEach((element) => {
+    //         try {
+    //             roleDefBindingColl = SP.RoleDefinitionBindingCollection.newObject(currentContext);
+    //             var userIds = element.user;
+    //             var permission = element.permission;
+    //             if (!IsNullOrUndefined(userIds) && !IsStrNullOrEmpty(userIds) && !IsNullOrUndefined(permission) && !IsStrNullOrEmpty(permission)) {
 
-                    //split users and remove ,
-                    if (userIds.toString().indexOf(',') == 0) {
-                        userIds = userIds.substring(1);
-                        if (userIds.toString().indexOf(',') != -1 && userIds.toString().lastIndexOf(',') == userIds.toString().length - 1) {
-                            userIds = userIds.substring(userIds.toString().lastIndexOf(','))[0];
-                        }
-                    }
-                    if (!IsNullOrUndefined(userIds) && !IsStrNullOrEmpty(userIds)) {
-                        var a = (userIds.toString().indexOf(',') != -1) ? userIds.split(',') : parseInt(userIds);
+    //                 //split users and remove ,
+    //                 if (userIds.toString().indexOf(',') == 0) {
+    //                     userIds = userIds.substring(1);
+    //                     if (userIds.toString().indexOf(',') != -1 && userIds.toString().lastIndexOf(',') == userIds.toString().length - 1) {
+    //                         userIds = userIds.substring(userIds.toString().lastIndexOf(','))[0];
+    //                     }
+    //                 }
+    //                 if (!IsNullOrUndefined(userIds) && !IsStrNullOrEmpty(userIds)) {
+    //                     var a = (userIds.toString().indexOf(',') != -1) ? userIds.split(',') : parseInt(userIds);
 
-                        if (!IsNullOrUndefined(a)) {
-                            if (a.length == undefined) {
-                                users.push(a);
-                            } else {
-                                a.forEach(element => {
-                                    users.push(parseInt(element));
-                                });
-                            }
-                        }
-                    }
-                    users.forEach(user => {
-                        if (!isNaN(user)) {
-                            this.oUser = currentContext.get_web().getUserById(user);
-                            roleDefBindingColl.add(currentContext.get_web().get_roleDefinitions().getByName(permission));
-                            permItem.get_roleAssignments().add(this.oUser, roleDefBindingColl);
-                            currentContext.load(oUser);
-                            currentContext.load(permItem);
-                            currentContext.executeQueryAsync(function () {
-                                console.log("set permission : success User");
-                            }, function () {
-                                console.log("set permission : failed");
-                            }
-                            );
-                        }
-                    });
-                }
-            } catch (exc) {
-                debugger
-                console.log("catch : error while set permission");
-                console.log(exc);
+    //                     if (!IsNullOrUndefined(a)) {
+    //                         if (a.length == undefined) {
+    //                             users.push(a);
+    //                         } else {
+    //                             a.forEach(element => {
+    //                                 users.push(parseInt(element));
+    //                             });
+    //                         }
+    //                     }
+    //                 }
+    //                 users.forEach(user => {
+    //                     if (!isNaN(user)) {
+    //                         this.oUser = currentContext.get_web().getUserById(user);
+    //                         roleDefBindingColl.add(currentContext.get_web().get_roleDefinitions().getByName(permission));
+    //                         permItem.get_roleAssignments().add(this.oUser, roleDefBindingColl);
+    //                         currentContext.load(oUser);
+    //                         currentContext.load(permItem);
+    //                         currentContext.executeQueryAsync(function () {
+    //                             console.log("set permission : success User");
+    //                         }, function () {
+    //                             console.log("set permission : failed");
+    //                         }
+    //                         );
+    //                     }
+    //                 });
+    //             }
+    //         } catch (exc) {
+    //             debugger
+    //             console.log("catch : error while set permission");
+    //             console.log(exc);
+    //         }
+    //     });
+    // }).fail(function () {
+    //     console.log("Execute  second after the retrieve list items  failed");
+    // });
+    debugger
+    breakRoleInheritanceOfList(ItemCodeProProcessListName, requestId, userWithRoles);
+}
+
+// Break role inheritance on the list.
+function breakRoleInheritanceOfList(ItemCodeProProcessListName, requestId, userWithRoles) {
+    ///_api/web/lists/getByTitle('Documents')/breakroleinheritance(copyRoleAssignments=true, clearSubscopes=true)”
+    $.ajax({
+        url: hostweburl + '/_api/web/lists/getbytitle("' + ItemCodeProProcessListName + '")/items(' + listItemId + ')/breakroleinheritance(false, true)',
+        type: 'POST',
+        headers: { 'X-RequestDigest': $('#__REQUESTDIGEST').val() },
+        async: false,
+        success: SetCustomPermission(data, userWithRoles, requestId, ItemCodeProProcessListName),
+        error: onFailbreakRoleInheritance
+    });
+}
+
+function SetCustomPermission(data, userWithRoles, requestId, ItemCodeProProcessListName) {
+    console.log("Inheritance Broken Successfully!");
+
+    debugger
+    console.log(userWithRoles);
+    // userWithRoles.forEach(ele => {
+
+    // });
+    //Add Role Permissions   
+    //1073741827 - contribute
+    // 1073741829, Full Control
+    // 1073741826, Read
+    var endPointUrlRoleAssignment = hostweburl + "_api/web/lists/getByTitle('" + ItemCodeProProcessListName + "')/items(" + listItemId + ")/roleassignments/addroleassignment(principalid=20,roleDefId=1073741827)";
+    var call = jQuery.ajax(
+        {
+            url: endPointUrlRoleAssignment,
+            type: "POST",
+            headers: headers,
+            async: false,
+            dataType: 'json',
+            success: function (data) {
+                console.log('Role Permission Added successfully!');
+                console.log(data);
+            },
+            error: function (error) {
+                alert(JSON.stringify(error));
             }
         });
-    }).fail(function () {
-        console.log("Execute  second after the retrieve list items  failed");
-    });
+
+}
+
+function onFailbreakRoleInheritance(sender, args) {
+    console.log('onFailbreakRoleInheritance : Request failed. ' + args.get_message() + '\n' + args.get_stackTrace());
 }
 
 function BreakRoleInheritance(requestId, ItemCodeProProcessListName) {
@@ -659,6 +709,7 @@ function onSetItemPermissionFailed(sender, args) {
 
 
 function GetPermissionDictionary(tempApproverMatrix, nextLevel, isAllUserViewer) {
+    debugger
     var permissions = [];
     if (!IsNullOrUndefined(tempApproverMatrix) && tempApproverMatrix.length > 0) {
         var strReader = '';
