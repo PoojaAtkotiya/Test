@@ -13,7 +13,7 @@ jQuery(document).ready(function () {
 
    // BindDatePicker("");
     KeyPressNumericValidation();
-
+    LoadWaitDialog();
     hostweburl = "https://bajajelect.sharepoint.com/sites/MTDEV";
     var scriptbase = hostweburl + "/_layouts/15/";
     // Load the js files and continue to
@@ -24,6 +24,15 @@ jQuery(document).ready(function () {
         }
     );
 });
+
+function LoadWaitDialog()
+{
+    jQuery(document).ajaxStart(function () {
+        ShowWaitDialog();
+    }).ajaxStop(function () {
+        HideWaitDialog();
+    })
+}
 
 function loadConstants() {
     var clientContext = new SP.ClientContext("https://bajajelect.sharepoint.com/sites/MTDEV");
@@ -507,7 +516,7 @@ function ConfirmationDailog(options) {
 }
 
 function ConfirmPopupYes(url, id, okCallback) {
-    ShowWaitDialog();
+    //ShowWaitDialog();
     if (typeof (url) !== "undefined" && url != null) {
         url = url;
         $.ajax
@@ -523,11 +532,11 @@ function ConfirmPopupYes(url, id, okCallback) {
                     if (typeof (okCallback) !== "undefined" && okCallback != null) {
                         okCallback(id, data);
                     }
-                    HideWaitDialog();
+                    //HideWaitDialog();
                 },
                 fail: function (xhr) {
                     onAjaxError(xhr);
-                    HideWaitDialog();
+                    //HideWaitDialog();
                 }
             });
 
@@ -546,7 +555,7 @@ function ConfirmPopupYes(url, id, okCallback) {
         if (typeof (okCallback) !== "undefined" && okCallback != null) {
             okCallback();
         }
-        //HideWaitDialog();
+        ////HideWaitDialog();
     }
 }
 
@@ -608,7 +617,7 @@ function OnSuccess(data, status, xhr) {
         if (data.IsSucceed) {
             if (data.IsFile) {
                 DownloadUploadedFile("<a data-url='" + data.ExtraData + "'/>", function () {
-                    ShowWaitDialog();
+                    //ShowWaitDialog();
                     setTimeout(function () {
                         window.location = window.location.href + (window.location.href.indexOf('?') >= 0 ? "&" : "?");
                     }, 2000)
@@ -655,7 +664,7 @@ function OnDelete(ele) {
     console.log("Id = " + Id);
     ConfirmationDailog({
         title: "Delete Request", message: "Are you sure to 'Delete'?", id: Id, url: "/NewArtwork/DeleteArwork", okCallback: function (id, data) {
-            ShowWaitDialog();
+            //ShowWaitDialog();
             if (data.IsSucceed) {
                 AlertModal("Success", ParseMessage(data.Messages), true);
             }
@@ -797,7 +806,7 @@ function ValidateForm(ele, saveCallBack) {
         $("input[id='ActionStatus']").val($(ele).attr("data-action"));
         $("input[id='SendBackTo']").val($(ele).attr("data-sendbackto"));
         $("input[id='SendToRole']").val($(ele).attr("data-sendtorole"));
-        ShowWaitDialog();
+        //ShowWaitDialog();
         if (buttonCaption != "save as draft") {
             //confirm file Attachment need attach or not
             var attachmsg = "Are you sure to '" + $.trim($(ele).text()) + "'?";
@@ -813,7 +822,7 @@ function ValidateForm(ele, saveCallBack) {
         else {
             saveCallBack(activeSection);
         }
-        HideWaitDialog();
+        //HideWaitDialog();
     }
 }
 
@@ -974,18 +983,18 @@ function SaveData(listname, listDataArray, sectionName) {
                         else {
                             SaveTranListData(itemID);
                         }
-                        HideWaitDialog();
+                        //HideWaitDialog();
                         AlertModal("Success", "Data saved successfully", false, null);
 
                     }, function (sender, args) {
-                        HideWaitDialog();
+                        //HideWaitDialog();
                         console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
                     });
                 });
             },
             error: function (data) {
                 console.log(data);
-                HideWaitDialog();
+                //HideWaitDialog();
             }
         });
 
@@ -1025,11 +1034,11 @@ function SaveData(listname, listDataArray, sectionName) {
         //                 else {
         //                     SaveTranListData(itemID);
         //                 }
-        //                 HideWaitDialog();
+        //                 //HideWaitDialog();
         //                 AlertModal("Success", "Data saved successfully", false, null);
 
         //             }, function (sender, args) {
-        //                 HideWaitDialog();
+        //                 //HideWaitDialog();
         //                 console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
         //             });
         //         });
@@ -1037,11 +1046,41 @@ function SaveData(listname, listDataArray, sectionName) {
         //     },
         //     error: function (data) {
         //         console.log(data);
-        //         HideWaitDialog();
+        //         //HideWaitDialog();
         //     }
         // });
     }
 }
+
+function OnSuccessNoRedirect(data, status, xhr) {
+    try {
+        if (data.IsSucceed) {
+            if (data.IsFile) {
+                DownloadUploadedFile("<a data-url='" + data.ExtraData + "'/>", function () {
+                    //ShowWaitDialog();
+                    setTimeout(function () {
+                        window.location = window.location.href + (window.location.href.indexOf('?') >= 0 ? "&" : "?");
+                    }, 2000)
+                });
+            } else {
+                AlertModal('Success', ParseMessage(data.Messages), false, function () {
+                    if (window.location.href.indexOf('&id=' + data.ItemID + "&") >= 0) {
+                         //ShowWaitDialog();
+                        window.location = window.location.href;
+                    } else {
+                         //ShowWaitDialog();
+                        window.location = window.location.href.replace("&id={ItemId}&", "&id=" + data.ItemID + "&").replace("&id=", "&id=" + data.ItemID + "&");
+                    }
+                });
+            }
+        }
+        else {
+            AlertModal('Error', ParseMessage(data.Messages));
+        }
+    }
+    catch (e) { window.location.reload(); }
+}
+
 function AjaxCall(options) {
     var url = options.url;
     var postData = options.postData;

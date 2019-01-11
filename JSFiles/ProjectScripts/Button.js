@@ -71,34 +71,6 @@ function GetButtonsByRole(id, currentUserRole, formStatus) {
     btnli = btnli + '<li class="pull-left"><a id="btnExit" class="btn btn-default" onclick="Exit(this);" title="Exit without saving any data"  data-placement="bottom"><i class="fa fa-sign-out"></i>&nbsp;Home</a></li>';
 
     $('#dynamicButtonli').html(btnli);
-    HideWaitDialog();
+   // HideWaitDialog();
 }
 
-function OnSuccessNoRedirect(data, status, xhr) {
-    try {
-        if (data.IsSucceed) {
-            if (data.IsFile) {
-                DownloadUploadedFile("<a data-url='" + data.ExtraData + "'/>", function () {
-                    ShowWaitDialog();
-                    setTimeout(function () {
-                        window.location = window.location.href + (window.location.href.indexOf('?') >= 0 ? "&" : "?");
-                    }, 2000)
-                });
-            } else {
-                AlertModal('Success', ParseMessage(data.Messages), false, function () {
-                    if (window.location.href.indexOf('&id=' + data.ItemID + "&") >= 0) {
-                        // ShowWaitDialog();
-                        window.location = window.location.href;
-                    } else {
-                        // ShowWaitDialog();
-                        window.location = window.location.href.replace("&id={ItemId}&", "&id=" + data.ItemID + "&").replace("&id=", "&id=" + data.ItemID + "&");
-                    }
-                });
-            }
-        }
-        else {
-            AlertModal('Error', ParseMessage(data.Messages));
-        }
-    }
-    catch (e) { window.location.reload(); }
-}

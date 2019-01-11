@@ -10,50 +10,91 @@ var permItem = null;
 
 function GetGlobalApprovalMatrix(id) {
     GetFormDigest().then(function (data) {
-        $.ajax({
-            url: "https://bajajelect.sharepoint.com/sites/WFRootDev" + "/_api/web/lists/getbytitle('" + globalApprovalMatrixName + "')/GetItems(query=@v1)?@v1={\"ViewXml\":\"<View><Query><Where><And><Eq><FieldRef Name='ApplicationName' /><Value Type='TaxonomyFieldType'>" + applicationName + "</Value></Eq><Eq><FieldRef Name='FormName' /><Value Type='Text'>" + formName + "</Value></Eq></And></Where></Query></View>\"}",
-            type: "POST",
-            headers:
-                {
-                    "Accept": "application/json;odata=verbose",
-                    "Content-Type": "application/json; odata=verbose",
-                    "X-RequestDigest": data.d.GetContextWebInformation.FormDigestValue
-                },
-            success: function (data) {
-                globalApprovalMatrix = data.d.results;
-                SetSectionWiseRoles(id = 0);
-                SetApprovalMatrix(id, '');
-                //setCustomApprovers(tempApproverMatrix);
-                GetButtons(id, currentUserRole, 'New');
-            },
-            error: function (data) {
-                console.log(data.responseJSON.error);
-            }
-        });
+        AjaxCall(
+            {
+                url: "https://bajajelect.sharepoint.com/sites/WFRootDev" + "/_api/web/lists/getbytitle('" + globalApprovalMatrixName + "')/GetItems(query=@v1)?@v1={\"ViewXml\":\"<View><Query><Where><And><Eq><FieldRef Name='ApplicationName' /><Value Type='TaxonomyFieldType'>" + applicationName + "</Value></Eq><Eq><FieldRef Name='FormName' /><Value Type='Text'>" + formName + "</Value></Eq></And></Where></Query></View>\"}",
+                httpmethod: 'POST',
+                calldatatype: 'JSON',
+                headers:
+                    {
+                        "Accept": "application/json;odata=verbose",
+                        "Content-Type": "application/json; odata=verbose",
+                        "X-RequestDigest": data.d.GetContextWebInformation.FormDigestValue
+                    },
+                sucesscallbackfunction: function (data) {
+                    globalApprovalMatrix = data.d.results;
+                    SetSectionWiseRoles(id = 0);
+                    SetApprovalMatrix(id, '');
+                    //setCustomApprovers(tempApproverMatrix);
+                    GetButtons(id, currentUserRole, 'New');
+                }
+            });
+
+        // $.ajax({
+        //     url: "https://bajajelect.sharepoint.com/sites/WFRootDev" + "/_api/web/lists/getbytitle('" + globalApprovalMatrixName + "')/GetItems(query=@v1)?@v1={\"ViewXml\":\"<View><Query><Where><And><Eq><FieldRef Name='ApplicationName' /><Value Type='TaxonomyFieldType'>" + applicationName + "</Value></Eq><Eq><FieldRef Name='FormName' /><Value Type='Text'>" + formName + "</Value></Eq></And></Where></Query></View>\"}",
+        //     type: "POST",
+        //     headers:
+        //         {
+        //             "Accept": "application/json;odata=verbose",
+        //             "Content-Type": "application/json; odata=verbose",
+        //             "X-RequestDigest": data.d.GetContextWebInformation.FormDigestValue
+        //         },
+        //     success: function (data) {
+        //         globalApprovalMatrix = data.d.results;
+        //         SetSectionWiseRoles(id = 0);
+        //         SetApprovalMatrix(id, '');
+        //         //setCustomApprovers(tempApproverMatrix);
+        //         GetButtons(id, currentUserRole, 'New');
+        //     },
+        //     error: function (data) {
+        //         console.log(data.responseJSON.error);
+        //     }
+        // });
     });
 }
 
 function GetLocalApprovalMatrixData(id, mainListName) {
-    $.ajax({
-        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ItemCodeApprovalMatrixListName + "')/Items?$select=*,Approver/EMail,Approver/UserName&$expand=Approver&$filter=RequestID eq '" + id + "'&$orderby= Levels asc",
-        type: "GET",
-        async: false,
-        headers:
-            {
-                "Accept": "application/json;odata=verbose",
-                "Content-Type": "application/json;odata=verbose",
-                "X-RequestDigest": $("#__REQUESTDIGEST").val()
-            },
-        success: function (data) {
-            localApprovalMatrixdata = data.d.results;
-            SetSectionWiseRoles(id);
-            SetApprovalMatrix(id, mainListName);
-            //setCustomApprovers(tempApproverMatrix);
-        },
-        error: function (data) {
-            console.log(data);
-        }
-    });
+
+    AjaxCall(
+        {
+            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ItemCodeApprovalMatrixListName + "')/Items?$select=*,Approver/EMail,Approver/UserName&$expand=Approver&$filter=RequestID eq '" + id + "'&$orderby= Levels asc",
+            httpmethod: 'GET',
+            calldatatype: 'JSON',
+            isAsync: false,
+            headers:
+                {
+                    "Accept": "application/json;odata=verbose",
+                    "Content-Type": "application/json;odata=verbose",
+                    "X-RequestDigest": $("#__REQUESTDIGEST").val()
+                },
+            sucesscallbackfunction: function (data) {
+                localApprovalMatrixdata = data.d.results;
+                SetSectionWiseRoles(id);
+                SetApprovalMatrix(id, mainListName);
+                //setCustomApprovers(tempApproverMatrix);
+            }
+        });
+
+    // $.ajax({
+    //     url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ItemCodeApprovalMatrixListName + "')/Items?$select=*,Approver/EMail,Approver/UserName&$expand=Approver&$filter=RequestID eq '" + id + "'&$orderby= Levels asc",
+    //     type: "GET",
+    //     async: false,
+    //     headers:
+    //         {
+    //             "Accept": "application/json;odata=verbose",
+    //             "Content-Type": "application/json;odata=verbose",
+    //             "X-RequestDigest": $("#__REQUESTDIGEST").val()
+    //         },
+    //     success: function (data) {
+    //         localApprovalMatrixdata = data.d.results;
+    //         SetSectionWiseRoles(id);
+    //         SetApprovalMatrix(id, mainListName);
+    //         //setCustomApprovers(tempApproverMatrix);
+    //     },
+    //     error: function (data) {
+    //         console.log(data);
+    //     }
+    // });
 }
 
 function SetApprovalMatrix(id, mainListName) {
@@ -163,7 +204,7 @@ function GetRoleFromApprovalMatrix(tcurrentLevel, requestId, currUserId) {
 }
 
 function GetEnableSectionNames(id) {
-    var formNames ='#' + $($('div').find('[mainlistname]')).attr('id');
+    var formNames = '#' + $($('div').find('[mainlistname]')).attr('id');
     if (id == 0) {
         //get active section name
         var activeSectionItem = globalApprovalMatrix.filter(function (i) {
@@ -714,6 +755,78 @@ function GetPermissionDictionary(tempApproverMatrix, nextLevel, isAllUserViewer)
     return permissions;
 }
 
+var stringifyData = function (isNewItem, approvalMatrixListName, temp, approverResults) {
+    var stringifyData;
+    if(isNewItem)
+    {
+         stringifyData = JSON.stringify({
+        __metadata: {
+            type: GetItemTypeForListName(approvalMatrixListName)
+        },
+
+        ApplicationName: temp.ApplicationName.Label,
+        FormName: temp.FormName.Label,
+        SectionName: (!IsNullOrUndefined(temp.SectionName) && !IsNullOrUndefined(temp.SectionName.results) && temp.SectionName.results.length > 0) ? temp.SectionName.results[0].Label : '',
+        //HiddenSection : temp.HiddenSection.results[0],
+        Levels: parseInt(temp.Levels),
+        Role: temp.Role,
+        Days: parseInt(temp.Days),
+        IsAutoApproval: temp.IsAutoApproval,
+        FillByRole: temp.FillByRole,
+        Division: temp.Division,
+        //SubDivision : 
+        ApproverId: { "results": approverResults },
+        Status: !IsNullOrUndefined(temp.Status) ? temp.Status.toString() : '',
+        Comments: !IsNullOrUndefined(temp.Comments) ? temp.Comments.toString() : '',
+        AssignDate: temp.AssignDate,
+        DueDate: temp.DueDate,
+        ApprovalDate: temp.ApprovalDate,
+        IsEscalate: temp.IsEscalate,
+        //EscalationToId: temp.EscalationToId,
+        //EscalationOn: temp.EscalationOn,
+        ApproveById: temp.ApproveById,
+        IsOptional: temp.IsOptional,
+        FormType: temp.FormType,
+        ReasonForDelay: !IsNullOrUndefined(temp.ReasonForDelay) ? temp.ReasonForDelay.toString() : '',
+        ReasonForChange: !IsNullOrUndefined(temp.ReasonForChange) ? temp.ReasonForChange.toString() : '',
+        IsReminder: temp.IsReminder,
+        IsHOLD: !IsNullOrUndefined(temp.IsHOLD) ? temp.IsHOLD.toString() : '',
+        RequestIDId: parseInt(temp.RequestIDId),
+        //Attachments: false,
+        //EscalationDays: temp.EscalationDays,
+        //EscalationToId: temp.EscalationToId,
+        //IsAutoRejection: temp.IsAutoRejection,
+        //Reminder: null,
+    });
+    }
+    else
+    {
+        stringifyData = JSON.stringify
+        ({
+            __metadata: {
+                type: GetItemTypeForListName(approvalMatrixListName)
+            },           
+            ApproverId: { "results": approverResults },
+            Status: !IsNullOrUndefined(temp.Status) ? temp.Status.toString() : '',
+            Comments: !IsNullOrUndefined(temp.Comments) ? temp.Comments.toString() : '',
+            AssignDate: temp.AssignDate,
+            DueDate: temp.DueDate,
+            ApprovalDate: temp.ApprovalDate,
+            IsEscalate: temp.IsEscalate,
+            ApproveById: temp.ApproveById,
+            IsOptional: temp.IsOptional,           
+            ReasonForDelay: !IsNullOrUndefined(temp.ReasonForDelay) ? temp.ReasonForDelay.toString() : '',
+            ReasonForChange: !IsNullOrUndefined(temp.ReasonForChange) ? temp.ReasonForChange.toString() : '',
+            IsReminder: temp.IsReminder,
+            IsHOLD: !IsNullOrUndefined(temp.IsHOLD) ? temp.IsHOLD.toString() : '',            
+        })
+    } 
+   
+
+    return stringifyData;
+
+}
+
 function SaveApprovalMatrixInList(tempApproverMatrix, approvalMatrixListName, isNewItem) {
     var url = '';
     var headers;
@@ -736,56 +849,15 @@ function SaveApprovalMatrixInList(tempApproverMatrix, approvalMatrixListName, is
                 "X-RequestDigest": $("#__REQUESTDIGEST").val(),
                 "X-HTTP-Method": "POST"
             };
-            $.ajax({
+            AjaxCall({
                 url: url,
-                type: "POST",
+                httpmethod: 'POST',
+                calldatatype: 'JSON',
                 headers: headers,
-                async: false,
-                data: JSON.stringify
-                    ({
-                        __metadata: {
-                            type: GetItemTypeForListName(approvalMatrixListName)
-                        },
-                        ApplicationName: temp.ApplicationName.Label,
-                        FormName: temp.FormName.Label,
-                        SectionName: (!IsNullOrUndefined(temp.SectionName) && !IsNullOrUndefined(temp.SectionName.results) && temp.SectionName.results.length > 0) ? temp.SectionName.results[0].Label : '',
-                        //HiddenSection : temp.HiddenSection.results[0],
-                        Levels: parseInt(temp.Levels),
-                        Role: temp.Role,
-                        Days: parseInt(temp.Days),
-                        IsAutoApproval: temp.IsAutoApproval,
-                        FillByRole: temp.FillByRole,
-                        Division: temp.Division,
-                        //SubDivision : 
-                        ApproverId: { "results": approverResults },
-                        Status: !IsNullOrUndefined(temp.Status) ? temp.Status.toString() : '',
-                        Comments: !IsNullOrUndefined(temp.Comments) ? temp.Comments.toString() : '',
-                        AssignDate: temp.AssignDate,
-                        DueDate: temp.DueDate,
-                        ApprovalDate: temp.ApprovalDate,
-                        IsEscalate: temp.IsEscalate,
-                        //EscalationToId: temp.EscalationToId,
-                        //EscalationOn: temp.EscalationOn,
-                        ApproveById: temp.ApproveById,
-                        IsOptional: temp.IsOptional,
-                        FormType: temp.FormType,
-                        ReasonForDelay: !IsNullOrUndefined(temp.ReasonForDelay) ? temp.ReasonForDelay.toString() : '',
-                        ReasonForChange: !IsNullOrUndefined(temp.ReasonForChange) ? temp.ReasonForChange.toString() : '',
-                        IsReminder: temp.IsReminder,
-                        IsHOLD: !IsNullOrUndefined(temp.IsHOLD) ? temp.IsHOLD.toString() : '',
-                        RequestIDId: parseInt(temp.RequestIDId),
-                        //Attachments: false,
-                        //EscalationDays: temp.EscalationDays,
-                        //EscalationToId: temp.EscalationToId,
-                        //IsAutoRejection: temp.IsAutoRejection,
-                        //Reminder: null,
-                    }),
-                success: function (data, status, xhr) {
+                isAsync: false,
+                postData: stringifyData(isNewItem, approvalMatrixListName, temp, approverResults),
+                sucesscallbackfunction: function (data) {
                     console.log("SaveApprovalMatrixInList - Item saved Successfully");
-                },
-                error: function (data) {
-                    debugger
-                    console.log(data);
                 }
             });
         }
@@ -806,49 +878,19 @@ function SaveApprovalMatrixInList(tempApproverMatrix, approvalMatrixListName, is
                 "IF-MATCH": "*",
                 "X-HTTP-Method": "MERGE"
             };
-            $.ajax({
-                url: url,
-                type: "POST",
-                headers: headers,
-                async: false,
-                data: JSON.stringify
-                    ({
-                        __metadata: {
-                            type: GetItemTypeForListName(approvalMatrixListName)
-                        },
-                        // ApplicationName: temp.ApplicationName.Label,
-                        // FormName: temp.FormName.Label,
-                        // SectionName: (!IsNullOrUndefined(temp.SectionName) && !IsNullOrUndefined(temp.SectionName.results) && temp.SectionName.results.length > 0) ? temp.SectionName.results[0].Label : '',
-                        // Levels: parseInt(temp.Levels),
-                        // Role: temp.Role,
-                        // Days: parseInt(temp.Days),
-                        // IsAutoApproval: temp.IsAutoApproval,
-                        // FillByRole: temp.FillByRole,
-                        // Division: temp.Division,
-                        ApproverId: { "results": approverResults },
-                        Status: !IsNullOrUndefined(temp.Status) ? temp.Status.toString() : '',
-                        Comments: !IsNullOrUndefined(temp.Comments) ? temp.Comments.toString() : '',
-                        AssignDate: temp.AssignDate,
-                        DueDate: temp.DueDate,
-                        ApprovalDate: temp.ApprovalDate,
-                        IsEscalate: temp.IsEscalate,
-                        ApproveById: temp.ApproveById,
-                        IsOptional: temp.IsOptional,
-                        //FormType: temp.FormType,
-                        ReasonForDelay: !IsNullOrUndefined(temp.ReasonForDelay) ? temp.ReasonForDelay.toString() : '',
-                        ReasonForChange: !IsNullOrUndefined(temp.ReasonForChange) ? temp.ReasonForChange.toString() : '',
-                        IsReminder: temp.IsReminder,
-                        IsHOLD: !IsNullOrUndefined(temp.IsHOLD) ? temp.IsHOLD.toString() : '',
-                        //RequestIDId: parseInt(temp.RequestIDId),
-                    }),
-                success: function (data, status, xhr) {
-                    console.log("SaveApprovalMatrixInList - Item saved Successfully");
-                },
-                error: function (data, status, error) {
-                    debugger
-                    console.log("SaveApprovalMatrixInList - error" + data);
-                }
-            });
+
+            AjaxCall(
+                {
+                    url: url,
+                    httpmethod: 'POST',
+                    calldatatype: 'JSON',
+                    headers: headers,
+                    isAsync: false,
+                    postData: stringifyData(isNewItem, approvalMatrixListName, temp, approverResults),                    
+                    sucesscallbackfunction: function (data) {
+                        console.log("SaveApprovalMatrixInList - Item saved Successfully");
+                    }
+                });          
         }
     });
 }
@@ -890,27 +932,47 @@ function SaveFormFields(formFieldValues, requestId) {
     //ApprovalStatus : formFieldValues["ApprovalStatus"],
     //LastactionPerformed : formFieldValues["LastactionPerformed"],
     //IsReschedule: formFieldValues["IsReschedule"],
-    $.ajax({
-        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ItemCodeProProcessListName + "')/items(" + requestId + ")",
-        type: "POST",
-        data: JSON.stringify(mainlistDataArray),
-        headers:
-            {
-                "Accept": "application/json;odata=verbose",
-                "Content-Type": "application/json;odata=verbose",
-                "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-                "IF-MATCH": "*",
-                "X-Http-Method": "MERGE", //PATCH
 
-            },
-        success: function (data, status, xhr) {
-            console.log("Item saved Successfully");
-        },
-        error: function (data, status, error) {
-            debugger
-            console.log(data);
-        }
-    });
+    AjaxCall(
+        {
+            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ItemCodeProProcessListName + "')/items(" + requestId + ")",
+            httpmethod: 'POST',
+            calldatatype: 'JSON',
+            postData: JSON.stringify(mainlistDataArray),
+            headers:
+                {
+                    "Accept": "application/json;odata=verbose",
+                    "Content-Type": "application/json;odata=verbose",
+                    "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+                    "IF-MATCH": "*",
+                    "X-Http-Method": "MERGE", //PATCH
+                },
+            sucesscallbackfunction: function (data) {
+                console.log("Item saved Successfully");
+            }
+        });
+
+    // $.ajax({
+    //     url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ItemCodeProProcessListName + "')/items(" + requestId + ")",
+    //     type: "POST",
+    //     data: JSON.stringify(mainlistDataArray),
+    //     headers:
+    //         {
+    //             "Accept": "application/json;odata=verbose",
+    //             "Content-Type": "application/json;odata=verbose",
+    //             "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+    //             "IF-MATCH": "*",
+    //             "X-Http-Method": "MERGE", //PATCH
+
+    //         },
+    //     success: function (data, status, xhr) {
+    //         console.log("Item saved Successfully");
+    //     },
+    //     error: function (data, status, error) {
+    //         debugger
+    //         console.log(data);
+    //     }
+    // });
 }
 
 function UpdateWorkflowStatus(formFieldValues) {
