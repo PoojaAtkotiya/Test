@@ -639,30 +639,35 @@ function SetItemPermission(requestId, ItemCodeProProcessListName, userWithRoles)
 
 // Break role inheritance on the list.
 function breakRoleInheritanceOfList(ItemCodeProProcessListName, requestId, userWithRoles) {
+
     ///_api/web/lists/getByTitle('Documents')/breakroleinheritance(copyRoleAssignments=true, clearSubscopes=true)”
     $.ajax({
-        url: hostweburl + '/_api/web/lists/getbytitle("' + ItemCodeProProcessListName + '")/items(' + listItemId + ')/breakroleinheritance(false, true)',
+        url: hostweburl + '/_api/web/lists/getbytitle("' + ItemCodeProProcessListName + '")/items(' + requestId + ')/breakroleinheritance(copyRoleAssignments=false, clearSubscopes=true)',
         type: 'POST',
         headers: { 'X-RequestDigest': $('#__REQUESTDIGEST').val() },
         async: false,
-        success: SetCustomPermission(data, userWithRoles, requestId, ItemCodeProProcessListName),
+        success: SetCustomPermission(userWithRoles, requestId, ItemCodeProProcessListName),
         error: onFailbreakRoleInheritance
     });
 }
 
-function SetCustomPermission(data, userWithRoles, requestId, ItemCodeProProcessListName) {
+function SetCustomPermission(userWithRoles, requestId, ItemCodeProProcessListName) {
     console.log("Inheritance Broken Successfully!");
 
     debugger
     console.log(userWithRoles);
     // userWithRoles.forEach(ele => {
-
+    var headers = {
+        "Accept": "application/json;odata=verbose",
+        "content-Type": "application/json;odata=verbose",
+        "X-RequestDigest": jQuery("#__REQUESTDIGEST").val()
+    }
     // });
     //Add Role Permissions   
     //1073741827 - contribute
     // 1073741829, Full Control
     // 1073741826, Read
-    var endPointUrlRoleAssignment = hostweburl + "_api/web/lists/getByTitle('" + ItemCodeProProcessListName + "')/items(" + listItemId + ")/roleassignments/addroleassignment(principalid=20,roleDefId=1073741827)";
+    var endPointUrlRoleAssignment = hostweburl + "/_api/web/lists/getByTitle('" + ItemCodeProProcessListName + "')/items(" + requestId + ")/roleassignments/addroleassignment(principalid=20,roleDefId=1073741827)";
     var call = jQuery.ajax(
         {
             url: endPointUrlRoleAssignment,
