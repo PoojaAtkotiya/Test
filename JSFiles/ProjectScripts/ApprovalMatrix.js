@@ -840,6 +840,7 @@ function GetPermissionDictionary(tempApproverMatrix, nextLevel, isAllUserViewer)
                      * 1) who are pending on current level
                      */
                     if (strContributer.indexOf(temp.ApproverId) == -1) {
+                        debugger
                         strContributer = strContributer.trim() + "," + temp.ApproverId;
                     }
                 }
@@ -851,6 +852,7 @@ function GetPermissionDictionary(tempApproverMatrix, nextLevel, isAllUserViewer)
                      * 2) who are not pending on current level
                      */
                     if (strReader.indexOf(temp.ApproverId) == -1) {
+                        debugger
                         strReader = strReader.trim() + "," + temp.ApproverId;
                     }
                 }
