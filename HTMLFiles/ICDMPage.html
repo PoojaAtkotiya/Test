@@ -147,13 +147,11 @@
                 }
 
             });
-<<<<<<< HEAD
+
            DatePickerControl('#divItemCodeForm');
            //BindDatePicker("#dates");
-=======
+
             DatePickerControl($('input[name="ItemPhasedOutWithEffectFrom"]'));
-        
->>>>>>> 128410401b160db8779d30fcc710e8ae35862259
         });
 
        
@@ -163,12 +161,12 @@
 
 <body>
     <div>
-       
+
         <ul class="header-nav header-nav-options nav navbar-nav navbar-right" id="dynamicButtonli"></ul>
-       <input type="hidden" id="ActionStatus" />
-       <input type="hidden" id="SendBackTo" />
-       <input type="hidden" id="SendToRole" />
-       
+        <input type="hidden" id="ActionStatus" />
+        <input type="hidden" id="SendBackTo" />
+        <input type="hidden" id="SendToRole" />
+
         <div id="tab-general">
             <div class="form-horizontal">
                 <div class="row mbl">
@@ -592,6 +590,68 @@
                                     </div>
                                 </div>
                             </div>
+                            <div id="divapplicationstatus" class="card">
+                                <div class="card-head">
+                                    <b>
+                                        Code creation request status
+                                    </b>
+                                    <div class="btn collapse-btn collapsed" data-toggle="collapse" data-target="#applicationstatusbody">
+                                        <i class="fa fa-chevron-down"></i>
+                                    </div>
+                                </div>
+                                <div id="applicationstatusbody" class="card-body in">
+                                    <div class="panel-body grid-view">
+                                        <div class="table-responsive noscroll">
+                                            <table class="table table-hover table-bordered someTable" id="tblApplicationStatus">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Role</th>
+                                                        <th>Person</th>
+                                                        <th>Status</th>
+                                                        <th>Assigned Date</th>
+                                                        <th>Due Date</th>
+                                                        <th>Approved Date</th>
+                                                        <th>Comments</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                            <div id="divActivityLogs" activityloglistname="ItemCodeActivityLog" class="card">
+                                <div class="card-head">
+                                    <b>
+                                        Activity Log
+                                    </b>
+                                    <div class="btn collapse-btn collapsed" data-toggle="collapse" data-target="#activitylogbody">
+                                        <i class="fa fa-chevron-down"></i>
+                                    </div>
+                                </div>
+                                <div id="activitylogbody" class="card-body in">
+                                    <div class="panel-body grid-view">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover table-bordered someTable" id="tblActivityLog">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Activity Action</th>
+                                                        <th>Section</th>
+                                                        <th>Activity Date Time</th>
+                                                        <th>Performed By</th>
+                                                        <th>Changes</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
                             <div class="row">
                                 <div class="form-group">
                                     <div class="col-md-4"></div>
@@ -609,10 +669,11 @@
         </div>
     </div>
     <div id="loading">
-            <div id="pageLoading">
-            </div>
-            <img id="loadingimage" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/images/loading.gif" alt="Please Wait" />
+        <div id="pageLoading">
         </div>
+        <img id="loadingimage" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/images/loading.gif"
+            alt="Please Wait" />
+    </div>
 </body>
 
 </html>
