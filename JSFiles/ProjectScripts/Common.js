@@ -54,7 +54,7 @@ function BindAttachmentFiles() {
           })(file);
        reader.readAsArrayBuffer(file);
        var removeLink = "<a id =\"removeFile_"+ fileId + "\" href=\"javascript:removeFiles(" + fileId + ")\" data-fileid=\"" + fileId + "\">Remove</a>";
-       output.push("<li><strong>", escape(file.name), escape(fileId), removeLink, "</li> ");
+       output.push("<li><strong>", escape(file.name) , removeLink, "</li> ");
     }
      $('#UploadArtworkAttachment').next().append(output.join(""));
  
@@ -68,7 +68,8 @@ function BindAttachmentFiles() {
         fileInfos.splice(i, 1);
     }
     var item = document.getElementById("fileList");
-    item.children[fileId].remove;
+    fileId--;
+    item.children[fileId].remove();
     
 }
 function loadConstants() {
