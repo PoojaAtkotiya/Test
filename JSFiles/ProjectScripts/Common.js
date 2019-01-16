@@ -7,15 +7,13 @@ var hostweburl;
 var currentContext;
 var listDataArray = {};
 var actionPerformed;
-var fileInfos=[];
 var scriptbase; //= spSiteUrl + "/_layouts/15/";     ////_spPageContextInfo.layoutsUrl
-var fileIdCounter = 0;
 
 jQuery(document).ready(function () {
     // BindDatePicker("");
     KeyPressNumericValidation();
-    // LoadWaitDialog();
-    hostweburl = "https://bajajelect.sharepoint.com/sites/MTDEV";
+   // LoadWaitDialog();
+    hostweburl = hostWebURL;
     var scriptbase = hostweburl + "/_layouts/15/";
     // Load the js files and continue to
     // the execOperation function.
@@ -25,8 +23,6 @@ jQuery(document).ready(function () {
         }
     );
 });
-<<<<<<< HEAD
-<<<<<<< HEAD
 
 function LoadWaitDialog() {
     jQuery(document).ajaxStart(function () {
@@ -36,61 +32,8 @@ function LoadWaitDialog() {
     });
 }
 
-=======
-=======
->>>>>>> 4f356c48d92659b0b83ac2d53f3f72749be88f31
-function BindAttachmentFiles() {
-    var output = [];
- 
-    //Get the File Upload control id
-    var input = document.getElementById("UploadArtworkAttachment");
-    var fileCount = input.files.length;
-    console.log(fileCount);
-    for (var i = 0; i < fileCount; i++) {
-       var fileName = input.files[i].name;
-       console.log(fileName);
-       fileIdCounter++;
-       var fileId = fileIdCounter;
-       var file = input.files[i];
-       var reader = new FileReader();
-       reader.onload = (function(file) {
-          return function(e) {
-             console.log(file.name);
-             //Push the converted file into array
-                fileInfos.push({
-                   "name": file.name,
-                   "content": e.target.result,
-                   "id":fileId
-                   });
-                console.log(fileInfos);
-                }
-          })(file);
-       reader.readAsArrayBuffer(file);
-       var removeLink = "<a id =\"removeFile_"+ fileId + "\" href=\"javascript:removeFiles(" + fileId + ")\" data-fileid=\"" + fileId + "\">Remove</a>";
-       output.push("<li><strong>", escape(file.name) , removeLink, "</li> ");
-    }
-     $('#UploadArtworkAttachment').next().append(output.join(""));
- 
- //End of for loop
- }
-
- function removeFiles(fileId) {
-    
-    for (var i = 0; i < fileInfos.length; ++i) {
-        if (fileInfos[i].id === fileId)
-        fileInfos.splice(i, 1);
-    }
-    var item = document.getElementById("fileList");
-    fileId--;
-    item.children[fileId].remove();
-    
-}
-<<<<<<< HEAD
->>>>>>> 128410401b160db8779d30fcc710e8ae35862259
-=======
->>>>>>> 4f356c48d92659b0b83ac2d53f3f72749be88f31
 function loadConstants() {
-    var clientContext = new SP.ClientContext("https://bajajelect.sharepoint.com/sites/MTDEV");
+    var clientContext = new SP.ClientContext(hostWebURL);
     this.oWebsite = clientContext.get_web();
     clientContext.load(this.oWebsite);
     clientContext.executeQueryAsync(
@@ -420,6 +363,21 @@ function GetCurrentUserDetails() {
                 currentUser = data.d;
             }
         });
+
+    // var url = "https://bajajelect.sharepoint.com/sites/MTDEV/_api/web/currentuser";
+    // $.ajax({
+    //     url: url,
+    //     headers: {
+    //         Accept: "application/json;odata=verbose"
+    //     },
+    //     async: false,
+    //     success: function (data) {
+    //         currentUser = data.d; // Data will have user object      
+    //     },
+    //     eror: function (data) {
+    //         alert("An error occurred. Please try again.");
+    //     }
+    // });
 }
 
 function getUrlParameter(name) {
@@ -563,6 +521,38 @@ function ConfirmPopupYes(url, id, okCallback) {
                     HideWaitDialog();
                 }
             });
+
+        // $.ajax
+        //     ({
+        //         url: url,
+        //         type: "DELETE",
+        //         headers: {
+        //             "accept": "application/json;odata=verbose",
+        //             "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+        //             "IF-MATCH": "*"
+        //         },
+        //         success: function (data) {
+        //             if (typeof (okCallback) !== "undefined" && okCallback != null) {
+        //                 okCallback(id, data);
+        //             }
+        //             HideWaitDialog();
+        //         },
+        //         fail: function (xhr) {
+        //             onAjaxError(xhr);
+        //             HideWaitDialog();
+        //         }
+        //     });
+
+
+        //     jQuery.post(url, {
+        //         Id: id
+        //     }, function (data) {
+        //         if (typeof (okCallback) !== "undefined" && okCallback != null) {
+        //             okCallback(id, data);
+        //         }
+        //     }).fail(function (xhr) {
+        //         onAjaxError(xhr);
+        //     });
     }
     else {
         if (typeof (okCallback) !== "undefined" && okCallback != null) {
@@ -696,6 +686,16 @@ function resetFormValidator(formId) {
     $(formId).data('unobtrusiveValidation');
     $.validator.unobtrusive.parse(formId);
 }
+
+// $(document).bind('bindForm', function (e) {
+//     var activedivId = $('div[section]').not(".disabled").attr('id');
+//     var parentDiv = $('div[section]').not(".disabled").parent();
+//     var form = '<form data-ajax="true" enctype="multipart/form-data" id="form_' + activedivId + '" method="post" autocomplete="off"/>';
+//     $('#' + activedivId).remove();
+//     $(document.body).find($(parentDiv)).append($(formList)[0].outerHTML);   
+//     resetFormValidator('#form_' + activedivId);  
+// });
+
 
 function ValidateForm(ele, saveCallBack) {
     //Get Active Section
@@ -912,59 +912,26 @@ function GetApproverMaster() {
                 approverMaster = data.d.results;
             }
         });
-}
 
-function GetActivityLog(activityLogListName, lookupId, tableId) {
-    AjaxCall(
-        {
-            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('" + activityLogListName + "')/items?$select=Author/Title,*&$expand=Author&$filter=RequestID eq '" + lookupId + "'",
-            httpmethod: 'GET',
-            calldatatype: 'JSON',
-            isAsync: false,
-            headers: {
-                "Accept": "application/json;odata=verbose",
-                "Content-Type": "application/json;odata=verbose",
-                "X-RequestDigest": $("#__REQUESTDIGEST").val()
-            },
-            sucesscallbackfunction: function (data) {
-                if (!IsNullOrUndefined(data) && !IsNullOrUndefined(data.d) && !IsNullOrUndefined(data.d.results)) {
-                    DisplayActivityLogDetails(data.d.results, tableId);
-                }
-            }
-        });
-}
 
-function DisplayActivityLogDetails(activityLogResult, tableId) {
-    var tr;
-    for (var i = 0; i < activityLogResult.length; i++) {
-        tr = $('<tr/>');
-        tr.append("<td width='15%'>" + activityLogResult[i].Activity + "</td>");
-        tr.append("<td width='15%'>" + activityLogResult[i].SectionName + "</td>");
-        tr.append("<td width='15%'>" + activityLogResult[i].ActivityDate + "</td>");
-        tr.append("<td width='15%'>" + activityLogResult[i].ActivityBy + "</td>");
-        tr.append("<td width='15%'>" + activityLogResult[i].ActivityById + "</td>");
-        tr.append("<td width='20%'>" + activityLogResult[i].Changes + "</td>");
-        $('#' + tableId).append(tr);
-    }
-}
-
-function DisplayApplicationStatus(approverMatrix) {
-    var tr;
-    var result = [];
-
-    for (var i = 0; i < approverMatrix.length; i++) {
-        if (approverMatrix[i].Levels >= 0 && !IsNullOrUndefined(approverMatrix[i].Approver) && !IsNullOrUndefined(approverMatrix[i].Approver.results) && !IsNullOrUndefined(approverMatrix[i].Approver.results).length > 0) {
-            tr = $('<tr/>');
-            tr.append("<td width='15%'>" + approverMatrix[i].Role + "</td>");
-            tr.append("<td width='10%'>" + approverMatrix[i].ApproveById + "</td>");
-            tr.append("<td width='10%'>" + approverMatrix[i].Status + "</td>");
-            tr.append("<td width='15%'>" + approverMatrix[i].AssignDate + "</td>");
-            tr.append("<td width='15%'>" + approverMatrix[i].DueDate + "</td>");
-            tr.append("<td width='15%'>" + approverMatrix[i].ApprovalDate + "</td>");
-            tr.append("<td width='20%'>" + approverMatrix[i].Comments + "</td>");
-            $('#tblApplicationStatus').append(tr);
-        }
-    }
+    // $.ajax
+    //     ({
+    //         url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('" + ApproverMasterListName + "')/items",
+    //         type: "GET",
+    //         async: false,
+    //         headers:
+    //             {
+    //                 "Accept": "application/json;odata=verbose",
+    //                 "Content-Type": "application/json;odata=verbose",
+    //                 "X-RequestDigest": $("#__REQUESTDIGEST").val()
+    //             },
+    //         success: function (data) {
+    //             approverMaster = data.d.results;
+    //         },
+    //         error: function (data) {
+    //             console.log(data.responseJSON.error);
+    //         }
+    //     });
 }
 
 function SaveFormData(activeSection) {
@@ -979,7 +946,6 @@ function SaveFormData(activeSection) {
             var elementType = $(this).attr('controlType');
             listDataArray = GetFormControlsValue(elementId, elementType, listDataArray);
         });
-
 
         SaveData(mainListName, listDataArray, sectionName);
     }
@@ -1029,6 +995,7 @@ function SaveData(listname, listDataArray, sectionName) {
                     clientContext.load(web);
                     clientContext.executeQueryAsync(function () {
                         SaveLocalApprovalMatrix(sectionName, itemID, listname, isNewItem, oListItem, ItemCodeApprovalMatrixListName);
+
                         debugger;
                         if (data != undefined && data != null && data.d != null) {
                             SaveTranListData(itemID);
@@ -1050,6 +1017,58 @@ function SaveData(listname, listDataArray, sectionName) {
                 HideWaitDialog();
             }
         });
+
+        // $.ajax({
+        //     url: url,
+        //     type: "POST",
+        //     data: JSON.stringify(listDataArray),
+        //     headers: headers,
+        //     success: function (data) {
+
+        //         var itemID = listItemId;
+        //         if (!IsNullOrUndefined(data) && !IsNullOrUndefined(data.d)) {
+        //             itemID = data.d.ID;
+        //         }
+        //         ////AddAttachments(itemID);
+        //         AddAllAttachments(listname, itemID);
+        //         var web, clientContext;
+        //         SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
+        //             clientContext = new SP.ClientContext.get_current();
+        //             web = clientContext.get_web();
+        //             oList = web.get_lists().getByTitle(listname);
+        //             var oListItem = oList.getItemById(itemID);
+
+        //             clientContext.load(oListItem, 'FormLevel', 'ProposedBy');
+        //             clientContext.load(web);
+        //             clientContext.executeQueryAsync(function () {
+        //                 ///Pending -- temporary
+        //                 var param = [
+        //                     SendToLevel = 0
+        //                 ];
+
+        //                 SaveLocalApprovalMatrix(sectionName, itemID, listname, isNewItem, oListItem, ItemCodeApprovalMatrixListName, param);
+
+        //                 if (data != undefined && data != null && data.d != null) {
+        //                     SaveTranListData(itemID);
+        //                 }
+        //                 else {
+        //                     SaveTranListData(itemID);
+        //                 }
+        //                 HideWaitDialog();
+        //                 AlertModal("Success", "Data saved successfully", false, null);
+
+        //             }, function (sender, args) {
+        //                 HideWaitDialog();
+        //                 console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
+        //             });
+        //         });
+
+        //     },
+        //     error: function (data) {
+        //         console.log(data);
+        //         HideWaitDialog();
+        //     }
+        // });
     }
 }
 
