@@ -6,7 +6,7 @@ var formData = {};
 var mainListData = {};
 var sendToLevel = 0;
 var collListItem = null;
-var fileInfos = [];
+
 
 $(document).ready(function () {
     GetUsersForDDL("LUM Marketing Delegate", "LUMMarketingDelegateId");
@@ -120,16 +120,15 @@ function SaveForm(activeSection) {
 
 function AddAllAttachments(listname, itemID) {
     $('#divItemCodeForm').find('div[section]').not(".disabled").each(function (i, e) {
-        var fileListArray = [];
+     
         $(e).find('input[type="file"]').each(function () {
             var elementId = $(this).attr('id');
             var controlType = $(this).attr('controlType');
             // if (controlType == "file") {
             debugger;
-            fileListArray = GetAttachmentValue(elementId, fileListArray);
-            //if (!IsNullOrUndefined(fileListArray)) {
-            SaveItemWiseAttachments(listname, fileListArray, itemID, elementId);
-            //}
+            if (!IsNullOrUndefined(fileInfos)) {
+            SaveItemWiseAttachments(listname, itemID);
+            }
             // }
 
         });
@@ -158,20 +157,10 @@ function GetAttachmentValue(elementId, fileListArray) {
     }
 }
 
-function SaveItemWiseAttachments(listname, fileListArray, itemID, elementId) {
+function SaveItemWiseAttachments(listname, itemID) {
     var item = $pnp.sp.web.lists.getByTitle(listname).items.getById(itemID);
     item.attachmentFiles.addMultiple(fileInfos).then(v => {
-        console.log(v);
-        // pnp.sp.web.lists.getByTitle(listname).items.getById(itemID).update({
-        //     elementId: "file name here",
-        // }).then(result => {
-        //     console.log(JSON.stringify(result));
-        // }).catch(function (err) {
-        //     debugger;
-        //     console.log(err);
-        //     console.log("error while saving file name in multiline text field");
-        // });
-        console.log("files saved successfully in list = " + listname + "for listItemId = " + itemID);
+      console.log("files saved successfully in list = " + listname + "for listItemId = " + itemID);
     }).catch(function (err) {
         console.log(err);
         console.log("error while save attachment ib list = " + listname + "for listItemId = " + itemID)

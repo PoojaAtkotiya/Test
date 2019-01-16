@@ -55,7 +55,7 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
     <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/jQueryFiles/jquery.validate.js"></script>
     <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/jQueryFiles/jquery.validate.unobtrusive.js"></script>
-
+ 
     <!-- <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/ApprovalMatrix.js"></script>
     <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/Button.js"></script>
     <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/Common.js"></script>
@@ -90,7 +90,12 @@
     <script type="text/javascript">
         var formData = {};
         $(document).ready(function () {
-
+        
+            $(document).on("change", "#UploadArtworkAttachment",function() {
+                BindAttachmentFiles();
+            });
+    
+            
             $('.form-control').change(function () {
                 var type = $(this).attr('controlType');
                 var id = $(this).attr('id');
@@ -142,9 +147,12 @@
                 }
 
             });
-            DatePickerControl('#divItemCodeForm');
-            //BindDatePicker("#dates");
+            DatePickerControl($('input[name="ItemPhasedOutWithEffectFrom"]'));
+        
         });
+
+       
+
     </script>
 </head>
 
@@ -231,7 +239,8 @@
                                                     <div class="col-md-6">
                                                         <div class="col-md-4 control-label">Artwork Attachment :</div>
                                                         <div class="col-md-8">
-                                                            <input type="file" class="form-control dynamic-control" id="UploadArtworkAttachment" name="myfiles" multiple="multiple" controlType="file">
+                                                          <input type="file" class="form-control dynamic-control" id="UploadArtworkAttachment" name="myfiles" multiple="multiple" controlType="file">
+                                                           <ul id="fileList"></ul>
                                                             <!-- <button type="button" onclick="uploadListAttachments();">Upload</button> -->
                                                         </div>
                                                     </div>
