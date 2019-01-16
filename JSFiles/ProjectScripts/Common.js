@@ -4,7 +4,6 @@ var approverMaster;
 var securityToken;
 var currentContext;
 var hostweburl;
-var currentContext;
 var listDataArray = {};
 var actionPerformed;
 var fileInfos = [];
@@ -1160,4 +1159,3 @@ function ShowError(ModelStateErrors) {
     messages = "<div><h5>" + getMessage("errorTitle") + "</h5><ul>" + messages + "</ul></div>";
     AlertModal(getMessage("error"), messages, function () { })
 }
-

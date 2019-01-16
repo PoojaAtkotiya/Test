@@ -98,8 +98,9 @@ function FormBusinessLogic(activeSection) {
         ////Pending to make it dynamic
         if (!IsNullOrUndefined(listDataArray.SCMLUMDesignDelegateId)) {
             var array = [];
-            array.push(listDataArray.SCMLUMDesignDelegateId);
+            array.push(parseInt(listDataArray.SCMLUMDesignDelegateId));
             listDataArray["SCMLUMDesignDelegateId"] = { "results": array };
+            debugger
         }
     }
     catch (Exception) {
