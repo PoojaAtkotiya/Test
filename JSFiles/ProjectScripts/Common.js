@@ -10,13 +10,7 @@ var actionPerformed;
 var fileInfos=[];
 var scriptbase; //= spSiteUrl + "/_layouts/15/";     ////_spPageContextInfo.layoutsUrl
 var fileIdCounter = 0;
-
-
-
-
-
-
-
+var strActivity="";
 jQuery(document).ready(function () {
 
     //   BindDatePicker("");
@@ -1019,7 +1013,8 @@ function SaveData(listname, listDataArray, sectionName) {
                     clientContext.load(web);
                     clientContext.executeQueryAsync(function () {
                         SaveLocalApprovalMatrix(sectionName, itemID, listname, isNewItem, oListItem, ItemCodeApprovalMatrixListName);
-
+                        debugger;
+                        SaveActivityLog(sectionName,itemID,ItemCodeActivityLogListName,listDataArray);
                         debugger;
                         if (data != undefined && data != null && data.d != null) {
                             SaveTranListData(itemID);
@@ -1094,6 +1089,50 @@ function SaveData(listname, listDataArray, sectionName) {
         //     }
         // });
     }
+}
+
+function SaveActivityLog(sectionName,itemID,ItemCodeActivityLogListName,listDataArray) {
+    var today = new Date().format("yyyy-MM-ddTHH:mm:ssZ");
+    var actionStatus = $("#ActionStatus").val();
+    url = _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ItemCodeActivityLogListName + "')/items";
+    headers = {
+        "Accept": "application/json;odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+        "X-HTTP-Method": "POST"
+    };
+    $.ajax({
+        url: url,
+        type: "POST",
+        headers: headers,
+        async: false,
+        data: JSON.stringify
+            ({
+                __metadata: {
+                    type: GetItemTypeForListName(listname)
+                },
+                Activity: actionStatus,
+                Changes: "Test",
+                ActivityDate: today,
+                ActivityBy: currentUser.Id,
+                RequestID: itemID,
+                SectionName: sectionName
+         }),
+        success: function (data, status, xhr) {
+            console.log("SaveActivityLogInList - Item saved Successfully");
+        },
+        error: function (data) {
+            debugger
+            console.log(data);
+        }
+    });
+
+
+}
+
+function GetActivityString(listDataArray)
+{
+   
 }
 function AjaxCall(options) {
     var url = options.url;

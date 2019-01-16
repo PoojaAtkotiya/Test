@@ -7,6 +7,7 @@ var globalApprovalMatrixName = 'ApprovalMatrix';
 // var approverMatrixListName = 'WorkflowTestApprovalMatrix';
 var ItemCodeProProcessListName = "ItemCodeProProcess";
 var ItemCodeApprovalMatrixListName = "ItemCodeApprovalMatrix";
+var ItemCodeActivityLogListName = "ItemCodeActivityLog";
 var ApproverMasterListName = "ApproverMaster";
 var buttonListName = 'Buttons';
 
