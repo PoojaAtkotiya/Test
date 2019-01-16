@@ -700,6 +700,8 @@ function breakRoleInheritanceOfList(ItemCodeProProcessListName, requestId, userW
                 "content-Type": "application/json;odata=verbose",
                 "X-RequestDigest": jQuery("#__REQUESTDIGEST").val()
             }
+
+            var digest = jQuery("#__REQUESTDIGEST").val();
             // });
             //Add Role Permissions   
             //1073741827 - contribute
@@ -740,13 +742,19 @@ function breakRoleInheritanceOfList(ItemCodeProProcessListName, requestId, userW
                     users.forEach(user => {
                         if (!isNaN(user)) {
                             var endPointUrlRoleAssignment = _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getByTitle('" + ItemCodeProProcessListName + "')/items(" + requestId + ")/roleassignments/addroleassignment(principalid=" + user + ",roleDefId=" + permId + ")";
+                            var dataTemplate = "{\r\n    \"url\":\"{0}\",\r\n    \"digest\": \"{1}\" \r\n}"; 
+                            var httpPostUrl = "https://prod-05.centralindia.logic.azure.com:443/workflows/94440494d1bc4839b196891de76d4d5f/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=-uan_RC5TIGT5AYnvbqT3CcjsJ2gapWn-KSQrUIE60E";
                             var call = jQuery.ajax(
                                 {
-                                    url: endPointUrlRoleAssignment,
+                                    url:  httpPostUrl ,//endPointUrlRoleAssignment,
                                     type: "POST",
-                                    headers: headers,
+                                    data : dataTemplate,
+                                    headers: {  "content-type": "application/json",  
+                                    "cache-control": "no-cache" },
                                     async: false,
+                                    "processData": false,  
                                     success: function (data) {
+                                        debugger
                                         console.log('Role Permission Added successfully!');
                                     },
                                     error: function (error) {
