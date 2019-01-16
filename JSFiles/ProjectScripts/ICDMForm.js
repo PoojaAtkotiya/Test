@@ -8,7 +8,7 @@ var sendToLevel = 0;
 var collListItem = null;
 var fileInfos = [];
 
-$(document).ready(function () {   
+$(document).ready(function () {
     GetUsersForDDL("LUM Marketing Delegate", "LUMMarketingDelegateId");
     GetUsersForDDL("LUM Design Delegate", "SCMLUMDesignDelegateId");
 });
@@ -24,40 +24,13 @@ function GetSetFormData() {
             isAsync: false,
             sucesscallbackfunction: function (data) { onGetSetFormDataSuccess(data) }
         })
-    // $.ajax({
-    //     url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + mainListName + "')/items(" + listItemId + ")?$select=Author/Title,*&$expand=Author",
-    //     type: "GET",
-    //     async: false,
-    //     headers:
-    //         {
-    //             "Accept": "application/json;odata=verbose",
-    //             "Content-Type": "application/json;odata=verbose",
-    //             "X-RequestDigest": $("#__REQUESTDIGEST").val()
-    //         },
-    //     success: function (data) {
-    //         mainListData = data.d;
-    //         var item = data.d;
-    //         if (item != null && item != '' & item != undefined) {
-    //             $('.dynamic-control').each(function () {
-    //                 var listType = $(this).attr('listtype');
-    //                 var reflisttype = $(this).attr('reflisttype');
-    //                 var elementId = $(this).attr('id');
-    //                 var elementType = $(this).attr('controlType');
-    //                 if (listType == 'main' || reflisttype == 'main') {
-    //                     setFieldValue(elementId, item, elementType, elementId);
-    //                 }
-    //             });
-    //         }
-    //         GetLocalApprovalMatrixData(listItemId, mainListName);
-    //     },
-    //     error: function (data) {
-    //         console.log(data);
-    //     }
-    // });
 }
+
+
 
 function onGetSetFormDataSuccess(data) {
     var mainListName = $($('div').find('[mainlistname]')).attr('mainlistname');
+    var activitylogTableId = 'tblActivityLog';
     mainListData = data;
     var item = data;
     if (item != null && item != '' & item != undefined) {
@@ -72,6 +45,8 @@ function onGetSetFormDataSuccess(data) {
         });
     }
     GetLocalApprovalMatrixData(listItemId, mainListName);
+   
+    GetActivityLog(ICDMActivityLogListName, listItemId, activitylogTableId);
 }
 
 function setCustomApprovers(tempApproverMatrix) {

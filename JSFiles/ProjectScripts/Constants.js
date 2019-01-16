@@ -7,6 +7,7 @@ var formName = "Item Code Preprocess Form";
 var globalApprovalMatrixName = 'ApprovalMatrix';
 // var approverMatrixListName = 'WorkflowTestApprovalMatrix';
 var ItemCodeProProcessListName = "ItemCodeProProcess";
+var ICDMActivityLogListName = "ItemCodeActivityLog";
 var ItemCodeApprovalMatrixListName = "ItemCodeApprovalMatrix";
 var ApproverMasterListName = "ApproverMaster";
 var buttonListName = 'Buttons';
