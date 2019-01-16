@@ -11,6 +11,12 @@ var fileInfos=[];
 var scriptbase; //= spSiteUrl + "/_layouts/15/";     ////_spPageContextInfo.layoutsUrl
 var fileIdCounter = 0;
 
+
+
+
+
+
+
 jQuery(document).ready(function () {
 
     //   BindDatePicker("");
