@@ -8,7 +8,7 @@ var sendToLevel = 0;
 var collListItem = null;
 var fileInfos = [];
 
-$(document).ready(function () {   
+$(document).ready(function () {
     GetUsersForDDL("LUM Marketing Delegate", "LUMMarketingDelegateId");
     GetUsersForDDL("LUM Design Delegate", "SCMLUMDesignDelegateId");
 });
@@ -123,8 +123,9 @@ function FormBusinessLogic(activeSection) {
         ////Pending to make it dynamic
         if (!IsNullOrUndefined(listDataArray.SCMLUMDesignDelegateId)) {
             var array = [];
-            array.push(listDataArray.SCMLUMDesignDelegateId);
+            array.push(parseInt(listDataArray.SCMLUMDesignDelegateId));
             listDataArray["SCMLUMDesignDelegateId"] = { "results": array };
+            debugger
         }
     }
     catch (Exception) {
