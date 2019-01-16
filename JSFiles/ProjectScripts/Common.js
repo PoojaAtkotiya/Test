@@ -6,7 +6,7 @@ var currentContext;
 var hostweburl;
 var listDataArray = {};
 var actionPerformed;
-var fileInfos=[];
+var fileInfos = [];
 var scriptbase; //= spSiteUrl + "/_layouts/15/";     ////_spPageContextInfo.layoutsUrl
 var fileIdCounter = 0;
 
@@ -26,49 +26,49 @@ jQuery(document).ready(function () {
 });
 function BindAttachmentFiles() {
     var output = [];
- 
+
     //Get the File Upload control id
     var input = document.getElementById("UploadArtworkAttachment");
     var fileCount = input.files.length;
     console.log(fileCount);
     for (var i = 0; i < fileCount; i++) {
-       var fileName = input.files[i].name;
-       console.log(fileName);
-       fileIdCounter++;
-       var fileId = fileIdCounter;
-       var file = input.files[i];
-       var reader = new FileReader();
-       reader.onload = (function(file) {
-          return function(e) {
-             console.log(file.name);
-             //Push the converted file into array
+        var fileName = input.files[i].name;
+        console.log(fileName);
+        fileIdCounter++;
+        var fileId = fileIdCounter;
+        var file = input.files[i];
+        var reader = new FileReader();
+        reader.onload = (function (file) {
+            return function (e) {
+                console.log(file.name);
+                //Push the converted file into array
                 fileInfos.push({
-                   "name": file.name,
-                   "content": e.target.result,
-                   "id":fileId
-                   });
+                    "name": file.name,
+                    "content": e.target.result,
+                    "id": fileId
+                });
                 console.log(fileInfos);
-                }
-          })(file);
-       reader.readAsArrayBuffer(file);
-       var removeLink = "<a id =\"removeFile_"+ fileId + "\" href=\"javascript:removeFiles(" + fileId + ")\" data-fileid=\"" + fileId + "\">Remove</a>";
-       output.push("<li><strong>", escape(file.name) , removeLink, "</li> ");
+            }
+        })(file);
+        reader.readAsArrayBuffer(file);
+        var removeLink = "<a id =\"removeFile_" + fileId + "\" href=\"javascript:removeFiles(" + fileId + ")\" data-fileid=\"" + fileId + "\">Remove</a>";
+        output.push("<li><strong>", escape(file.name), removeLink, "</li> ");
     }
-     $('#UploadArtworkAttachment').next().append(output.join(""));
- 
- //End of for loop
- }
+    $('#UploadArtworkAttachment').next().append(output.join(""));
 
- function removeFiles(fileId) {
-    
+    //End of for loop
+}
+
+function removeFiles(fileId) {
+
     for (var i = 0; i < fileInfos.length; ++i) {
         if (fileInfos[i].id === fileId)
-        fileInfos.splice(i, 1);
+            fileInfos.splice(i, 1);
     }
     var item = document.getElementById("fileList");
     fileId--;
     item.children[fileId].remove();
-    
+
 }
 function loadConstants() {
     var clientContext = new SP.ClientContext("https://bajajelect.sharepoint.com/sites/MTDEV");
@@ -908,7 +908,7 @@ function GetActivityLog(activityLogListName, lookupId, tableId) {
                 "X-RequestDigest": $("#__REQUESTDIGEST").val()
             },
             sucesscallbackfunction: function (data) {
-                if (!IsNullOrUndefined(data) && !IsNullOrUndefined(data.d) && !IsNullOrUndefined(data.d.results)) {
+                if (!IsNullOrUndefined(data) && !IsNullOrUndefined(data.d) && !IsNullOrUndefined(data.d.results) && data.d.results.length > 0) {
                     DisplayActivityLogDetails(data.d.results, tableId);
                 }
             }
@@ -935,17 +935,49 @@ function DisplayApplicationStatus(approverMatrix) {
 
     for (var i = 0; i < approverMatrix.length; i++) {
         if (approverMatrix[i].Levels >= 0 && !IsNullOrUndefined(approverMatrix[i].Approver) && !IsNullOrUndefined(approverMatrix[i].Approver.results) && !IsNullOrUndefined(approverMatrix[i].Approver.results).length > 0) {
+            var AssignDate = "-", DueDate = "-", ApprovalDate = "-", Comments = "-", Status = "-";
+
+            if (!IsNullOrUndefined(approverMatrix[i].Status)) {
+                if (approverMatrix[i].Status == ApproverStatus.APPROVED) {
+                    Status = ApproverStatus.COMPLETED;
+                }
+                else {
+                    Status = approverMatrix[i].Status;
+                }
+            }
+
+            if (!IsNullOrUndefined(approverMatrix[i].AssignDate)) {
+                AssignDate = formatDate(new Date(approverMatrix[i].AssignDate).toLocaleDateString());
+            }
+            if (!IsNullOrUndefined(approverMatrix[i].DueDate)) {
+                DueDate = formatDate(new Date(approverMatrix[i].DueDate).toLocaleDateString());
+            }
+            if (!IsNullOrUndefined(approverMatrix[i].ApprovalDate) && approverMatrix[i].Status == ApproverStatus.APPROVED) {
+                ApprovalDate = formatDate(new Date(approverMatrix[i].ApprovalDate).toLocaleDateString());
+            }
+            if (!IsNullOrUndefined(approverMatrix[i].Comments)) {
+                Comments = approverMatrix[i].Comments;
+            }
+
             tr = $('<tr/>');
             tr.append("<td width='15%'>" + approverMatrix[i].Role + "</td>");
-            tr.append("<td width='10%'>" + approverMatrix[i].ApproveById + "</td>");
+            tr.append("<td width='10%'>" + approverMatrix[i].ApproverId.results + "</td>");
             tr.append("<td width='10%'>" + approverMatrix[i].Status + "</td>");
-            tr.append("<td width='15%'>" + approverMatrix[i].AssignDate + "</td>");
-            tr.append("<td width='15%'>" + approverMatrix[i].DueDate + "</td>");
-            tr.append("<td width='15%'>" + approverMatrix[i].ApprovalDate + "</td>");
-            tr.append("<td width='20%'>" + approverMatrix[i].Comments + "</td>");
+            tr.append("<td width='15%'>" + AssignDate + "</td>");
+            tr.append("<td width='15%'>" + DueDate + "</td>");
+            tr.append("<td width='15%'>" + ApprovalDate + "</td>");
+            tr.append("<td width='20%'>" + Comments + "</td>");
             $('#tblApplicationStatus').append(tr);
         }
     }
+}
+
+function formatDate(input) {
+    var datePart = input.match(/\d+/g);
+    var day = (datePart[1].length > 1) ? datePart[1] : "0" + datePart[1];
+    var month = (datePart[0].length > 1) ? datePart[0] : "0" + datePart[0];
+    var year = datePart[2];
+    return day + '/' + month + '/' + year;
 }
 
 function SaveFormData(activeSection) {
