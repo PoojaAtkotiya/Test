@@ -685,96 +685,97 @@ function SetItemPermission(requestId, ItemCodeProProcessListName, userWithRoles)
 
 // Break role inheritance on the list.
 function breakRoleInheritanceOfList(ItemCodeProProcessListName, requestId, userWithRoles) {
-    ///_api/web/lists/getByTitle('Documents')/breakroleinheritance(copyRoleAssignments=true, clearSubscopes=true)”
-    // $.ajax({
-    //     url: _spPageContextInfo.webAbsoluteUrl + '/_api/web/lists/getbytitle(\'' + ItemCodeProProcessListName + '\')/items(' + requestId + ')/breakroleinheritance(copyRoleAssignments=false)',
-    //     type: 'POST',
-    //     headers: { 'X-RequestDigest': $('#__REQUESTDIGEST').val() },
-    //     async: false,
-    //     success: function (data) {
-    //         debugger
-    //         console.log("Inheritance Broken Successfully!");
-    //         var roleDefBindingColl = null;
-    //         console.log(userWithRoles);
-    //         var headers = {
-    //             "Accept": "application/json;odata=verbose",
-    //             "content-Type": "application/json;odata=verbose",
-    //             "X-RequestDigest": jQuery("#__REQUESTDIGEST").val()
-    //         }
-
+    var resetUrl = '/_api/web/lists/getbytitle(\'' + ItemCodeProProcessListName + '\')/items(' + requestId + ')/resetroleinheritance';
+    var breakRoleUrl = '/_api/web/lists/getbytitle(\'' + ItemCodeProProcessListName + '\')/items(' + requestId + ')/breakroleinheritance(copyRoleAssignments=false, clearsubscopes=true)';
     var digest = jQuery("#__REQUESTDIGEST").val();
-    // });
-    //Add Role Permissions   
-    //1073741827 - contribute
-    // 1073741829, Full Control
-    // 1073741826, Read
-    var users = [];
-    userWithRoles.forEach((element) => {
-        var userIds = element.user;
-        var permission = element.permission;
-        var permId;
-        if (permission == "Contribute") {
-            permId = 1073741827;
-        }
-        else if (permission == "Read") {
-            permId = 1073741826;
-        }
-        if (!IsNullOrUndefined(userIds) && !IsStrNullOrEmpty(userIds) && !IsNullOrUndefined(permission) && !IsStrNullOrEmpty(permission)) {
-
-            //split users and remove ,
-            if (userIds.toString().indexOf(',') == 0) {
-                userIds = userIds.substring(1);
-                if (userIds.toString().indexOf(',') != -1 && userIds.toString().lastIndexOf(',') == userIds.toString().length - 1) {
-                    userIds = userIds.substring(userIds.toString().lastIndexOf(','))[0];
+    var resetDataTemplate = { "resetUrl": resetUrl, "breakRoleUrl": breakRoleUrl, "digest": digest.toString() };
+    $.ajax({
+        url: "https://prod-01.centralindia.logic.azure.com:443/workflows/bd5c7b59e0a245a5866865a147ce48f1/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=DQwBHAeVbuK9CUlGJNABP7iG2ZSOE3ApijO8S0gWZM8",//_spPageContextInfo.webAbsoluteUrl + '/_api/web/lists/getbytitle(\'' + ItemCodeProProcessListName + '\')/items(' + requestId + ')/breakroleinheritance(copyRoleAssignments=false, clearsubscopes=true)',
+        type: 'POST',
+        headers: {
+            "content-type": "application/json",
+            "cache-control": "no-cache"
+        },
+        data: JSON.stringify(resetDataTemplate),
+        async: false,
+        success: function (data) {
+            
+            console.log("Inheritance Broken Successfully!");
+            var roleDefBindingColl = null;
+            console.log(userWithRoles);
+            // var headers = {
+            //     "Accept": "application/json;odata=verbose",
+            //     "content-Type": "application/json;odata=verbose",
+            //     "X-RequestDigest": jQuery("#__REQUESTDIGEST").val()
+            // }
+            // });
+            //Add Role Permissions   
+            //1073741827 - contribute
+            // 1073741829, Full Control
+            // 1073741826, Read
+            var users = [];
+            userWithRoles.forEach((element) => {
+                var userIds = element.user;
+                var permission = element.permission;
+                var permId;
+                if (permission == "Contribute") {
+                    permId = 1073741827;
                 }
-            }
-            if (!IsNullOrUndefined(userIds) && !IsStrNullOrEmpty(userIds)) {
-                var a = (userIds.toString().indexOf(',') != -1) ? userIds.split(',') : parseInt(userIds);
-                if (!IsNullOrUndefined(a)) {
-                    if (a.length == undefined) {
-                        users.push(a);
-                    } else {
-                        a.forEach(element => {
-                            users.push(parseInt(element));
-                        });
+                else if (permission == "Read") {
+                    permId = 1073741826;
+                }
+                if (!IsNullOrUndefined(userIds) && !IsStrNullOrEmpty(userIds) && !IsNullOrUndefined(permission) && !IsStrNullOrEmpty(permission)) {
+                    //split users and remove ,
+                    if (userIds.toString().indexOf(',') == 0) {
+                        userIds = userIds.substring(1);
+                        if (userIds.toString().indexOf(',') != -1 && userIds.toString().lastIndexOf(',') == userIds.toString().length - 1) {
+                            userIds = userIds.substring(userIds.toString().lastIndexOf(','))[0];
+                        }
                     }
-                }
-            }
-            users.forEach(user => {
-                if (!isNaN(user)) {
-                    var endPointUrlRoleAssignment = "/_api/web/lists/getByTitle('" + ItemCodeProProcessListName + "')/items(" + requestId + ")/roleassignments/addroleassignment(principalid=" + user + ",roleDefId=" + permId + ")";
-                    ///var dataTemplate = "{\r\n    \"url\":\"{0}\",\r\n    \"digest\": \"{1}\" \r\n}";
-                    // dataTemplate = dataTemplate.FormatRow(endPointUrlRoleAssignment, digest);
-                    var dataTemplate = { "url": endPointUrlRoleAssignment, "digest": digest.toString() };
-                    var httpPostUrl = "https://prod-05.centralindia.logic.azure.com:443/workflows/94440494d1bc4839b196891de76d4d5f/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=-uan_RC5TIGT5AYnvbqT3CcjsJ2gapWn-KSQrUIE60E";
-                    var call = jQuery.ajax(
-                        {
-                            url: httpPostUrl,   ///endPointUrlRoleAssignment
-                            type: "POST",
-                            data: JSON.stringify(dataTemplate),
-                            headers: {
-                                "content-type": "application/json",
-                                "cache-control": "no-cache"
-                            },
-                            async: false,
-                            success: function (data) {
-                                debugger
-                                console.log('Role Permission Added successfully!');
-                            },
-                            error: function (error) {
-                                debugger
-                                console.log(JSON.stringify(error));
+                    if (!IsNullOrUndefined(userIds) && !IsStrNullOrEmpty(userIds)) {
+                        var a = (userIds.toString().indexOf(',') != -1) ? userIds.split(',') : parseInt(userIds);
+                        if (!IsNullOrUndefined(a)) {
+                            if (a.length == undefined) {
+                                users.push(a);
+                            } else {
+                                a.forEach(element => {
+                                    users.push(parseInt(element));
+                                });
                             }
-                        });
+                        }
+                    }
+                    users.forEach(user => {
+                        if (!isNaN(user)) {
+                            var endPointUrlRoleAssignment = "/_api/web/lists/getByTitle('" + ItemCodeProProcessListName + "')/items(" + requestId + ")/roleassignments/addroleassignment(principalid=" + user + ",roleDefId=" + permId + ")";
+                            var dataTemplate = { "url": endPointUrlRoleAssignment, "digest": digest.toString() };
+                            var httpPostUrl = "https://prod-05.centralindia.logic.azure.com:443/workflows/94440494d1bc4839b196891de76d4d5f/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=-uan_RC5TIGT5AYnvbqT3CcjsJ2gapWn-KSQrUIE60E";
+                            var call = jQuery.ajax(
+                                {
+                                    url: httpPostUrl,   ///endPointUrlRoleAssignment
+                                    type: "POST",
+                                    data: JSON.stringify(dataTemplate),
+                                    headers: {
+                                        "content-type": "application/json",
+                                        "cache-control": "no-cache"
+                                    },
+                                    async: false,
+                                    success: function (data) {
+                                        console.log('Role Permission Added successfully!');
+                                    },
+                                    error: function (error) {
+                                        debugger
+                                        console.log(JSON.stringify(error));
+                                    }
+                                });
+                        }
+                    });
                 }
             });
+        },
+        error: function (error) {
+            debugger
+            console.log(error);
         }
-        //});
-        // },
-        // error: function (error) {
-        //     debugger
-        //     console.log(error);
-        // }
     });
 }
 
