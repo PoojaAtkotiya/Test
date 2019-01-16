@@ -4,7 +4,6 @@ var approverMaster;
 var securityToken;
 var currentContext;
 var hostweburl;
-var currentContext;
 var listDataArray = {};
 var actionPerformed;
 var fileInfos=[];
