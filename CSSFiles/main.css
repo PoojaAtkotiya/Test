@@ -9686,5 +9686,9 @@ textarea {
 }
 label.error{	
     display: none!important;
-}		
+}	
+
+.emptycells{
+    empty-cells:show!important;
+}
 

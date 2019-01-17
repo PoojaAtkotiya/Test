@@ -136,7 +136,7 @@ function SetApproversInApprovalMatrix(id) {
     //set status(of all levels) and approver(current)
     if (!IsNullOrUndefined(tempApproverMatrix) && tempApproverMatrix.length > 0) {
         ////Get all roles which have FillByRole = currentUserRole
-        $(tempApproverMatrix).filter(function (t) {
+        tempApproverMatrix.filter(function (t) {
             if (!IsNullOrUndefined(t.FillByRole) && !IsNullOrUndefined(currentUserRole) && t.FillByRole == currentUserRole) {
                 if (!IsNullOrUndefined(approverMaster) && approverMaster.length > 0) {
                     approverMaster.filter(function (a) {
@@ -236,22 +236,24 @@ function GetEnableSectionNames(id) {
             return (l.ApplicationName == applicationName && l.FormName == formName && l.Levels == tcurrentLevel && l.Role == currentUserRole);
         })[0];
 
-        activeSectionName = activeSectionItem.SectionName;
-        $(formNames).find('div.card-body').filter(function () {
-            var sectionName = $(this).attr('section');
-            if (sectionName == activeSectionName) {
-                var sectionId = $(this).attr('id');
-                $("#" + sectionId).removeClass("disabled");
-                $("#" + sectionId).find(':input').removeAttr("disabled");
+        activeSectionName = !IsNullOrUndefined(activeSectionItem) ? activeSectionItem.SectionName : '';
+        if (activeSectionName) {
+            $(formNames).find('div.card-body').filter(function () {
+                var sectionName = $(this).attr('section');
+                if (sectionName == activeSectionName) {
+                    var sectionId = $(this).attr('id');
+                    $("#" + sectionId).removeClass("disabled");
+                    $("#" + sectionId).find(':input').removeAttr("disabled");
 
-                // var parentDiv = $("#" + sectionId).parent();
-                // var form = '<form data-ajax="true" enctype="multipart/form-data" id="form_' + sectionId + '" method="post" autocomplete="off"/>';
-                // var formList = $(form).append($("#" + sectionId)[0].outerHTML);
-                // $('#' + sectionId).remove();
-                // $(document.body).find($(parentDiv)).append($(formList)[0].outerHTML);
-                // DatePickerControl(formNames);
-            }
-        });
+                    // var parentDiv = $("#" + sectionId).parent();
+                    // var form = '<form data-ajax="true" enctype="multipart/form-data" id="form_' + sectionId + '" method="post" autocomplete="off"/>';
+                    // var formList = $(form).append($("#" + sectionId)[0].outerHTML);
+                    // $('#' + sectionId).remove();
+                    // $(document.body).find($(parentDiv)).append($(formList)[0].outerHTML);
+                    // DatePickerControl(formNames);
+                }
+            });
+        }
         $("div .disabled .form-control").attr("disabled", "disabled");
     }
 }
@@ -607,7 +609,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
     ////save activity log
 
     ////set permission 
-    var userWithRoles = GetPermissionDictionary(tempApproverMatrix, nextLevel, makeAllUsersViewer);
+    var userWithRoles = GetPermissionDictionary(tempApproverMatrix, nextLevel, makeAllUsersViewer, isNewItem);
     SetItemPermission(requestId, ItemCodeProProcessListName, userWithRoles);
 
     console.log("Save Approver matrix");
@@ -659,7 +661,9 @@ function SetItemPermission(requestId, ItemCodeProProcessListName, userWithRoles)
     //                         currentContext.load(permItem);
     //                         currentContext.executeQueryAsync(function () {
     //                             console.log("set permission : success User");
-    //                         }, function () {
+    //                         }, function (error) {
+    //                             debugger
+    //                             console.log(error);
     //                             console.log("set permission : failed");
     //                         }
     //                         );
@@ -681,22 +685,29 @@ function SetItemPermission(requestId, ItemCodeProProcessListName, userWithRoles)
 
 // Break role inheritance on the list.
 function breakRoleInheritanceOfList(ItemCodeProProcessListName, requestId, userWithRoles) {
-    ///_api/web/lists/getByTitle('Documents')/breakroleinheritance(copyRoleAssignments=true, clearSubscopes=true)”
+    var resetUrl = '/_api/web/lists/getbytitle(\'' + ItemCodeProProcessListName + '\')/items(' + requestId + ')/resetroleinheritance';
+    var breakRoleUrl = '/_api/web/lists/getbytitle(\'' + ItemCodeProProcessListName + '\')/items(' + requestId + ')/breakroleinheritance(copyRoleAssignments=false, clearsubscopes=true)';
+    var digest = jQuery("#__REQUESTDIGEST").val();
+    var resetDataTemplate = { "resetUrl": resetUrl, "breakRoleUrl": breakRoleUrl, "digest": digest.toString() };
     $.ajax({
-        url: _spPageContextInfo.webAbsoluteUrl + '/_api/web/lists/getbytitle(\'' + ItemCodeProProcessListName + '\')/items(' + requestId + ')/breakroleinheritance(false)',
+        url: "https://prod-01.centralindia.logic.azure.com:443/workflows/bd5c7b59e0a245a5866865a147ce48f1/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=DQwBHAeVbuK9CUlGJNABP7iG2ZSOE3ApijO8S0gWZM8",//_spPageContextInfo.webAbsoluteUrl + '/_api/web/lists/getbytitle(\'' + ItemCodeProProcessListName + '\')/items(' + requestId + ')/breakroleinheritance(copyRoleAssignments=false, clearsubscopes=true)',
         type: 'POST',
-        headers: { 'X-RequestDigest': $('#__REQUESTDIGEST').val() },
+        headers: {
+            "content-type": "application/json",
+            "cache-control": "no-cache"
+        },
+        data: JSON.stringify(resetDataTemplate),
         async: false,
         success: function (data) {
-            debugger
+
             console.log("Inheritance Broken Successfully!");
             var roleDefBindingColl = null;
             console.log(userWithRoles);
-            var headers = {
-                "Accept": "application/json;odata=verbose",
-                "content-Type": "application/json;odata=verbose",
-                "X-RequestDigest": jQuery("#__REQUESTDIGEST").val()
-            }
+            // var headers = {
+            //     "Accept": "application/json;odata=verbose",
+            //     "content-Type": "application/json;odata=verbose",
+            //     "X-RequestDigest": jQuery("#__REQUESTDIGEST").val()
+            // }
             // });
             //Add Role Permissions   
             //1073741827 - contribute
@@ -714,7 +725,6 @@ function breakRoleInheritanceOfList(ItemCodeProProcessListName, requestId, userW
                     permId = 1073741826;
                 }
                 if (!IsNullOrUndefined(userIds) && !IsStrNullOrEmpty(userIds) && !IsNullOrUndefined(permission) && !IsStrNullOrEmpty(permission)) {
-
                     //split users and remove ,
                     if (userIds.toString().indexOf(',') == 0) {
                         userIds = userIds.substring(1);
@@ -736,17 +746,21 @@ function breakRoleInheritanceOfList(ItemCodeProProcessListName, requestId, userW
                     }
                     users.forEach(user => {
                         if (!isNaN(user)) {
-                            var endPointUrlRoleAssignment = _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getByTitle('" + ItemCodeProProcessListName + "')/items(" + requestId + ")/roleassignments/addroleassignment(principalid=" + user + ",roleDefId=" + permId + ")";
+                            var endPointUrlRoleAssignment = "/_api/web/lists/getByTitle('" + ItemCodeProProcessListName + "')/items(" + requestId + ")/roleassignments/addroleassignment(principalid=" + user + ",roleDefId=" + permId + ")";
+                            var dataTemplate = { "url": endPointUrlRoleAssignment, "digest": digest.toString() };
+                            var httpPostUrl = "https://prod-05.centralindia.logic.azure.com:443/workflows/94440494d1bc4839b196891de76d4d5f/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=-uan_RC5TIGT5AYnvbqT3CcjsJ2gapWn-KSQrUIE60E";
                             var call = jQuery.ajax(
                                 {
-                                    url: endPointUrlRoleAssignment,
+                                    url: httpPostUrl,   ///endPointUrlRoleAssignment
                                     type: "POST",
-                                    headers: headers,
+                                    data: JSON.stringify(dataTemplate),
+                                    headers: {
+                                        "content-type": "application/json",
+                                        "cache-control": "no-cache"
+                                    },
                                     async: false,
                                     success: function (data) {
-                                        debugger
                                         console.log('Role Permission Added successfully!');
-                                        console.log(data);
                                     },
                                     error: function (error) {
                                         debugger
@@ -763,6 +777,22 @@ function breakRoleInheritanceOfList(ItemCodeProProcessListName, requestId, userW
             console.log(error);
         }
     });
+}
+
+//String.prototype.FormatRow = 
+
+function FormatRow() {
+    try {
+        var content = this;
+        for (var i = 0; i < arguments.length; i++) {
+            var replacement = '{' + i + '}';
+            content = content.replace(replacement, arguments[i]);
+        }
+        return content;
+    }
+    catch (e) {
+        console.log("Error occurred in FormatRow " + e.message);
+    }
 }
 
 function SetCustomPermission(userWithRoles, requestId, ItemCodeProProcessListName) {
@@ -791,7 +821,6 @@ function SetCustomPermission(userWithRoles, requestId, ItemCodeProProcessListNam
             dataType: 'json',
             success: function (data) {
                 console.log('Role Permission Added successfully!');
-                console.log(data);
             },
             error: function (error) {
                 alert(JSON.stringify(error));
@@ -821,14 +850,13 @@ function BreakRoleInheritance(requestId, ItemCodeProProcessListName) {
     return deferred.promise();
 }
 
-
 function onSetItemPermissionFailed(sender, args) {
+    debugger
     console.log('onSetItemPermissionSucceeded : Request failed. ' + args.get_message() + '\n' + args.get_stackTrace());
 }
 
+function GetPermissionDictionary(tempApproverMatrix, nextLevel, isAllUserViewer, isNewItem) {
 
-function GetPermissionDictionary(tempApproverMatrix, nextLevel, isAllUserViewer) {
-    debugger
     var permissions = [];
     if (!IsNullOrUndefined(tempApproverMatrix) && tempApproverMatrix.length > 0) {
         var strReader = '';
@@ -840,8 +868,15 @@ function GetPermissionDictionary(tempApproverMatrix, nextLevel, isAllUserViewer)
                     /* All users 
                      * 1) who are pending on current level
                      */
-                    if (strContributer.indexOf(temp.ApproverId) == -1) {
-                        strContributer = strContributer.trim() + "," + temp.ApproverId;
+                    if (isNewItem) {
+                        if (strContributer.indexOf(temp.ApproverId) == -1) {
+                            strContributer = strContributer.trim() + "," + temp.ApproverId;
+                        }
+                    } else {
+                        debugger
+                        if (!IsNullOrUndefined(temp.ApproverId.results) && temp.ApproverId.results.length > 0 && strContributer.indexOf(temp.ApproverId.results) == -1) {
+                            strContributer = strContributer.trim() + "," + temp.ApproverId.results;
+                        }
                     }
                 }
                 ////Phase 2 :All members who will be in the DCR Process should be able to know the status of all DCR/DCN. 
@@ -851,8 +886,15 @@ function GetPermissionDictionary(tempApproverMatrix, nextLevel, isAllUserViewer)
                      * 1) who are less then previous level
                      * 2) who are not pending on current level
                      */
-                    if (strReader.indexOf(temp.ApproverId) == -1) {
-                        strReader = strReader.trim() + "," + temp.ApproverId;
+                    if (isNewItem) {
+                        if (strReader.indexOf(temp.ApproverId) == -1) {
+                            strReader = strReader.trim() + "," + temp.ApproverId;
+                        }
+                    } else {
+                        debugger
+                        if (!IsNullOrUndefined(temp.ApproverId.results) && temp.ApproverId.results.length > 0 && strReader.indexOf(temp.ApproverId.results) == -1) {
+                            strReader = strReader.trim() + "," + temp.ApproverId.results;
+                        }
                     }
                 }
                 // }
