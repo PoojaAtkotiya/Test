@@ -767,7 +767,6 @@ function ValidateForm(ele, saveCallBack) {
                 $(this).attr("data-ajax-success", $(this).attr("data-ajax-old-success"));
             }
 
-
             // if (!$(this).valid()) {
             //     isValid = false;
             //     try {
@@ -978,7 +977,6 @@ function GetActivityLog(activityLogListName, lookupId, tableId) {
 
 function DisplayActivityLogDetails(activityLogResult, tableId) {
     var tr, ActivityDate = "-";
-
     for (var i = 0; i < activityLogResult.length; i++) {
         if (!IsNullOrUndefined(activityLogResult[i].ActivityDate)) {
             ActivityDate = formatDate(new Date(activityLogResult[i].ActivityDate).toLocaleDateString());
@@ -987,27 +985,28 @@ function DisplayActivityLogDetails(activityLogResult, tableId) {
         tr.append("<td width='15%'>" + activityLogResult[i].Activity + "</td>");
         tr.append("<td width='15%'>" + activityLogResult[i].SectionName + "</td>");
         tr.append("<td width='15%'>" + ActivityDate + "</td>");
-        tr.append("<td width='15%'>" + activityLogResult[i].ActivityBy + "</td>");
-        // tr.append("<td width='15%'>" + activityLogResult[i].ActivityById + "</td>");
-        tr.append("<td width='20%'>" + ActvityLogChanges(i, activityLogResult[i].Changes) + "</td>");
+        // tr.append("<td width='15%'>" + activityLogResult[i].ActivityBy + "</td>");
+        tr.append("<td width='15%'>" + activityLogResult[i].ActivityById + "</td>");
+        tr.append('<td width="20%"><a href="#" id="btnActivityLog_' + i + '" data-val="' + activityLogResult[i].Changes + '" data-toggle="modal" data-target="#activityLogDetail" class="btn btn-primary">Activity Log</a></td>');
         $('#' + tableId).append(tr);
     }
 }
 
 function ActvityLogChanges(iteration, activityLogChangeDetails) {
     if (!IsNullOrUndefined(activityLogChangeDetails)) {
-        $('#ActivityLogChanges').show();
+        $('#ActivityLogChanges').modal('show');
+        $('#tblActivityChanges tbody').empty();
         var activity = activityLogChangeDetails.split('~');
         var tr, tdValue;
         for (var i = 0; i < activity.length; i++) {
             var item = activity[i];
             if (!IsNullOrUndefined(item) && item.split('\t').length == 2) {
-                var valueparts = item.split('\t');
-                if (valueparts[0] != "ProposedBy" && valueparts[0] != "Files") {
+                var itemDetails = item.split('\t');
+                if (itemDetails[0] != "ProposedBy" && itemDetails[0] != "Files") {
                     tr = $('<tr/>');
-                    tr.append('<td>' + valueparts[0] + '</td>');
+                    tr.append('<td>' + itemDetails[0] + '</td>');
 
-                    var value = valueparts[1];
+                    var value = itemDetails[1];
                     try {
                         if (value.toLowerCase() == "true" || value.toLowerCase() == "false") {
                             tdValue = value.toLowerCase() == "true" ? "Yes" : "No";
@@ -1017,13 +1016,12 @@ function ActvityLogChanges(iteration, activityLogChangeDetails) {
                                 var datetimepart = value.split(' ');
                                 var datepart = datetimepart[0].split('/');
                                 var dt = new DateTime(parseInt(datepart[2]), parseInt(datepart[0]), parseInt(datepart[1]));
-                                tdValue = dt.toString("dd/MM/yyyy") + (valueparts[0].toLowerCase().contains("time") ? " " + datetimepart[1] + " " + datetimepart[2] : "");
+                                tdValue = dt.toString("dd/MM/yyyy") + (itemDetails[0].toLowerCase().contains("time") ? " " + datetimepart[1] + " " + datetimepart[2] : "");
                             }
                             else {
                                 tdValue = value;
                             }
                         }
-
                     }
                     catch
                     {
@@ -1036,86 +1034,6 @@ function ActvityLogChanges(iteration, activityLogChangeDetails) {
             }
         }
     }
-
-
-    //    var activityChangesHtml='<a href="#" data-toggle="modal" data-target="#activityDetail_'+iteration+'" class="btn btn-primary">Activity Log</a>'+
-    //     '<div class="modal fade" id="activityDetail_'+iteration+'" tabindex="-1" role="dialog" aria-labelledby="activityDetail_'+iteration+'Label">'+
-    //         '<div class="modal-dialog" role="document">'+
-    //             '<div class="modal-content">'+
-    //                 '<div class="modal-header">'+
-    //                     '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+
-    //                     '<h4 class="modal-title" id="activityDetail_'+iteration+'Label">Activity Log</h4>'+
-    //                 '</div>'+
-    //                 '<div class="modal-body">'+
-    //                    string[] actchangeslist = item.Changes.Split('~');
-    //                     <table class="table table-hover table-bordered someTable">
-    //                         <thead>
-    //                             <tr>
-    //                                 <th>@Html.ResourceValue("Text_Field", ResourceName.Common)</th>
-    //                                 <th>@Html.ResourceValue("Text_Value", ResourceName.Common_ActivityLogs)</th>
-    //                             </tr>
-    //                         </thead>
-    //                         <tbody>
-    // foreach (string c in actchangeslist)
-    // {
-    //     if (!string.IsNullOrEmpty(c) && c.Split('\t').Length == 2)
-    //     {
-    //         string[] valueparts = c.Split('\t');
-    //         if (valueparts[0] != "ProposedBy" && valueparts[0] != "Files")
-    //         {
-    //             <tr>
-    //                 <td>
-    //                     @Html.Label(valueparts[0], resources)
-    //                 </td>
-    //                 <td>
-    //                     @{
-    //             string value = valueparts[1];
-    //             try
-    //             {
-    //                 if (value.ToLower().Equals("true") || value.ToLower().Equals("false"))
-    //                 {
-    //                     string boolValue = value.ToLower().Equals("true") ? "Yes" : "No";
-    //                     @(new MvcHtmlString(boolValue))
-    //                 }
-    //                 else
-    //                 {
-    //                     if (value.Contains("/") && value.Contains(":") && (value.Contains("AM") || value.Contains("PM")))
-    //                     {
-    //                         string[] datetimepart = value.Split(' ');
-    //                         string[] datepart = datetimepart[0].Split('/');
-    //                         DateTime dt = new DateTime(int.Parse(datepart[2]), int.Parse(datepart[0]), int.Parse(datepart[1]));
-    //                         @(new MvcHtmlString(dt.ToString("dd/MM/yyyy") + (valueparts[0].ToLower().Contains("time") ? " " + datetimepart[1] + " " + datetimepart[2] : "")))
-    //                     }
-    //                     else
-    //                     {
-    //                         @(new MvcHtmlString(value))
-    //                     }
-    //                 }
-
-    //             }
-    //             catch
-    //             {
-    //                 @(new MvcHtmlString(value))
-    //             }
-    //                     }
-    //                 </td>
-    //             </tr>
-    //         }
-    //     }
-    // }
-    //                     </tbody>
-    //                 </table>
-    //                 }
-    //             </div>
-    //             <div class="modal-footer">
-    //                 <button type="button" class="btn btn-default" data-dismiss="modal">
-    //                     @Html.ResourceValue("Button_Text_Close", ResourceName.Common)
-    //                 </button>
-    //             </div>
-    //         </div>
-    //     </div>
-    // </div>
-    //}
 }
 
 function DisplayApplicationStatus(approverMatrix) {
@@ -1228,7 +1146,6 @@ function SaveData(listname, listDataArray, sectionName) {
                     web = clientContext.get_web();
                     oList = web.get_lists().getByTitle(listname);
                     var oListItem = oList.getItemById(itemID);
-
                     clientContext.load(oListItem, 'FormLevel', 'ProposedBy');
                     clientContext.load(web);
                     clientContext.executeQueryAsync(function () {
@@ -1243,7 +1160,6 @@ function SaveData(listname, listDataArray, sectionName) {
                         }
                         HideWaitDialog();
                         AlertModal("Success", "Data saved successfully", false, null);
-
                     }, function (sender, args) {
                         HideWaitDialog();
                         console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
