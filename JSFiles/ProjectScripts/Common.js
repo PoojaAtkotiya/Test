@@ -1102,8 +1102,7 @@ function SaveFormData(activeSection) {
             listDataArray = GetFormControlsValue(elementId, elementType, listDataArray);
             listActivityLogDataArray = GetFormControlsValueAndType(elementId, elementType, elementProperty, listActivityLogDataArray);
         });
-        $(activeSection).find('.approver-control').find('input[listtype=main],select[listtype=main],radio[listtype=main],textarea[listtype=main],label[listtype=main],input[reflisttype=main],select[reflisttype=main],radio[reflisttype=main],textarea[reflisttype=main],label[reflisttype=main]').each(function () {
-            debugger
+        $(activeSection).find('.approver-control').each(function () {
             var elementId = $(this).attr('id');
             var elementType = $(this).attr('controlType');
             var elementProperty = $(this).attr('controlProperty');

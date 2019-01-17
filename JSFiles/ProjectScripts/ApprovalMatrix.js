@@ -289,7 +289,6 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
         tempApproverMatrix.filter(function (temp) {
             if (temp.Role == "Creator") {
                 temp.ApproverId = currentUser.Id;
-                currentApproverDetails[CurrentApprover.APPROVERID] = currentUser.Id;
                 temp.RequestIDId = requestId;
             }
         });
@@ -607,6 +606,19 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
 
     ////save attachment
 
+    ////Set value in CurrentApprover
+    tempApproverMatrix.filter(function (temp) {
+        if (temp.Role == currentUserRole && temp.Levels == currentLevel && !IsNullOrUndefined(temp.ApproveById) && (temp.ApproveById.toString().indexOf(currentUser.Id) != -1)) {
+
+            temp.Comments = currentApproverDetails[CurrentApprover.COMMENTS];
+            currentApproverDetails[CurrentApprover.APPROVERID] = temp.ApproverId;
+            currentApproverDetails[CurrentApprover.STATUS] = temp.Status;
+            currentApproverDetails[CurrentApprover.ASSIGNDATE] = temp.AssignDate;
+            currentApproverDetails[CurrentApprover.DUEDATE] = temp.DueDate;
+            currentApproverDetails[CurrentApprover.APPROVEBYID] = temp.ApproveById;
+        }
+    });
+
     ////set permission 
     var userWithRoles = GetPermissionDictionary(tempApproverMatrix, nextLevel, makeAllUsersViewer, isNewItem);
     SetItemPermission(requestId, ItemCodeProProcessListName, userWithRoles);
@@ -615,18 +627,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
     ////save approval matrix in list
     SaveApprovalMatrixInList(tempApproverMatrix, approvalMatrixListName, isNewItem);
 
-    ////Set value in CurrentApprover
-    tempApproverMatrix.filter(function (temp) {
-        if (temp.Role == currentUserRole && temp.Levels == currentLevel && !IsNullOrUndefined(temp.ApproveById) && !IsNullOrUndefined(temp.ApproveById.results) && (temp.ApproveById.results.length > 0) ? temp.ApproveById.results.some(item => item == currentUser.Id) : (temp.ApproveById.toString().indexOf(currentUser.Id) != -1)) {
-
-            debugger
-            currentApproverDetails[CurrentApprover.APPROVERID] = temp.ApproveById;
-            currentApproverDetails[CurrentApprover.STATUS] = temp.Status;
-            currentApproverDetails[CurrentApprover.ASSIGNDATE] = temp.AssignDate;
-            currentApproverDetails[CurrentApprover.DUEDATE] = temp.DueDate;
-            currentApproverDetails[CurrentApprover.APPROVEBYID] = temp.ApproveById;
-        }
-    });
+    
 
     ////save activity log
 
@@ -700,7 +701,7 @@ function SetItemPermission(requestId, ItemCodeProProcessListName, userWithRoles)
 // Break role inheritance on the list.
 function breakRoleInheritanceOfList(ItemCodeProProcessListName, requestId, userWithRoles) {
     var resetUrl = '/_api/web/lists/getbytitle(\'' + ItemCodeProProcessListName + '\')/items(' + requestId + ')/resetroleinheritance';
-    var breakRoleUrl = '/_api/web/lists/getbytitle(\'' + ItemCodeProProcessListName + '\')/items(' + requestId + ')/breakroleinheritance(copyRoleAssignments=false, clearsubscopes=true)';
+    var breakRoleUrl = '/_api/web/lists/getbytitle(\'' + ItemCodeProProcessListName + '\')/items(' + requestId + ')/breakroleinheritance(copyRoleAssignments=false, clearsubscopes=false)';
     var digest = jQuery("#__REQUESTDIGEST").val();
     var resetDataTemplate = { "resetUrl": resetUrl, "breakRoleUrl": breakRoleUrl, "digest": digest.toString() };
     $.ajax({
