@@ -136,7 +136,23 @@ function SetApproversInApprovalMatrix(id) {
     //set status(of all levels) and approver(current)
     if (!IsNullOrUndefined(tempApproverMatrix) && tempApproverMatrix.length > 0) {
         ////Get all roles which have FillByRole = currentUserRole
-        $(tempApproverMatrix).filter(function (t) {
+        // tempApproverMatrix.filter(function (t) {
+        //     if (!IsNullOrUndefined(t.FillByRole) && !IsNullOrUndefined(currentUserRole) && t.FillByRole == currentUserRole) {
+        //         if (!IsNullOrUndefined(approverMaster) && approverMaster.length > 0) {
+        //             approverMaster.filter(function (a) {
+        //                 if (t.Role == a.Role && a.UserSelection == true) {
+        //                     if (a.UserNameId.results.length > 0) {
+        //                         t.ApproverId = a.UserNameId.results;
+        //                     }
+        //                 }
+        //             });
+        //         }
+        //     }
+        //     if (id == 0) {
+        //         t.Status = "Not Assigned";
+        //     }
+        // });
+        tempApproverMatrix.filter(function (t) {
             if (!IsNullOrUndefined(t.FillByRole) && !IsNullOrUndefined(currentUserRole) && t.FillByRole == currentUserRole) {
                 if (!IsNullOrUndefined(approverMaster) && approverMaster.length > 0) {
                     approverMaster.filter(function (a) {
@@ -699,7 +715,7 @@ function breakRoleInheritanceOfList(ItemCodeProProcessListName, requestId, userW
         data: JSON.stringify(resetDataTemplate),
         async: false,
         success: function (data) {
-            
+
             console.log("Inheritance Broken Successfully!");
             var roleDefBindingColl = null;
             console.log(userWithRoles);
