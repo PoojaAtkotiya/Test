@@ -5,11 +5,11 @@ var securityToken;
 var currentContext;
 var hostweburl;
 var listDataArray = {};
+var listActivityLogDataArray= [];
 var actionPerformed;
 var fileInfos = [];
 var scriptbase; //= spSiteUrl + "/_layouts/15/";     ////_spPageContextInfo.layoutsUrl
 var fileIdCounter = 0;
-
 jQuery(document).ready(function () {
     // BindDatePicker("");
     KeyPressNumericValidation();
@@ -767,7 +767,6 @@ function ValidateForm(ele, saveCallBack) {
                 $(this).attr("data-ajax-success", $(this).attr("data-ajax-old-success"));
             }
 
-
             // if (!$(this).valid()) {
             //     isValid = false;
             //     try {
@@ -877,6 +876,67 @@ function GetFormControlsValue(id, elementType, listDataArray) {
     return listDataArray;
 }
 
+function GetFormControlsValueAndType(id, elementType,elementProperty, listActivityLogDataArray) {
+    var obj = '#' + id;
+    switch (elementType) {
+        case "text":
+            if (!IsStrNullOrEmpty($(obj).val())) {
+               listActivityLogDataArray.push({id:id, value: $(obj).val(), type: 'text' });
+            }
+            break;
+   
+        case "terms":
+            var metaObject = {
+                __metadata: { "type": "SP.Taxonomy.TaxonomyFieldValue" },
+                Label: $("select#" + id + ">option:selected").text(),
+                TermGuid: $(obj).val(),
+                WssId: -1
+            }
+          
+            break;
+        case "combo":
+   
+     if(elementProperty=='peoplepicker'){
+     listActivityLogDataArray.push({ id:id,value: $(obj).val(), type: 'peoplepicker' });
+     }
+            break;
+        case "multitext":
+        listActivityLogDataArray.push({ id:id,value: $(obj).val(), type: 'multitext' });
+            break;
+        case "date":
+            var month = !IsNullOrUndefined($(obj).datepicker('getDate')) ? $(obj).datepicker('getDate').getMonth() + 1 : null;
+            var date = !IsNullOrUndefined($(obj).datepicker('getDate')) ? $(obj).datepicker('getDate').getDate() : null;
+            var year = !IsNullOrUndefined($(obj).datepicker('getDate')) ? $(obj).datepicker('getDate').getFullYear() : null;
+            var date = (!IsNullOrUndefined(month) && !IsNullOrUndefined(date) && !IsNullOrUndefined(year)) ? new Date(year.toString() + "-" + month.toString() + "-" + date.toString()).format("yyyy-MM-ddTHH:mm:ssZ") : null;
+            if (date) {
+                listActivityLogDataArray.push({ id:id,value: date, type: 'date' });
+            }
+            break;
+        case "checkbox":
+       
+        listActivityLogDataArray.push({ id:id,value: $(obj)[0]['checked'], type: 'checked' });
+            break;
+        case "multicheckbox":
+            var parenType = $(obj).attr('cParent');
+            if (listActivityLogDataArray[parenType] == undefined)
+            listActivityLogDataArray[parenType] = { "__metadata": { "type": "Collection(Edm.String)" }, "results": [] };
+
+            var isChecked = $(obj)[0]['checked'];
+            var choiceName = $(obj)[0].id;
+            var idx = listActivityLogDataArray[parenType].results.indexOf(choiceName);
+            if (isChecked && idx == -1);
+         //   listActivityLogDataArray[parenType].results.push(choiceName);
+            else if (idx > -1)
+          //  listActivityLogDataArray[parenType].results.splice(idx, 1);
+            break;
+        case "radiogroup":
+            var parenType = $(obj).attr('cParent');
+            listActivityLogDataArray.push({ id:id,value: $(obj)[0].id, type: 'radiogroup' });
+            break;
+    }
+    return listActivityLogDataArray;
+}
+
 function GetApproverMaster() {
     AjaxCall(
         {
@@ -917,7 +977,6 @@ function GetActivityLog(activityLogListName, lookupId, tableId) {
 
 function DisplayActivityLogDetails(activityLogResult, tableId) {
     var tr, ActivityDate = "-";
-
     for (var i = 0; i < activityLogResult.length; i++) {
         if (!IsNullOrUndefined(activityLogResult[i].ActivityDate)) {
             ActivityDate = formatDate(new Date(activityLogResult[i].ActivityDate).toLocaleDateString());
@@ -926,27 +985,28 @@ function DisplayActivityLogDetails(activityLogResult, tableId) {
         tr.append("<td width='15%'>" + activityLogResult[i].Activity + "</td>");
         tr.append("<td width='15%'>" + activityLogResult[i].SectionName + "</td>");
         tr.append("<td width='15%'>" + ActivityDate + "</td>");
-        tr.append("<td width='15%'>" + activityLogResult[i].ActivityBy + "</td>");
-        // tr.append("<td width='15%'>" + activityLogResult[i].ActivityById + "</td>");
-        tr.append("<td width='20%'>" + ActvityLogChanges(i, activityLogResult[i].Changes) + "</td>");
+        // tr.append("<td width='15%'>" + activityLogResult[i].ActivityBy + "</td>");
+        tr.append("<td width='15%'>" + activityLogResult[i].ActivityById + "</td>");
+        tr.append('<td width="20%"><a href="#" id="btnActivityLog_' + i + '" data-val="' + activityLogResult[i].Changes + '" data-toggle="modal" data-target="#activityLogDetail" class="btn btn-primary">Activity Log</a></td>');
         $('#' + tableId).append(tr);
     }
 }
 
 function ActvityLogChanges(iteration, activityLogChangeDetails) {
     if (!IsNullOrUndefined(activityLogChangeDetails)) {
-        $('#ActivityLogChanges').show();
+        $('#ActivityLogChanges').modal('show');
+        $('#tblActivityChanges tbody').empty();
         var activity = activityLogChangeDetails.split('~');
         var tr, tdValue;
         for (var i = 0; i < activity.length; i++) {
             var item = activity[i];
             if (!IsNullOrUndefined(item) && item.split('\t').length == 2) {
-                var valueparts = item.split('\t');
-                if (valueparts[0] != "ProposedBy" && valueparts[0] != "Files") {
+                var itemDetails = item.split('\t');
+                if (itemDetails[0] != "ProposedBy" && itemDetails[0] != "Files") {
                     tr = $('<tr/>');
-                    tr.append('<td>' + valueparts[0] + '</td>');
+                    tr.append('<td>' + itemDetails[0] + '</td>');
 
-                    var value = valueparts[1];
+                    var value = itemDetails[1];
                     try {
                         if (value.toLowerCase() == "true" || value.toLowerCase() == "false") {
                             tdValue = value.toLowerCase() == "true" ? "Yes" : "No";
@@ -956,13 +1016,12 @@ function ActvityLogChanges(iteration, activityLogChangeDetails) {
                                 var datetimepart = value.split(' ');
                                 var datepart = datetimepart[0].split('/');
                                 var dt = new DateTime(parseInt(datepart[2]), parseInt(datepart[0]), parseInt(datepart[1]));
-                                tdValue = dt.toString("dd/MM/yyyy") + (valueparts[0].toLowerCase().contains("time") ? " " + datetimepart[1] + " " + datetimepart[2] : "");
+                                tdValue = dt.toString("dd/MM/yyyy") + (itemDetails[0].toLowerCase().contains("time") ? " " + datetimepart[1] + " " + datetimepart[2] : "");
                             }
                             else {
                                 tdValue = value;
                             }
                         }
-
                     }
                     catch
                     {
@@ -975,86 +1034,6 @@ function ActvityLogChanges(iteration, activityLogChangeDetails) {
             }
         }
     }
-
-
-    //    var activityChangesHtml='<a href="#" data-toggle="modal" data-target="#activityDetail_'+iteration+'" class="btn btn-primary">Activity Log</a>'+
-    //     '<div class="modal fade" id="activityDetail_'+iteration+'" tabindex="-1" role="dialog" aria-labelledby="activityDetail_'+iteration+'Label">'+
-    //         '<div class="modal-dialog" role="document">'+
-    //             '<div class="modal-content">'+
-    //                 '<div class="modal-header">'+
-    //                     '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+
-    //                     '<h4 class="modal-title" id="activityDetail_'+iteration+'Label">Activity Log</h4>'+
-    //                 '</div>'+
-    //                 '<div class="modal-body">'+
-    //                    string[] actchangeslist = item.Changes.Split('~');
-    //                     <table class="table table-hover table-bordered someTable">
-    //                         <thead>
-    //                             <tr>
-    //                                 <th>@Html.ResourceValue("Text_Field", ResourceName.Common)</th>
-    //                                 <th>@Html.ResourceValue("Text_Value", ResourceName.Common_ActivityLogs)</th>
-    //                             </tr>
-    //                         </thead>
-    //                         <tbody>
-    // foreach (string c in actchangeslist)
-    // {
-    //     if (!string.IsNullOrEmpty(c) && c.Split('\t').Length == 2)
-    //     {
-    //         string[] valueparts = c.Split('\t');
-    //         if (valueparts[0] != "ProposedBy" && valueparts[0] != "Files")
-    //         {
-    //             <tr>
-    //                 <td>
-    //                     @Html.Label(valueparts[0], resources)
-    //                 </td>
-    //                 <td>
-    //                     @{
-    //             string value = valueparts[1];
-    //             try
-    //             {
-    //                 if (value.ToLower().Equals("true") || value.ToLower().Equals("false"))
-    //                 {
-    //                     string boolValue = value.ToLower().Equals("true") ? "Yes" : "No";
-    //                     @(new MvcHtmlString(boolValue))
-    //                 }
-    //                 else
-    //                 {
-    //                     if (value.Contains("/") && value.Contains(":") && (value.Contains("AM") || value.Contains("PM")))
-    //                     {
-    //                         string[] datetimepart = value.Split(' ');
-    //                         string[] datepart = datetimepart[0].Split('/');
-    //                         DateTime dt = new DateTime(int.Parse(datepart[2]), int.Parse(datepart[0]), int.Parse(datepart[1]));
-    //                         @(new MvcHtmlString(dt.ToString("dd/MM/yyyy") + (valueparts[0].ToLower().Contains("time") ? " " + datetimepart[1] + " " + datetimepart[2] : "")))
-    //                     }
-    //                     else
-    //                     {
-    //                         @(new MvcHtmlString(value))
-    //                     }
-    //                 }
-
-    //             }
-    //             catch
-    //             {
-    //                 @(new MvcHtmlString(value))
-    //             }
-    //                     }
-    //                 </td>
-    //             </tr>
-    //         }
-    //     }
-    // }
-    //                     </tbody>
-    //                 </table>
-    //                 }
-    //             </div>
-    //             <div class="modal-footer">
-    //                 <button type="button" class="btn btn-default" data-dismiss="modal">
-    //                     @Html.ResourceValue("Button_Text_Close", ResourceName.Common)
-    //                 </button>
-    //             </div>
-    //         </div>
-    //     </div>
-    // </div>
-    //}
 }
 
 function DisplayApplicationStatus(approverMatrix) {
@@ -1119,7 +1098,9 @@ function SaveFormData(activeSection) {
             debugger
             var elementId = $(this).attr('id');
             var elementType = $(this).attr('controlType');
+            var elementProperty = $(this).attr('controlProperty');
             listDataArray = GetFormControlsValue(elementId, elementType, listDataArray);
+            listActivityLogDataArray = GetFormControlsValueAndType(elementId, elementType,elementProperty, listActivityLogDataArray);
         });
 
 
@@ -1166,12 +1147,12 @@ function SaveData(listname, listDataArray, sectionName) {
                     web = clientContext.get_web();
                     oList = web.get_lists().getByTitle(listname);
                     var oListItem = oList.getItemById(itemID);
-
                     clientContext.load(oListItem, 'FormLevel', 'ProposedBy');
                     clientContext.load(web);
                     clientContext.executeQueryAsync(function () {
                         SaveLocalApprovalMatrix(sectionName, itemID, listname, isNewItem, oListItem, ItemCodeApprovalMatrixListName);
                         debugger;
+                        SaveActivityLog(sectionName,itemID,ICDMActivityLogListName,listDataArray);
                         if (data != undefined && data != null && data.d != null) {
                             SaveTranListData(itemID);
                         }
@@ -1180,7 +1161,6 @@ function SaveData(listname, listDataArray, sectionName) {
                         }
                         HideWaitDialog();
                         AlertModal("Success", "Data saved successfully", false, null);
-
                     }, function (sender, args) {
                         HideWaitDialog();
                         console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
@@ -1224,6 +1204,124 @@ function OnSuccessNoRedirect(data, status, xhr) {
     catch (e) { window.location.reload(); }
 }
 
+function SaveActivityLog(sectionName,itemID,ItemCodeActivityLogListName,listDataArray) {
+    var stringActivity;
+    var itemType = GetItemTypeForListName(ItemCodeActivityLogListName);
+    var today = new Date().format("yyyy-MM-ddTHH:mm:ssZ");
+    var actionStatus = $("#ActionStatus").val();
+    var keys = Object.keys(buttonActionStatus).filter(k => buttonActionStatus[k] == actionStatus);
+    actionPerformed = keys.toString();
+    stringActivity=GetActivityString(listActivityLogDataArray);
+    url = _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ItemCodeActivityLogListName + "')/items";
+    headers = {
+        "Accept": "application/json;odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+        "X-HTTP-Method": "POST"
+    };
+    $.ajax({
+        url: url,
+        type: "POST",
+        headers: headers,
+        async: false,
+        data: JSON.stringify
+            ({
+                __metadata: {
+                    "type": itemType
+                },
+                Activity: actionPerformed,
+                Changes: stringActivity,
+                ActivityDate: today,
+                ActivityById: currentUser.Id,
+                RequestIDId: itemID,
+                SectionName: sectionName
+         }),
+        success: function (data, status, xhr) {
+            console.log("SaveActivityLogInList - Item saved Successfully");
+        },
+        error: function (data) {
+            debugger
+            console.log(data);
+        }
+    });
+
+
+}
+
+function GetActivityString(listActivityLogDataArray)
+{
+    var stringActivity;
+    if (!IsNullOrUndefined(listActivityLogDataArray) && listActivityLogDataArray.length > 0) {
+        listActivityLogDataArray.forEach(element => {
+            if(element.type=="peoplepicker")
+            {
+                element.value = GetUserNamebyUserID(element.value);
+            }
+            if(stringActivity != null && stringActivity != ''){
+            stringActivity = stringActivity + '\n';
+            stringActivity = stringActivity + element.id;
+            stringActivity = stringActivity + '~';
+            stringActivity = stringActivity + element.value;
+            }
+            else
+            {
+                stringActivity =  element.id;
+                stringActivity = stringActivity + '~';
+                stringActivity = stringActivity + element.value;
+            }
+        });
+    }
+    return stringActivity;
+}
+
+function GetUserNamebyUserID(userid)
+{
+    var userName = "";
+    url =_spPageContextInfo.webAbsoluteUrl + "/_api/web/getuserbyid(" + userid + ")";
+    headers = {
+        "Accept": "application/json;odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+        "X-HTTP-Method": "POST"
+    };
+    $.ajax({
+        url: url,
+        type: "GET",
+        headers: headers,
+        async: false,
+        success: function (data, status, xhr) {
+            userName = data.d.Title;
+        },
+        error: function (data) {
+           console.log(data);
+        }
+    });
+    return userName;
+}
+function GetUserEmailbyUserID(userid)
+{
+    var userEmail = "";
+    url =_spPageContextInfo.webAbsoluteUrl + "/_api/web/getuserbyid(" + userid + ")";
+    headers = {
+        "Accept": "application/json;odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+        "X-HTTP-Method": "POST"
+    };
+    $.ajax({
+        url: url,
+        type: "GET",
+        headers: headers,
+        async: false,
+        success: function (data, status, xhr) {
+            userEmail = data.d.Email;
+        },
+        error: function (data) {
+           console.log(data);
+        }
+    });
+    return userEmail;
+}
 function AjaxCall(options) {
     var url = options.url;
     var postData = options.postData;
