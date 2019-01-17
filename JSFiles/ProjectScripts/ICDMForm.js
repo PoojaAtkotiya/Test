@@ -11,6 +11,11 @@ var collListItem = null;
 $(document).ready(function () {
     GetUsersForDDL("LUM Marketing Delegate", "LUMMarketingDelegateId");
     GetUsersForDDL("LUM Design Delegate", "SCMLUMDesignDelegateId");
+    $(document).on('click', 'a[id*="btnActivityLog_"]', function () {
+        var iterationId=jQuery(this).attr('id').split('_')[1];
+        var activityChanges=jQuery(this).attr('data-val');
+        ActvityLogChanges(iterationId,activityChanges);
+    });
 });
 
 function GetSetFormData() {
