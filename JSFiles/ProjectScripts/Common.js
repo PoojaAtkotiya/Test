@@ -10,6 +10,7 @@ var actionPerformed;
 var fileInfos = [];
 var scriptbase; //= spSiteUrl + "/_layouts/15/";     ////_spPageContextInfo.layoutsUrl
 var fileIdCounter = 0;
+var currentApproverDetails = {};
 jQuery(document).ready(function () {
     // BindDatePicker("");
     KeyPressNumericValidation();
@@ -1093,12 +1094,18 @@ function SaveFormData(activeSection) {
         var sectionName = $(activeSection).attr('section');
         var activeSectionId = $(activeSection).attr('id');
 
-        $(activeSection).find('input[listtype=main],select[listtype=main],radio[listtype=main],textarea[listtype=main],label[listtype=main],input[reflisttype=main],select[reflisttype=main],radio[reflisttype=main],textarea[reflisttype=main],label[reflisttype=main]').each(function () {
+        $(activeSection).find('.dynamic-control').find('input[listtype=main],select[listtype=main],radio[listtype=main],textarea[listtype=main],label[listtype=main],input[reflisttype=main],select[reflisttype=main],radio[reflisttype=main],textarea[reflisttype=main],label[reflisttype=main]').each(function () {
             var elementId = $(this).attr('id');
             var elementType = $(this).attr('controlType');
             var elementProperty = $(this).attr('controlProperty');
             listDataArray = GetFormControlsValue(elementId, elementType, listDataArray);
             listActivityLogDataArray = GetFormControlsValueAndType(elementId, elementType, elementProperty, listActivityLogDataArray);
+        });
+        $(activeSection).find('.approver-control').each(function () {
+            var elementId = $(this).attr('id');
+            var elementType = $(this).attr('controlType');
+            var elementProperty = $(this).attr('controlProperty');
+            currentApproverDetails = GetFormControlsValue(elementId, elementType, currentApproverDetails);
         });
 
         SaveData(mainListName, listDataArray, sectionName);

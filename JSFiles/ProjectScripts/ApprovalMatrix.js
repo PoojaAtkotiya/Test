@@ -606,7 +606,18 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
 
     ////save attachment
 
-    ////save activity log
+    ////Set value in CurrentApprover
+    tempApproverMatrix.filter(function (temp) {
+        if (temp.Role == currentUserRole && temp.Levels == currentLevel && !IsNullOrUndefined(temp.ApproveById) && (temp.ApproveById.toString().indexOf(currentUser.Id) != -1)) {
+
+            temp.Comments = currentApproverDetails[CurrentApprover.COMMENTS];
+            currentApproverDetails[CurrentApprover.APPROVERID] = temp.ApproverId;
+            currentApproverDetails[CurrentApprover.STATUS] = temp.Status;
+            currentApproverDetails[CurrentApprover.ASSIGNDATE] = temp.AssignDate;
+            currentApproverDetails[CurrentApprover.DUEDATE] = temp.DueDate;
+            currentApproverDetails[CurrentApprover.APPROVEBYID] = temp.ApproveById;
+        }
+    });
 
     ////set permission 
     var userWithRoles = GetPermissionDictionary(tempApproverMatrix, nextLevel, makeAllUsersViewer, isNewItem);
@@ -615,6 +626,10 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
     console.log("Save Approver matrix");
     ////save approval matrix in list
     SaveApprovalMatrixInList(tempApproverMatrix, approvalMatrixListName, isNewItem);
+
+    
+
+    ////save activity log
 
     ////send mail
 
@@ -686,7 +701,7 @@ function SetItemPermission(requestId, ItemCodeProProcessListName, userWithRoles)
 // Break role inheritance on the list.
 function breakRoleInheritanceOfList(ItemCodeProProcessListName, requestId, userWithRoles) {
     var resetUrl = '/_api/web/lists/getbytitle(\'' + ItemCodeProProcessListName + '\')/items(' + requestId + ')/resetroleinheritance';
-    var breakRoleUrl = '/_api/web/lists/getbytitle(\'' + ItemCodeProProcessListName + '\')/items(' + requestId + ')/breakroleinheritance(copyRoleAssignments=false, clearsubscopes=true)';
+    var breakRoleUrl = '/_api/web/lists/getbytitle(\'' + ItemCodeProProcessListName + '\')/items(' + requestId + ')/breakroleinheritance(copyRoleAssignments=false, clearsubscopes=false)';
     var digest = jQuery("#__REQUESTDIGEST").val();
     var resetDataTemplate = { "resetUrl": resetUrl, "breakRoleUrl": breakRoleUrl, "digest": digest.toString() };
     $.ajax({
