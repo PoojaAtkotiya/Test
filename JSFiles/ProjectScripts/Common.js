@@ -1115,7 +1115,8 @@ function SaveFormData(activeSection) {
         var sectionName = $(activeSection).attr('section');
         var activeSectionId = $(activeSection).attr('id');
 
-        $(activeSection).find('input[listtype=main],select[listtype=main],radio[listtype=main],textarea[listtype=main],label[listtype=main],input[reflisttype=main],select[reflisttype=main],radio[reflisttype=main],textarea[reflisttype=main],label[reflisttype=main]').each(function () {
+        $(activeSection).find('.dynamic-control').find('input[listtype=main],select[listtype=main],radio[listtype=main],textarea[listtype=main],label[listtype=main],input[reflisttype=main],select[reflisttype=main],radio[reflisttype=main],textarea[reflisttype=main],label[reflisttype=main]').each(function () {
+            debugger
             var elementId = $(this).attr('id');
             var elementType = $(this).attr('controlType');
             listDataArray = GetFormControlsValue(elementId, elementType, listDataArray);

@@ -26,8 +26,6 @@ function GetSetFormData() {
         })
 }
 
-
-
 function onGetSetFormDataSuccess(data) {
     var mainListName = $($('div').find('[mainlistname]')).attr('mainlistname');
     var activitylogTableId = 'tblActivityLog';
