@@ -1,6 +1,6 @@
 var spSiteUrl = _spPageContextInfo.webAbsoluteUrl;
 var rootUrl = "https://bajajelect.sharepoint.com/sites/WFRootDev/";
-var hostWebURL="https://bajajelect.sharepoint.com/sites/MTDEV";
+var hostWebURL = "https://bajajelect.sharepoint.com/sites/MTDEV";
 var ApplicationShortName = "ICDM";
 var applicationName = "Item Code Creation Preprocess";
 var formName = "Item Code Preprocess Form";
@@ -15,9 +15,9 @@ var buttonListName = 'Buttons';
 
 const constantKeys = {
     SENDTOLEVEL: 'SendToLevel',
-    SENDTOROLE : 'SendToRole',
-    SENDBACKTO : 'SendBackTo',
-    ACTIONPERFORMED : 'ActionPerformed',
+    SENDTOROLE: 'SendToRole',
+    SENDBACKTO: 'SendBackTo',
+    ACTIONPERFORMED: 'ActionPerformed',
 };
 Object.freeze(constantKeys);
 
@@ -135,3 +135,14 @@ const SharePointPermission = {
     CONTRIBUTOR: "Contribute"
 }
 Object.freeze(SharePointPermission);
+
+
+const CurrentApprover = {
+    APPROVERID: "ApproverId",
+    COMMENTS: "Comments",
+    ASSIGNDATE: "AssignDate",
+    DUEDATE: "DueDate",
+    APPROVEBYID: "ApproveById",
+    STATUS : "Status"
+}
+Object.freeze(CurrentApprover);

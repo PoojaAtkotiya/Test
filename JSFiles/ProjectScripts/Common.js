@@ -5,11 +5,12 @@ var securityToken;
 var currentContext;
 var hostweburl;
 var listDataArray = {};
-var listActivityLogDataArray= [];
+var listActivityLogDataArray = [];
 var actionPerformed;
 var fileInfos = [];
 var scriptbase; //= spSiteUrl + "/_layouts/15/";     ////_spPageContextInfo.layoutsUrl
 var fileIdCounter = 0;
+var currentApproverDetails = {};
 jQuery(document).ready(function () {
     // BindDatePicker("");
     KeyPressNumericValidation();
@@ -876,15 +877,15 @@ function GetFormControlsValue(id, elementType, listDataArray) {
     return listDataArray;
 }
 
-function GetFormControlsValueAndType(id, elementType,elementProperty, listActivityLogDataArray) {
+function GetFormControlsValueAndType(id, elementType, elementProperty, listActivityLogDataArray) {
     var obj = '#' + id;
     switch (elementType) {
         case "text":
             if (!IsStrNullOrEmpty($(obj).val())) {
-               listActivityLogDataArray.push({id:id, value: $(obj).val(), type: 'text' });
+                listActivityLogDataArray.push({ id: id, value: $(obj).val(), type: 'text' });
             }
             break;
-   
+
         case "terms":
             var metaObject = {
                 __metadata: { "type": "SP.Taxonomy.TaxonomyFieldValue" },
@@ -892,16 +893,16 @@ function GetFormControlsValueAndType(id, elementType,elementProperty, listActivi
                 TermGuid: $(obj).val(),
                 WssId: -1
             }
-          
+
             break;
         case "combo":
-   
-     if(elementProperty=='peoplepicker'){
-     listActivityLogDataArray.push({ id:id,value: $(obj).val(), type: 'peoplepicker' });
-     }
+
+            if (elementProperty == 'peoplepicker') {
+                listActivityLogDataArray.push({ id: id, value: $(obj).val(), type: 'peoplepicker' });
+            }
             break;
         case "multitext":
-        listActivityLogDataArray.push({ id:id,value: $(obj).val(), type: 'multitext' });
+            listActivityLogDataArray.push({ id: id, value: $(obj).val(), type: 'multitext' });
             break;
         case "date":
             var month = !IsNullOrUndefined($(obj).datepicker('getDate')) ? $(obj).datepicker('getDate').getMonth() + 1 : null;
@@ -909,29 +910,29 @@ function GetFormControlsValueAndType(id, elementType,elementProperty, listActivi
             var year = !IsNullOrUndefined($(obj).datepicker('getDate')) ? $(obj).datepicker('getDate').getFullYear() : null;
             var date = (!IsNullOrUndefined(month) && !IsNullOrUndefined(date) && !IsNullOrUndefined(year)) ? new Date(year.toString() + "-" + month.toString() + "-" + date.toString()).format("yyyy-MM-ddTHH:mm:ssZ") : null;
             if (date) {
-                listActivityLogDataArray.push({ id:id,value: date, type: 'date' });
+                listActivityLogDataArray.push({ id: id, value: date, type: 'date' });
             }
             break;
         case "checkbox":
-       
-        listActivityLogDataArray.push({ id:id,value: $(obj)[0]['checked'], type: 'checked' });
+
+            listActivityLogDataArray.push({ id: id, value: $(obj)[0]['checked'], type: 'checked' });
             break;
         case "multicheckbox":
             var parenType = $(obj).attr('cParent');
             if (listActivityLogDataArray[parenType] == undefined)
-            listActivityLogDataArray[parenType] = { "__metadata": { "type": "Collection(Edm.String)" }, "results": [] };
+                listActivityLogDataArray[parenType] = { "__metadata": { "type": "Collection(Edm.String)" }, "results": [] };
 
             var isChecked = $(obj)[0]['checked'];
             var choiceName = $(obj)[0].id;
             var idx = listActivityLogDataArray[parenType].results.indexOf(choiceName);
             if (isChecked && idx == -1);
-         //   listActivityLogDataArray[parenType].results.push(choiceName);
+            //   listActivityLogDataArray[parenType].results.push(choiceName);
             else if (idx > -1)
-          //  listActivityLogDataArray[parenType].results.splice(idx, 1);
-            break;
+                //  listActivityLogDataArray[parenType].results.splice(idx, 1);
+                break;
         case "radiogroup":
             var parenType = $(obj).attr('cParent');
-            listActivityLogDataArray.push({ id:id,value: $(obj)[0].id, type: 'radiogroup' });
+            listActivityLogDataArray.push({ id: id, value: $(obj)[0].id, type: 'radiogroup' });
             break;
     }
     return listActivityLogDataArray;
@@ -1095,14 +1096,19 @@ function SaveFormData(activeSection) {
         var activeSectionId = $(activeSection).attr('id');
 
         $(activeSection).find('.dynamic-control').find('input[listtype=main],select[listtype=main],radio[listtype=main],textarea[listtype=main],label[listtype=main],input[reflisttype=main],select[reflisttype=main],radio[reflisttype=main],textarea[reflisttype=main],label[reflisttype=main]').each(function () {
-            debugger
             var elementId = $(this).attr('id');
             var elementType = $(this).attr('controlType');
             var elementProperty = $(this).attr('controlProperty');
             listDataArray = GetFormControlsValue(elementId, elementType, listDataArray);
-            listActivityLogDataArray = GetFormControlsValueAndType(elementId, elementType,elementProperty, listActivityLogDataArray);
+            listActivityLogDataArray = GetFormControlsValueAndType(elementId, elementType, elementProperty, listActivityLogDataArray);
         });
-
+        $(activeSection).find('.approver-control').find('input[listtype=main],select[listtype=main],radio[listtype=main],textarea[listtype=main],label[listtype=main],input[reflisttype=main],select[reflisttype=main],radio[reflisttype=main],textarea[reflisttype=main],label[reflisttype=main]').each(function () {
+            debugger
+            var elementId = $(this).attr('id');
+            var elementType = $(this).attr('controlType');
+            var elementProperty = $(this).attr('controlProperty');
+            currentApproverDetails = GetFormControlsValue(elementId, elementType, currentApproverDetails);
+        });
 
         SaveData(mainListName, listDataArray, sectionName);
     }
@@ -1152,7 +1158,7 @@ function SaveData(listname, listDataArray, sectionName) {
                     clientContext.executeQueryAsync(function () {
                         SaveLocalApprovalMatrix(sectionName, itemID, listname, isNewItem, oListItem, ItemCodeApprovalMatrixListName);
                         debugger;
-                        SaveActivityLog(sectionName,itemID,ICDMActivityLogListName,listDataArray);
+                        SaveActivityLog(sectionName, itemID, ICDMActivityLogListName, listDataArray);
                         if (data != undefined && data != null && data.d != null) {
                             SaveTranListData(itemID);
                         }
@@ -1204,14 +1210,14 @@ function OnSuccessNoRedirect(data, status, xhr) {
     catch (e) { window.location.reload(); }
 }
 
-function SaveActivityLog(sectionName,itemID,ItemCodeActivityLogListName,listDataArray) {
+function SaveActivityLog(sectionName, itemID, ItemCodeActivityLogListName, listDataArray) {
     var stringActivity;
     var itemType = GetItemTypeForListName(ItemCodeActivityLogListName);
     var today = new Date().format("yyyy-MM-ddTHH:mm:ssZ");
     var actionStatus = $("#ActionStatus").val();
     var keys = Object.keys(buttonActionStatus).filter(k => buttonActionStatus[k] == actionStatus);
     actionPerformed = keys.toString();
-    stringActivity=GetActivityString(listActivityLogDataArray);
+    stringActivity = GetActivityString(listActivityLogDataArray);
     url = _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ItemCodeActivityLogListName + "')/items";
     headers = {
         "Accept": "application/json;odata=verbose",
@@ -1235,7 +1241,7 @@ function SaveActivityLog(sectionName,itemID,ItemCodeActivityLogListName,listData
                 ActivityById: currentUser.Id,
                 RequestIDId: itemID,
                 SectionName: sectionName
-         }),
+            }),
         success: function (data, status, xhr) {
             console.log("SaveActivityLogInList - Item saved Successfully");
         },
@@ -1248,24 +1254,21 @@ function SaveActivityLog(sectionName,itemID,ItemCodeActivityLogListName,listData
 
 }
 
-function GetActivityString(listActivityLogDataArray)
-{
+function GetActivityString(listActivityLogDataArray) {
     var stringActivity;
     if (!IsNullOrUndefined(listActivityLogDataArray) && listActivityLogDataArray.length > 0) {
         listActivityLogDataArray.forEach(element => {
-            if(element.type=="peoplepicker")
-            {
+            if (element.type == "peoplepicker") {
                 element.value = GetUserNamebyUserID(element.value);
             }
-            if(stringActivity != null && stringActivity != ''){
-            stringActivity = stringActivity + '\n';
-            stringActivity = stringActivity + element.id;
-            stringActivity = stringActivity + '~';
-            stringActivity = stringActivity + element.value;
+            if (stringActivity != null && stringActivity != '') {
+                stringActivity = stringActivity + '\n';
+                stringActivity = stringActivity + element.id;
+                stringActivity = stringActivity + '~';
+                stringActivity = stringActivity + element.value;
             }
-            else
-            {
-                stringActivity =  element.id;
+            else {
+                stringActivity = element.id;
                 stringActivity = stringActivity + '~';
                 stringActivity = stringActivity + element.value;
             }
@@ -1274,10 +1277,9 @@ function GetActivityString(listActivityLogDataArray)
     return stringActivity;
 }
 
-function GetUserNamebyUserID(userid)
-{
+function GetUserNamebyUserID(userid) {
     var userName = "";
-    url =_spPageContextInfo.webAbsoluteUrl + "/_api/web/getuserbyid(" + userid + ")";
+    url = _spPageContextInfo.webAbsoluteUrl + "/_api/web/getuserbyid(" + userid + ")";
     headers = {
         "Accept": "application/json;odata=verbose",
         "Content-Type": "application/json;odata=verbose",
@@ -1293,15 +1295,14 @@ function GetUserNamebyUserID(userid)
             userName = data.d.Title;
         },
         error: function (data) {
-           console.log(data);
+            console.log(data);
         }
     });
     return userName;
 }
-function GetUserEmailbyUserID(userid)
-{
+function GetUserEmailbyUserID(userid) {
     var userEmail = "";
-    url =_spPageContextInfo.webAbsoluteUrl + "/_api/web/getuserbyid(" + userid + ")";
+    url = _spPageContextInfo.webAbsoluteUrl + "/_api/web/getuserbyid(" + userid + ")";
     headers = {
         "Accept": "application/json;odata=verbose",
         "Content-Type": "application/json;odata=verbose",
@@ -1317,7 +1318,7 @@ function GetUserEmailbyUserID(userid)
             userEmail = data.d.Email;
         },
         error: function (data) {
-           console.log(data);
+            console.log(data);
         }
     });
     return userEmail;

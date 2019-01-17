@@ -289,6 +289,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
         tempApproverMatrix.filter(function (temp) {
             if (temp.Role == "Creator") {
                 temp.ApproverId = currentUser.Id;
+                currentApproverDetails[CurrentApprover.APPROVERID] = currentUser.Id;
                 temp.RequestIDId = requestId;
             }
         });
@@ -606,8 +607,6 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
 
     ////save attachment
 
-    ////save activity log
-
     ////set permission 
     var userWithRoles = GetPermissionDictionary(tempApproverMatrix, nextLevel, makeAllUsersViewer, isNewItem);
     SetItemPermission(requestId, ItemCodeProProcessListName, userWithRoles);
@@ -615,6 +614,21 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
     console.log("Save Approver matrix");
     ////save approval matrix in list
     SaveApprovalMatrixInList(tempApproverMatrix, approvalMatrixListName, isNewItem);
+
+    ////Set value in CurrentApprover
+    tempApproverMatrix.filter(function (temp) {
+        if (temp.Role == currentUserRole && temp.Levels == currentLevel && !IsNullOrUndefined(temp.ApproveById) && !IsNullOrUndefined(temp.ApproveById.results) && (temp.ApproveById.results.length > 0) ? temp.ApproveById.results.some(item => item == currentUser.Id) : (temp.ApproveById.toString().indexOf(currentUser.Id) != -1)) {
+
+            debugger
+            currentApproverDetails[CurrentApprover.APPROVERID] = temp.ApproveById;
+            currentApproverDetails[CurrentApprover.STATUS] = temp.Status;
+            currentApproverDetails[CurrentApprover.ASSIGNDATE] = temp.AssignDate;
+            currentApproverDetails[CurrentApprover.DUEDATE] = temp.DueDate;
+            currentApproverDetails[CurrentApprover.APPROVEBYID] = temp.ApproveById;
+        }
+    });
+
+    ////save activity log
 
     ////send mail
 
