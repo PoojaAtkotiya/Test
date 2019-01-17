@@ -9,6 +9,7 @@ var globalApprovalMatrixName = 'ApprovalMatrix';
 var ItemCodeProProcessListName = "ItemCodeProProcess";
 var ICDMActivityLogListName = "ItemCodeActivityLog";
 var ItemCodeApprovalMatrixListName = "ItemCodeApprovalMatrix";
+var ItemCodeActivityLogListName = "ItemCodeActivityLog";
 var ApproverMasterListName = "ApproverMaster";
 var buttonListName = 'Buttons';
 
