@@ -1356,7 +1356,7 @@ function GetActivityString(listActivityLogDataArray)
     }
     return stringActivity;
 }
-
+// Get User Name from user ID Using REST
 function GetUserNamebyUserID(userid)
 {
     var userName = "";
@@ -1380,6 +1380,37 @@ function GetUserNamebyUserID(userid)
         }
     });
     return userName;
+}
+
+//  Get array of User Names from user ids
+function GetUserNamesbyUserID(allUsersIDs)
+{
+   // var allUsersIDs = [];
+    var userNames = [];
+   // allUsersIDs.push({ userId: "20" });
+   // allUsersIDs.push({ userId: "25" });
+    allUsersIDs.forEach(user => {
+        url =_spPageContextInfo.webAbsoluteUrl + "/_api/web/getuserbyid(" + user.userId + ")";
+        headers = {
+            "Accept": "application/json;odata=verbose",
+            "Content-Type": "application/json;odata=verbose",
+            "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+            "X-HTTP-Method": "POST"
+        };
+        $.ajax({
+            url: url,
+            type: "GET",
+            headers: headers,
+            async: false,
+            success: function (data, status, xhr) {
+                userNames.push({ userName: data.d.Title });
+            },
+            error: function (data) {
+               console.log(data);
+            }
+        });
+    });
+    return userNames;
 }
 function GetUserEmailbyUserID(userid)
 {
@@ -1405,6 +1436,36 @@ function GetUserEmailbyUserID(userid)
     });
     return userEmail;
 }
+
+//  Get array of User Email from user ids
+function GetUserEmailsbyUserID(allUsersIDs)
+{
+   // var allUsersIDs = [];
+    var userEmails = [];
+    allUsersIDs.forEach(user => {
+        url =_spPageContextInfo.webAbsoluteUrl + "/_api/web/getuserbyid(" + user.userId + ")";
+        headers = {
+            "Accept": "application/json;odata=verbose",
+            "Content-Type": "application/json;odata=verbose",
+            "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+            "X-HTTP-Method": "POST"
+        };
+        $.ajax({
+            url: url,
+            type: "GET",
+            headers: headers,
+            async: false,
+            success: function (data, status, xhr) {
+                userEmails.push({ userEmail: data.d.Email });
+            },
+            error: function (data) {
+               console.log(data);
+            }
+        });
+    });
+    return userEmails;
+}
+
 function AjaxCall(options) {
     var url = options.url;
     var postData = options.postData;
