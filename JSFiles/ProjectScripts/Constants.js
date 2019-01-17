@@ -1,11 +1,13 @@
 var spSiteUrl = _spPageContextInfo.webAbsoluteUrl;
 var rootUrl = "https://bajajelect.sharepoint.com/sites/WFRootDev/";
+var hostWebURL="https://bajajelect.sharepoint.com/sites/MTDEV";
 var ApplicationShortName = "ICDM";
 var applicationName = "Item Code Creation Preprocess";
 var formName = "Item Code Preprocess Form";
 var globalApprovalMatrixName = 'ApprovalMatrix';
 // var approverMatrixListName = 'WorkflowTestApprovalMatrix';
 var ItemCodeProProcessListName = "ItemCodeProProcess";
+var ICDMActivityLogListName = "ItemCodeActivityLog";
 var ItemCodeApprovalMatrixListName = "ItemCodeApprovalMatrix";
 var ItemCodeActivityLogListName = "ItemCodeActivityLog";
 var ApproverMasterListName = "ApproverMaster";
