@@ -983,17 +983,17 @@ function DisplayActivityLogDetails(activityLogResult, tableId) {
             ActivityDate = formatDate(new Date(activityLogResult[i].ActivityDate).toLocaleDateString());
         }
         tr = $('<tr/>');
-        tr.append("<td width='15%'>" + activityLogResult[i].Activity + "</td>");
-        tr.append("<td width='15%'>" + activityLogResult[i].SectionName + "</td>");
+        tr.append("<td width='20%'>" + activityLogResult[i].Activity + "</td>");
+        tr.append("<td width='25%'>" + activityLogResult[i].SectionName + "</td>");
         tr.append("<td width='15%'>" + ActivityDate + "</td>");
         // tr.append("<td width='15%'>" + activityLogResult[i].ActivityBy + "</td>");
-        tr.append("<td width='15%'>" + activityLogResult[i].ActivityById + "</td>");
-        tr.append('<td width="20%"><a href="#" id="btnActivityLog_' + i + '" data-val="' + activityLogResult[i].Changes + '" data-toggle="modal" data-target="#activityLogDetail" class="btn btn-primary">Activity Log</a></td>');
+        tr.append("<td width='25%'>" + GetUserNamebyUserID(activityLogResult[i].ActivityById) + "</td>");
+        tr.append('<td width="15%"><a href="#" id="btnActivityLog_' + i + '" data-val="' + activityLogResult[i].Changes + '" data-toggle="modal" data-target="#activityLogDetail" class="btn btn-primary">Activity Log</a></td>');
         $('#' + tableId).append(tr);
     }
 }
 
-function ActvityLogChanges(iteration, activityLogChangeDetails) {
+function DisplayActvityLogChanges(iteration, activityLogChangeDetails) {
     if (!IsNullOrUndefined(activityLogChangeDetails)) {
         $('#ActivityLogChanges').modal('show');
         $('#tblActivityChanges tbody').empty();
@@ -1044,7 +1044,6 @@ function DisplayApplicationStatus(approverMatrix) {
     for (var i = 0; i < approverMatrix.length; i++) {
         if (approverMatrix[i].Levels >= 0 && !IsNullOrUndefined(approverMatrix[i].Approver) && !IsNullOrUndefined(approverMatrix[i].Approver.results) && !IsNullOrUndefined(approverMatrix[i].Approver.results).length > 0) {
             var AssignDate = "-", DueDate = "-", ApprovalDate = "-", Comments = "-", Status = "-";
-
             if (!IsNullOrUndefined(approverMatrix[i].Status)) {
                 if (approverMatrix[i].Status == ApproverStatus.APPROVED) {
                     Status = ApproverStatus.COMPLETED;
@@ -1068,12 +1067,12 @@ function DisplayApplicationStatus(approverMatrix) {
             }
 
             tr = $('<tr/>');
-            tr.append("<td width='15%'>" + approverMatrix[i].Role + "</td>");
-            tr.append("<td width='10%'>" + approverMatrix[i].ApproverId.results + "</td>");
+            tr.append("<td width='20%'>" + approverMatrix[i].Role + "</td>");
+            tr.append("<td width='20%'>" + GetUserNamesbyUserID(approverMatrix[i].ApproverId.results) + "</td>");
             tr.append("<td width='10%'>" + Status + "</td>");
-            tr.append("<td width='15%'>" + AssignDate + "</td>");
-            tr.append("<td width='15%'>" + DueDate + "</td>");
-            tr.append("<td width='15%'>" + ApprovalDate + "</td>");
+            tr.append("<td width='10%'>" + AssignDate + "</td>");
+            tr.append("<td width='10%'>" + DueDate + "</td>");
+            tr.append("<td width='10%'>" + ApprovalDate + "</td>");
             tr.append("<td width='20%'>" + Comments + "</td>");
             $('#tblApplicationStatus').append(tr);
         }
@@ -1225,33 +1224,28 @@ function SaveActivityLog(sectionName, itemID, ItemCodeActivityLogListName, listD
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
         "X-HTTP-Method": "POST"
     };
-    $.ajax({
-        url: url,
-        type: "POST",
-        headers: headers,
-        async: false,
-        data: JSON.stringify
-            ({
-                __metadata: {
-                    "type": itemType
-                },
-                Activity: actionPerformed,
-                Changes: stringActivity,
-                ActivityDate: today,
-                ActivityById: currentUser.Id,
-                RequestIDId: itemID,
-                SectionName: sectionName
-            }),
-        success: function (data, status, xhr) {
-            console.log("SaveActivityLogInList - Item saved Successfully");
-        },
-        error: function (data) {
-            debugger
-            console.log(data);
-        }
-    });
-
-
+    AjaxCall(
+        {
+            url: url,
+            httpmethod: 'POST',
+            calldatatype: 'JSON',
+            isAsync: false,
+            headers: headers,
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify
+                ({
+                    __metadata: {
+                        "type": itemType
+                    },
+                    Activity: actionPerformed,
+                    Changes: stringActivity,
+                    ActivityDate: today,
+                    ActivityById: currentUser.Id,
+                    RequestIDId: itemID,
+                    SectionName: sectionName
+                }),
+            sucesscallbackfunction: function (data) { console.log("SaveActivityLogInList - Item saved Successfully"); }
+        });
 }
 
 function GetActivityString(listActivityLogDataArray,isCurrentApproverField) {
@@ -1291,116 +1285,109 @@ function GetActivityString(listActivityLogDataArray,isCurrentApproverField) {
     }
     return stringActivity;
 }
-// Get User Name from user ID Using REST
-function GetUserNamebyUserID(userid)
-{
+
+function GetUserNamebyUserID(userid) {
     var userName = "";
-    url = _spPageContextInfo.webAbsoluteUrl + "/_api/web/getuserbyid(" + userid + ")";
-    headers = {
-        "Accept": "application/json;odata=verbose",
-        "Content-Type": "application/json;odata=verbose",
-        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-        "X-HTTP-Method": "POST"
-    };
-    $.ajax({
-        url: url,
-        type: "GET",
-        headers: headers,
-        async: false,
-        success: function (data, status, xhr) {
-            userName = data.d.Title;
-        },
-        error: function (data) {
-            console.log(data);
-        }
-    });
+    if (!IsNullOrUndefined(userid)) {
+        url = _spPageContextInfo.webAbsoluteUrl + "/_api/web/getuserbyid(" + userid + ")";
+        headers = {
+            "Accept": "application/json;odata=verbose",
+            "Content-Type": "application/json;odata=verbose",
+            "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+            "X-HTTP-Method": "POST"
+        };
+
+        AjaxCall(
+            {
+                url: url,
+                httpmethod: 'GET',
+                calldatatype: 'JSON',
+                isAsync: false,
+                headers: headers,
+                sucesscallbackfunction: function (data) { userName = data.d.Title; }
+            });
+    }
     return userName;
 }
 
 //  Get array of User Names from user ids
-function GetUserNamesbyUserID(allUsersIDs)
-{
-   // var allUsersIDs = [];
-    var userNames = [];
-   // allUsersIDs.push({ userId: "20" });
-   // allUsersIDs.push({ userId: "25" });
-    allUsersIDs.forEach(user => {
-        url =_spPageContextInfo.webAbsoluteUrl + "/_api/web/getuserbyid(" + user.userId + ")";
+function GetUserNamesbyUserID(allUsersIDs) {
+    var userNames = '';
+    if (!IsNullOrUndefined(allUsersIDs) && allUsersIDs.length > 0) {
+        allUsersIDs.forEach(user => {
+            url = _spPageContextInfo.webAbsoluteUrl + "/_api/web/getuserbyid(" + user + ")";
+            headers = {
+                "Accept": "application/json;odata=verbose",
+                "Content-Type": "application/json;odata=verbose",
+                "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+                "X-HTTP-Method": "POST"
+            };
+
+            AjaxCall(
+                {
+                    url: url,
+                    httpmethod: 'GET',
+                    calldatatype: 'JSON',
+                    isAsync: false,
+                    headers: headers,
+                    sucesscallbackfunction: function (data) { userNames = userNames + data.d.Title + ","; }
+                });
+        });
+        userNames = userNames.substr(0, userNames.lastIndexOf(',')).replace(/\,/g, ', ');
+    }
+    return userNames;
+}
+function GetUserEmailbyUserID(userid) {
+    var userEmail = "";
+    if (!IsNullOrUndefined(userid)) {
+        url = _spPageContextInfo.webAbsoluteUrl + "/_api/web/getuserbyid(" + userid + ")";
         headers = {
             "Accept": "application/json;odata=verbose",
             "Content-Type": "application/json;odata=verbose",
             "X-RequestDigest": $("#__REQUESTDIGEST").val(),
             "X-HTTP-Method": "POST"
         };
-        $.ajax({
-            url: url,
-            type: "GET",
-            headers: headers,
-            async: false,
-            success: function (data, status, xhr) {
-                userNames.push({ userName: data.d.Title });
-            },
-            error: function (data) {
-               console.log(data);
-            }
-        });
-    });
-    return userNames;
-}
-function GetUserEmailbyUserID(userid)
-{
-    var userEmail = "";
-    url = _spPageContextInfo.webAbsoluteUrl + "/_api/web/getuserbyid(" + userid + ")";
-    headers = {
-        "Accept": "application/json;odata=verbose",
-        "Content-Type": "application/json;odata=verbose",
-        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-        "X-HTTP-Method": "POST"
-    };
-    $.ajax({
-        url: url,
-        type: "GET",
-        headers: headers,
-        async: false,
-        success: function (data, status, xhr) {
-            userEmail = data.d.Email;
-        },
-        error: function (data) {
-            console.log(data);
-        }
-    });
+
+        AjaxCall(
+            {
+                url: url,
+                httpmethod: 'GET',
+                calldatatype: 'JSON',
+                isAsync: false,
+                headers: headers,
+                sucesscallbackfunction: function (data) { userEmail = data.d.Email; }
+            });
+    }
     return userEmail;
 }
 
 //  Get array of User Email from user ids
-function GetUserEmailsbyUserID(allUsersIDs)
-{
-   // var allUsersIDs = [];
-    var userEmails = [];
-    allUsersIDs.forEach(user => {
-        url =_spPageContextInfo.webAbsoluteUrl + "/_api/web/getuserbyid(" + user.userId + ")";
-        headers = {
-            "Accept": "application/json;odata=verbose",
-            "Content-Type": "application/json;odata=verbose",
-            "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-            "X-HTTP-Method": "POST"
-        };
-        $.ajax({
-            url: url,
-            type: "GET",
-            headers: headers,
-            async: false,
-            success: function (data, status, xhr) {
-                userEmails.push({ userEmail: data.d.Email });
-            },
-            error: function (data) {
-               console.log(data);
-            }
+function GetUserEmailsbyUserID(allUsersIDs) {
+    var userEmails = "";
+    if (!IsNullOrUndefined(allUsersIDs) && allUsersIDs.length > 0) {
+        allUsersIDs.forEach(user => {
+            url = _spPageContextInfo.webAbsoluteUrl + "/_api/web/getuserbyid(" + user + ")";
+            headers = {
+                "Accept": "application/json;odata=verbose",
+                "Content-Type": "application/json;odata=verbose",
+                "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+                "X-HTTP-Method": "POST"
+            };
+
+            AjaxCall(
+                {
+                    url: url,
+                    httpmethod: 'GET',
+                    calldatatype: 'JSON',
+                    isAsync: false,
+                    headers: headers,
+                    sucesscallbackfunction: function (data) { userEmails = userEmails + data.d.Email + ","; }
+                });
         });
-    });
+        userEmails = userEmails.substr(0, userEmails.lastIndexOf(',')).replace(/\,/g, ', ');
+    }
     return userEmails;
 }
-
 function AjaxCall(options) {
     var url = options.url;
     var postData = options.postData;
@@ -1463,5 +1450,5 @@ function ShowError(ModelStateErrors) {
         messages += "<li>" + e.Value[0] + "</li>";
     });
     messages = "<div><h5>" + getMessage("errorTitle") + "</h5><ul>" + messages + "</ul></div>";
-    AlertModal(getMessage("error"), messages, function () { })
+    AlertModal("error", messages, function () { })
 }

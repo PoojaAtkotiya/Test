@@ -14,7 +14,7 @@ $(document).ready(function () {
     $(document).on('click', 'a[id*="btnActivityLog_"]', function () {
         var iterationId=jQuery(this).attr('id').split('_')[1];
         var activityChanges=jQuery(this).attr('data-val');
-        ActvityLogChanges(iterationId,activityChanges);
+        DisplayActvityLogChanges(iterationId,activityChanges);
     });
 });
 
@@ -94,16 +94,12 @@ function ICDM_SaveData(ele) {
 function FormBusinessLogic(activeSection) {
     var isError = false;
     try {
-        //check if there any delegate user fillby section owner
-        // $('#'+ sectionName).
-
-
+        //check if there any delegate user fillby section owner        
         ////Pending to make it dynamic
         if (!IsNullOrUndefined(listDataArray.SCMLUMDesignDelegateId)) {
             var array = [];
             array.push(parseInt(listDataArray.SCMLUMDesignDelegateId));
-            listDataArray["SCMLUMDesignDelegateId"] = { "results": array };
-            debugger
+            listDataArray["SCMLUMDesignDelegateId"] = { "results": array };            
         }
     }
     catch (Exception) {
