@@ -125,7 +125,6 @@ function AddAllAttachments(listname, itemID) {
             var elementId = $(this).attr('id');
             var controlType = $(this).attr('controlType');
             // if (controlType == "file") {
-            debugger;
             if (!IsNullOrUndefined(fileInfos)) {
             SaveItemWiseAttachments(listname, itemID);
             }
@@ -146,7 +145,6 @@ function GetAttachmentValue(elementId, fileListArray) {
         reader.onload = (function (file) {
             return function (e) {
                 console.log(file.name);
-                debugger;
                 fileInfos.push({
                     "name": file.name,
                     "content": e.target.result
