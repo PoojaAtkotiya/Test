@@ -1102,13 +1102,22 @@ function SaveFormData(activeSection) {
             listActivityLogDataArray = GetFormControlsValueAndType(elementId, elementType, elementProperty, listActivityLogDataArray);
         });
         $(activeSection).find('.approver-control').each(function () {
+            var currAppArray = {};
             var elementId = $(this).attr('id');
             var elementType = $(this).attr('controlType');
             var elementProperty = $(this).attr('controlProperty');
-            currentApproverDetails = GetFormControlsValue(elementId, elementType, currentApproverDetails);
-           // listActivityLogDataArray = GetFormControlsValueAndType(elementId, elementType, elementProperty, listActivityLogDataArray);
-        });
+            currAppArray = GetFormControlsValue(elementId, elementType, currAppArray);
 
+            debugger
+            if (!IsNullOrUndefined(currAppArray)) {
+                if (elementId.indexOf("_Comments") != -1) {
+                    currentApproverDetails[CurrentApprover.COMMENTS] = currAppArray[elementId];
+                }
+                else if (elementId.indexOf("_Approver") != -1) {    /////////// testing
+                    currentApproverDetails[CurrentApprover.APPROVEBYID] = currAppArray[elementId];
+                }
+            }
+        });
         SaveData(mainListName, listDataArray, sectionName);
     }
 }
@@ -1156,8 +1165,7 @@ function SaveData(listname, listDataArray, sectionName) {
                     clientContext.load(web);
                     clientContext.executeQueryAsync(function () {
                         SaveLocalApprovalMatrix(sectionName, itemID, listname, isNewItem, oListItem, ItemCodeApprovalMatrixListName);
-                        debugger;
-                        SaveActivityLog(sectionName, itemID, ICDMActivityLogListName, listDataArray,isNewItem);
+                        SaveActivityLog(sectionName, itemID, ICDMActivityLogListName, listDataArray, isNewItem);
                         if (data != undefined && data != null && data.d != null) {
                             SaveTranListData(itemID);
                         }
@@ -1209,14 +1217,14 @@ function OnSuccessNoRedirect(data, status, xhr) {
     catch (e) { window.location.reload(); }
 }
 
-function SaveActivityLog(sectionName, itemID, ItemCodeActivityLogListName, listDataArray,isNewItem) {
+function SaveActivityLog(sectionName, itemID, ItemCodeActivityLogListName, listDataArray, isNewItem) {
     var stringActivity;
     var itemType = GetItemTypeForListName(ItemCodeActivityLogListName);
     var today = new Date().format("yyyy-MM-ddTHH:mm:ssZ");
     var actionStatus = $("#ActionStatus").val();
     var keys = Object.keys(buttonActionStatus).filter(k => buttonActionStatus[k] == actionStatus);
     actionPerformed = keys.toString();
-    stringActivity = GetActivityString(listActivityLogDataArray,isNewItem);
+    stringActivity = GetActivityString(listActivityLogDataArray, isNewItem);
     url = _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ItemCodeActivityLogListName + "')/items";
     headers = {
         "Accept": "application/json;odata=verbose",
@@ -1224,33 +1232,55 @@ function SaveActivityLog(sectionName, itemID, ItemCodeActivityLogListName, listD
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
         "X-HTTP-Method": "POST"
     };
-    AjaxCall(
-        {
-            url: url,
-            httpmethod: 'POST',
-            calldatatype: 'JSON',
-            isAsync: false,
-            headers: headers,
-            contentType: 'application/json; charset=utf-8',
-            data: JSON.stringify
-                ({
-                    __metadata: {
-                        "type": itemType
-                    },
-                    Activity: actionPerformed,
-                    Changes: stringActivity,
-                    ActivityDate: today,
-                    ActivityById: currentUser.Id,
-                    RequestIDId: itemID,
-                    SectionName: sectionName
-                }),
-            sucesscallbackfunction: function (data) { console.log("SaveActivityLogInList - Item saved Successfully"); }
-        });
+    // AjaxCall(
+    //     {
+    //         url: url,
+    //         httpmethod: 'POST',
+    //         calldatatype: 'JSON',
+    //         isAsync: false,
+    //         headers: headers,
+    //         data: JSON.stringify
+    //             ({
+    //                 __metadata: {
+    //                     "type": itemType
+    //                 },
+    //                 Activity: actionPerformed,
+    //                 Changes: stringActivity,
+    //                 ActivityDate: today,
+    //                 ActivityById: currentUser.Id,
+    //                 RequestIDId: itemID,
+    //                 SectionName: sectionName
+    //             }),
+    //         sucesscallbackfunction: function (data) { console.log("SaveActivityLogInList - Item saved Successfully"); },
+    //     });
+
+    $.ajax({
+        url: url,
+        type: "POST",
+        headers: headers,
+        async: false,
+        data: JSON.stringify
+            ({
+                __metadata: {
+                    "type": itemType
+                },
+                Activity: actionPerformed,
+                Changes: stringActivity,
+                ActivityDate: today,
+                ActivityById: currentUser.Id,
+                RequestIDId: itemID,
+                SectionName: sectionName
+            }),
+        success: function (data, status, xhr) {
+            console.log("SaveActivityLogInList - Item saved Successfully");
+        },
+
+    });
 }
 
-function GetActivityString(listActivityLogDataArray,isCurrentApproverField) {
+function GetActivityString(listActivityLogDataArray, isCurrentApproverField) {
     var stringActivity;
-    
+
     if (!IsNullOrUndefined(listActivityLogDataArray) && listActivityLogDataArray.length > 0) {
         listActivityLogDataArray.forEach(element => {
             if (element.type == "peoplepicker") {
@@ -1269,15 +1299,14 @@ function GetActivityString(listActivityLogDataArray,isCurrentApproverField) {
             }
         });
     }
-    if(!isCurrentApproverField)
-    {
+    if (!isCurrentApproverField) {
         var today = new Date().format("yyyy-MM-ddTHH:mm:ssZ");
         var approverActivityLog = "Assigned date" + "\t" + currentApproverDetails.AssignDate;
         approverActivityLog += "\nApproved/Updated date" + "\t" + today;
         approverActivityLog += "\n" + "Approver Comment" + "\t" + currentApproverDetails.COMMENTS;
         if (stringActivity != null && stringActivity != '') {
             stringActivity = stringActivity + '\n';
-            stringActivity = stringActivity+ approverActivityLog;
+            stringActivity = stringActivity + approverActivityLog;
         }
         else {
             stringActivity = approverActivityLog;
@@ -1453,7 +1482,7 @@ function ShowError(ModelStateErrors) {
     AlertModal("error", messages, function () { })
 }
 
-function removeDuplicateFromArray(arr){
+function removeDuplicateFromArray(arr) {
     let unique_array = Array.from(new Set(arr))
     return unique_array;
 }

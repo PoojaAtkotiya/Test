@@ -877,8 +877,6 @@ function onSetItemPermissionFailed(sender, args) {
 }
 
 function GetPermissionDictionary(tempApproverMatrix, nextLevel, isAllUserViewer, isNewItem) {
-
-    debugger
     var permissions = [];
     if (!IsNullOrUndefined(tempApproverMatrix) && tempApproverMatrix.length > 0) {
         var strReader = '';
