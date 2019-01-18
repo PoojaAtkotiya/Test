@@ -627,7 +627,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
     ////save approval matrix in list
     SaveApprovalMatrixInList(tempApproverMatrix, approvalMatrixListName, isNewItem);
 
-    
+
 
     ////save activity log
 
@@ -728,8 +728,9 @@ function breakRoleInheritanceOfList(ItemCodeProProcessListName, requestId, userW
             //1073741827 - contribute
             // 1073741829, Full Control
             // 1073741826, Read
-            var users = [];
+
             userWithRoles.forEach((element) => {
+
                 var userIds = element.user;
                 var permission = element.permission;
                 var permId;
@@ -740,6 +741,8 @@ function breakRoleInheritanceOfList(ItemCodeProProcessListName, requestId, userW
                     permId = 1073741826;
                 }
                 if (!IsNullOrUndefined(userIds) && !IsStrNullOrEmpty(userIds) && !IsNullOrUndefined(permission) && !IsStrNullOrEmpty(permission)) {
+
+                    var users = [];
                     //split users and remove ,
                     if (userIds.toString().indexOf(',') == 0) {
                         userIds = userIds.substring(1);
@@ -759,6 +762,11 @@ function breakRoleInheritanceOfList(ItemCodeProProcessListName, requestId, userW
                             }
                         }
                     }
+
+                    ////remove duplicates from array
+                    users = removeDuplicateFromArray(users);
+
+
                     users.forEach(user => {
                         if (!isNaN(user)) {
                             var endPointUrlRoleAssignment = "/_api/web/lists/getByTitle('" + ItemCodeProProcessListName + "')/items(" + requestId + ")/roleassignments/addroleassignment(principalid=" + user + ",roleDefId=" + permId + ")";
@@ -812,8 +820,6 @@ function FormatRow() {
 
 function SetCustomPermission(userWithRoles, requestId, ItemCodeProProcessListName) {
     console.log("Inheritance Broken Successfully!");
-
-    debugger
     console.log(userWithRoles);
     // userWithRoles.forEach(ele => {
     var headers = {
@@ -872,6 +878,7 @@ function onSetItemPermissionFailed(sender, args) {
 
 function GetPermissionDictionary(tempApproverMatrix, nextLevel, isAllUserViewer, isNewItem) {
 
+    debugger
     var permissions = [];
     if (!IsNullOrUndefined(tempApproverMatrix) && tempApproverMatrix.length > 0) {
         var strReader = '';
@@ -906,7 +913,6 @@ function GetPermissionDictionary(tempApproverMatrix, nextLevel, isAllUserViewer,
                             strReader = strReader.trim() + "," + temp.ApproverId;
                         }
                     } else {
-                        debugger
                         if (!IsNullOrUndefined(temp.ApproverId.results) && temp.ApproverId.results.length > 0 && strReader.indexOf(temp.ApproverId.results) == -1) {
                             strReader = strReader.trim() + "," + temp.ApproverId.results;
                         }
@@ -1232,7 +1238,6 @@ function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previous
                 case buttonActionStatus.Save:
                 case buttonActionStatus.SaveAsDraft:
                 case buttonActionStatus.None:
-                    debugger
                     console.log("Save as draft condition => any approver=" + tempApproverMatrix.some(t => t.Levels == currentLevel));
                     if (tempApproverMatrix.some(t => t.Levels == currentLevel)) {
                         tempApproverMatrix.filter(function (temp) {

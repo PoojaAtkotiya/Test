@@ -1452,3 +1452,8 @@ function ShowError(ModelStateErrors) {
     messages = "<div><h5>" + getMessage("errorTitle") + "</h5><ul>" + messages + "</ul></div>";
     AlertModal("error", messages, function () { })
 }
+
+function removeDuplicateFromArray(arr){
+    let unique_array = Array.from(new Set(arr))
+    return unique_array;
+}
