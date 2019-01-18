@@ -1095,7 +1095,7 @@ function SaveFormData(activeSection) {
         var sectionName = $(activeSection).attr('section');
         var activeSectionId = $(activeSection).attr('id');
 
-        $(activeSection).find('.dynamic-control').find('input[listtype=main],select[listtype=main],radio[listtype=main],textarea[listtype=main],label[listtype=main],input[reflisttype=main],select[reflisttype=main],radio[reflisttype=main],textarea[reflisttype=main],label[reflisttype=main]').each(function () {
+        $(activeSection).find('input[listtype=main],select[listtype=main],radio[listtype=main],textarea[listtype=main],label[listtype=main],input[reflisttype=main],select[reflisttype=main],radio[reflisttype=main],textarea[reflisttype=main],label[reflisttype=main]').each(function () {
             var elementId = $(this).attr('id');
             var elementType = $(this).attr('controlType');
             var elementProperty = $(this).attr('controlProperty');
@@ -1107,6 +1107,7 @@ function SaveFormData(activeSection) {
             var elementType = $(this).attr('controlType');
             var elementProperty = $(this).attr('controlProperty');
             currentApproverDetails = GetFormControlsValue(elementId, elementType, currentApproverDetails);
+           // listActivityLogDataArray = GetFormControlsValueAndType(elementId, elementType, elementProperty, listActivityLogDataArray);
         });
 
         SaveData(mainListName, listDataArray, sectionName);
@@ -1157,7 +1158,7 @@ function SaveData(listname, listDataArray, sectionName) {
                     clientContext.executeQueryAsync(function () {
                         SaveLocalApprovalMatrix(sectionName, itemID, listname, isNewItem, oListItem, ItemCodeApprovalMatrixListName);
                         debugger;
-                        SaveActivityLog(sectionName, itemID, ICDMActivityLogListName, listDataArray);
+                        SaveActivityLog(sectionName, itemID, ICDMActivityLogListName, listDataArray,isNewItem);
                         if (data != undefined && data != null && data.d != null) {
                             SaveTranListData(itemID);
                         }
@@ -1209,14 +1210,14 @@ function OnSuccessNoRedirect(data, status, xhr) {
     catch (e) { window.location.reload(); }
 }
 
-function SaveActivityLog(sectionName, itemID, ItemCodeActivityLogListName, listDataArray) {
+function SaveActivityLog(sectionName, itemID, ItemCodeActivityLogListName, listDataArray,isNewItem) {
     var stringActivity;
     var itemType = GetItemTypeForListName(ItemCodeActivityLogListName);
     var today = new Date().format("yyyy-MM-ddTHH:mm:ssZ");
     var actionStatus = $("#ActionStatus").val();
     var keys = Object.keys(buttonActionStatus).filter(k => buttonActionStatus[k] == actionStatus);
     actionPerformed = keys.toString();
-    stringActivity = GetActivityString(listActivityLogDataArray);
+    stringActivity = GetActivityString(listActivityLogDataArray,isNewItem);
     url = _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ItemCodeActivityLogListName + "')/items";
     headers = {
         "Accept": "application/json;odata=verbose",
@@ -1253,8 +1254,9 @@ function SaveActivityLog(sectionName, itemID, ItemCodeActivityLogListName, listD
 
 }
 
-function GetActivityString(listActivityLogDataArray) {
+function GetActivityString(listActivityLogDataArray,isCurrentApproverField) {
     var stringActivity;
+    
     if (!IsNullOrUndefined(listActivityLogDataArray) && listActivityLogDataArray.length > 0) {
         listActivityLogDataArray.forEach(element => {
             if (element.type == "peoplepicker") {
@@ -1272,6 +1274,20 @@ function GetActivityString(listActivityLogDataArray) {
                 stringActivity = stringActivity + element.value;
             }
         });
+    }
+    if(!isCurrentApproverField)
+    {
+        var today = new Date().format("yyyy-MM-ddTHH:mm:ssZ");
+        var approverActivityLog = "Assigned date" + "\t" + currentApproverDetails.AssignDate;
+        approverActivityLog += "\nApproved/Updated date" + "\t" + today;
+        approverActivityLog += "\n" + "Approver Comment" + "\t" + currentApproverDetails.COMMENTS;
+        if (stringActivity != null && stringActivity != '') {
+            stringActivity = stringActivity + '\n';
+            stringActivity = approverActivityLog;
+        }
+        else {
+            stringActivity = approverActivityLog;
+        }
     }
     return stringActivity;
 }
