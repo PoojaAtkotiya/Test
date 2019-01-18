@@ -1283,7 +1283,7 @@ function GetActivityString(listActivityLogDataArray,isCurrentApproverField) {
         approverActivityLog += "\n" + "Approver Comment" + "\t" + currentApproverDetails.COMMENTS;
         if (stringActivity != null && stringActivity != '') {
             stringActivity = stringActivity + '\n';
-            stringActivity = approverActivityLog;
+            stringActivity = stringActivity+ approverActivityLog;
         }
         else {
             stringActivity = approverActivityLog;
