@@ -1297,23 +1297,23 @@ function GetActivityString(listActivityLogDataArray, isCurrentApproverField) {
                 element.value = GetUserNamebyUserID(element.value);
             }
             if (stringActivity != null && stringActivity != '') {
-                stringActivity = stringActivity + '\n';
-                stringActivity = stringActivity + element.id;
                 stringActivity = stringActivity + '~';
+                stringActivity = stringActivity + element.id;
+                stringActivity = stringActivity + '';
                 stringActivity = stringActivity + element.value;
             }
             else {
                 stringActivity = element.id;
-                stringActivity = stringActivity + '~';
+                stringActivity = stringActivity + '';
                 stringActivity = stringActivity + element.value;
             }
         });
     }
     if (!isCurrentApproverField) {
         var today = new Date().format("yyyy-MM-ddTHH:mm:ssZ");
-        var approverActivityLog = "Assigned date" + "\t" + currentApproverDetails.AssignDate;
-        approverActivityLog += "\nApproved/Updated date" + "\t" + today;
-        approverActivityLog += "\n" + "Approver Comment" + "\t" + currentApproverDetails.COMMENTS;
+        var approverActivityLog = "Assigned date" + "" + currentApproverDetails.AssignDate;
+        approverActivityLog += "\nApproved/Updated date" + "" + today;
+        approverActivityLog += "\n" + "Approver Comment" + "" + currentApproverDetails.COMMENTS;
         if (stringActivity != null && stringActivity != '') {
             stringActivity = stringActivity + '\n';
             stringActivity = stringActivity + approverActivityLog;
