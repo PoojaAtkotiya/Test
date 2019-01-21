@@ -85,7 +85,7 @@ function ICDM_SaveData(ele) {
     function SaveDataCallBack(activeSection) {
         var isError = FormBusinessLogic(activeSection);
         if (!isError) {
-            SaveForm(activeSection);
+            SaveForm(activeSection, ele);
         }
     }
 }
@@ -108,9 +108,9 @@ function FormBusinessLogic(activeSection) {
     return isError;
 }
 
-function SaveForm(activeSection) {
+function SaveForm(activeSection, ele) {
     try {
-        SaveFormData(activeSection);
+        SaveFormData(activeSection, ele);
     }
     catch (Exception) {
         console.log("Error occured in SaveForm" + Exception);

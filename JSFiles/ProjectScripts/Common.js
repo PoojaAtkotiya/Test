@@ -15,8 +15,8 @@ jQuery(document).ready(function () {
     // BindDatePicker("");
     KeyPressNumericValidation();
     // LoadWaitDialog();
-   // hostweburl =  CommonConstant.hostWebURL ;
-    var scriptbase = CommonConstant.HOSTWEBURL  + "/_layouts/15/";
+    // hostweburl =  CommonConstant.hostWebURL ;
+    var scriptbase = CommonConstant.HOSTWEBURL + "/_layouts/15/";
     // Load the js files and continue to
     // the execOperation function.
     $.getScript(scriptbase + "SP.Runtime.js",
@@ -72,7 +72,7 @@ function removeFiles(fileId) {
 
 }
 function loadConstants() {
-    var clientContext = new SP.ClientContext("https://bajajelect.sharepoint.com/sites/MTDEV");
+    var clientContext = new SP.ClientContext(CommonConstant.HOSTWEBURL);
     this.oWebsite = clientContext.get_web();
     clientContext.load(this.oWebsite);
     clientContext.executeQueryAsync(
@@ -391,7 +391,7 @@ function ValidateFormControls(divObjectId, IgnoreBlankValues) {
 function GetCurrentUserDetails() {
     AjaxCall(
         {
-            url: "https://bajajelect.sharepoint.com/sites/MTDEV/_api/web/currentuser",
+            url: CommonConstant.HOSTWEBURL +"/_api/web/currentuser",
             httpmethod: 'GET',
             calldatatype: 'JSON',
             isAsync: false,
@@ -419,7 +419,7 @@ function cancel() {
 
 function GetFormDigest() {
     return $.ajax({
-        url: "https://bajajelect.sharepoint.com/sites/WFRootDev" + "/_api/contextinfo",
+        url: CommonConstant.ROOTURL + "/_api/contextinfo",
         method: "POST",
         headers: { "Accept": "application/json; odata=verbose" }
     });
@@ -758,15 +758,15 @@ function ValidateForm(ele, saveCallBack) {
                     $(".valid").removeClass("error");
                 }
             }
-            if (buttonCaption == "save as draft" || buttonCaption == "resume") {
-                $(this).attr("data-ajax-success", "OnSuccessNoRedirect");
-            }
-            else if (buttonCaption == "complete" && !isPageRedirect) {
-                $(this).attr("data-ajax-success", "ConfirmSubmitNoRedirect");
-            }
-            else {
-                $(this).attr("data-ajax-success", $(this).attr("data-ajax-old-success"));
-            }
+            // if (buttonCaption == "save as draft" || buttonCaption == "resume") {
+            //     $(this).attr("data-ajax-success", "OnSuccessNoRedirect");
+            // }
+            // else if (buttonCaption == "complete" && !isPageRedirect) {
+            //     $(this).attr("data-ajax-success", "ConfirmSubmitNoRedirect");
+            // }
+            // else {
+            //     $(this).attr("data-ajax-success", $(this).attr("data-ajax-old-success"));
+            // }
 
             // if (!$(this).valid()) {
             //     isValid = false;
@@ -941,7 +941,7 @@ function GetFormControlsValueAndType(id, elementType, elementProperty, listActiv
 function GetApproverMaster() {
     AjaxCall(
         {
-            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('" +  ListNames.APPROVERMASTERLIST + "')/items",
+            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('" + ListNames.APPROVERMASTERLIST + "')/items",
             httpmethod: 'GET',
             calldatatype: 'JSON',
             isAsync: false,
@@ -1087,7 +1087,7 @@ function formatDate(input) {
     return day + '/' + month + '/' + year;
 }
 
-function SaveFormData(activeSection) {
+function SaveFormData(activeSection,ele) {
     var mainListName = $($('div').find('[mainlistname]')).attr('mainlistname');
     if (mainListName != undefined && mainListName != '' && mainListName != null) {
 
@@ -1107,8 +1107,7 @@ function SaveFormData(activeSection) {
             var elementType = $(this).attr('controlType');
             var elementProperty = $(this).attr('controlProperty');
             currAppArray = GetFormControlsValue(elementId, elementType, currAppArray);
-
-            debugger
+          
             if (!IsNullOrUndefined(currAppArray)) {
                 if (elementId.indexOf("_Comments") != -1) {
                     currentApproverDetails[CurrentApprover.COMMENTS] = currAppArray[elementId];
@@ -1118,13 +1117,24 @@ function SaveFormData(activeSection) {
                 }
             }
         });
-        SaveData(mainListName, listDataArray, sectionName);
+        SaveData(mainListName, listDataArray, sectionName,ele);
     }
 }
 
-function SaveData(listname, listDataArray, sectionName) {
+function SaveData(listname, listDataArray, sectionName,ele) {
     var itemType = GetItemTypeForListName(listname);
     var isNewItem = true;
+    var callbackfunction;
+    var buttonCaption = $(ele).text().toLowerCase().trim();
+    if (buttonCaption == "save as draft" || buttonCaption == "resume") {
+        callbackfunction= "OnSuccessNoRedirect";
+    }
+    else if (buttonCaption == "complete" && !isPageRedirect) {
+        callbackfunction= "ConfirmSubmitNoRedirect";
+    }
+    else {
+        callbackfunction= "ConfirmSubmitNoRedirect";
+    }
     if (listDataArray != null) {
         listDataArray["__metadata"] = {
             "type": itemType
@@ -1173,7 +1183,8 @@ function SaveData(listname, listDataArray, sectionName) {
                             SaveTranListData(itemID);
                         }
                         HideWaitDialog();
-                        AlertModal("Success", "Data saved successfully", false, null);
+                       
+                        AlertModal("Success", "Data saved successfully", false, callbackfunction);
                     }, function (sender, args) {
                         HideWaitDialog();
                         console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
@@ -1190,6 +1201,7 @@ function SaveData(listname, listDataArray, sectionName) {
 
 function OnSuccessNoRedirect(data, status, xhr) {
     try {
+        debugger;
         if (data.IsSucceed) {
             if (data.IsFile) {
                 DownloadUploadedFile("<a data-url='" + data.ExtraData + "'/>", function () {
@@ -1220,8 +1232,8 @@ function OnSuccessNoRedirect(data, status, xhr) {
 function SaveActivityLog(sectionName, itemID, ActivityLogListName, listDataArray, isNewItem) {
     var stringActivity;
     var itemType = GetItemTypeForListName(ActivityLogListName);
-    var today = new Date().format("yyyy-MM-ddTHH:mm:ssZ");  
-    var actionPerformed = Object.keys(ButtonActionStatus).filter(k => ButtonActionStatus[k] ==  $("#ActionStatus").val()).toString();
+    var today = new Date().format("yyyy-MM-ddTHH:mm:ssZ");
+    var actionPerformed = Object.keys(ButtonActionStatus).filter(k => ButtonActionStatus[k] == $("#ActionStatus").val()).toString();
     stringActivity = GetActivityString(listActivityLogDataArray, isNewItem);
     url = _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ActivityLogListName + "')/items";
     headers = {
