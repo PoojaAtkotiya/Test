@@ -391,7 +391,7 @@ function ValidateFormControls(divObjectId, IgnoreBlankValues) {
 function GetCurrentUserDetails() {
     AjaxCall(
         {
-            url: CommonConstant.HOSTWEBURL +"/_api/web/currentuser",
+            url: CommonConstant.HOSTWEBURL + "/_api/web/currentuser",
             httpmethod: 'GET',
             calldatatype: 'JSON',
             isAsync: false,
@@ -577,7 +577,7 @@ function AlertModal(title, msg, isExit, callback) {
             callback();
         }
         if (typeof (isExit) !== 'undefined' && isExit == true) {
-            // Exit();
+             Exit();
         }
         if (callback == null) {
             $("div[id='PopupDialog']").hide();
@@ -585,6 +585,14 @@ function AlertModal(title, msg, isExit, callback) {
 
         }
     });
+}
+function Exit() {
+    try {
+        parent.postMessage(CommonConstant.HOSTWEBURL,CommonConstant.SPHOST);
+    } 
+    catch (e) {
+        parent.postMessage($("#hdnSPHOSTURL").val(), $("#hdnSPHOST").val());
+    }
 }
 
 function UserAborted(xhr) {
@@ -605,71 +613,6 @@ function onAjaxError(xhr) {
             //}
         }
     }
-}
-
-function OnSuccess(data, status, xhr) {
-    try {
-        if (data.IsSucceed) {
-            if (data.IsFile) {
-                DownloadUploadedFile("<a data-url='" + data.ExtraData + "'/>", function () {
-                    ShowWaitDialog();
-                    setTimeout(function () {
-                        window.location = window.location.href + (window.location.href.indexOf('?') >= 0 ? "&" : "?");
-                    }, 2000)
-                });
-            } else {
-                var msg = '';
-                if (data.ExtraData != null) {
-                    msg = "<b>" + data.ExtraData + "</b>" + "<br>" + ParseMessage(data.Messages);
-                }
-                else {
-                    if ($("#ReferenceNo").length != 0) {
-                        msg = $("#ReferenceNo").html() + "<br>" + ParseMessage(data.Messages);
-                    }
-                    else {
-                        msg = ParseMessage(data.Messages);
-                    }
-                    ////msg = $("#ReferenceNo").html() + "<br>" + ParseMessage(data.Messages);
-                }
-                //AlertModal('Success', ParseMessage(data.Messages), true);
-                AlertModal('Success', msg, true);
-            }
-        } else {
-            AlertModal('Error', ParseMessage(data.Messages));
-        }
-    }
-    catch (e) { window.location.reload(); }
-}
-
-function OnFailure(xhr, status, error) {
-    try {
-        if (xhr.status.toString().substr(0, 1) == "4" || xhr.status == 504) {
-            AlertModal('SessionTimeout', ResourceManager.Message.SessionTimeOut);
-        }
-        else {
-            AlertModal('Error', ResourceManager.Message.Error);
-        }
-    }
-    catch (e) { window.location.reload(); }
-}
-
-
-function OnDelete(ele) {
-    var Id = $('#ListDetails_0__ItemId').val();
-    console.log("Id = " + Id);
-    ConfirmationDailog({
-        title: "Delete Request", message: "Are you sure to 'Delete'?", id: Id, url: "/NewArtwork/DeleteArwork", okCallback: function (id, data) {
-            ShowWaitDialog();
-            if (data.IsSucceed) {
-                AlertModal("Success", ParseMessage(data.Messages), true);
-            }
-            else {
-                AlertModal("Error", ParseMessage(data.Messages), true)
-            }
-
-
-        }
-    });
 }
 function resetFormValidator(formId) {
     $(formId).removeData('validator');
@@ -1087,7 +1030,7 @@ function formatDate(input) {
     return day + '/' + month + '/' + year;
 }
 
-function SaveFormData(activeSection,ele) {
+function SaveFormData(activeSection, ele) {
     var mainListName = $($('div').find('[mainlistname]')).attr('mainlistname');
     if (mainListName != undefined && mainListName != '' && mainListName != null) {
 
@@ -1107,7 +1050,7 @@ function SaveFormData(activeSection,ele) {
             var elementType = $(this).attr('controlType');
             var elementProperty = $(this).attr('controlProperty');
             currAppArray = GetFormControlsValue(elementId, elementType, currAppArray);
-          
+
             if (!IsNullOrUndefined(currAppArray)) {
                 if (elementId.indexOf("_Comments") != -1) {
                     currentApproverDetails[CurrentApprover.COMMENTS] = currAppArray[elementId];
@@ -1117,24 +1060,16 @@ function SaveFormData(activeSection,ele) {
                 }
             }
         });
-        SaveData(mainListName, listDataArray, sectionName,ele);
+        SaveData(mainListName, listDataArray, sectionName, ele);
     }
 }
 
-function SaveData(listname, listDataArray, sectionName,ele) {
+function SaveData(listname, listDataArray, sectionName, ele) {
     var itemType = GetItemTypeForListName(listname);
     var isNewItem = true;
     var callbackfunction;
     var buttonCaption = $(ele).text().toLowerCase().trim();
-    if (buttonCaption == "save as draft" || buttonCaption == "resume") {
-        callbackfunction= "OnSuccessNoRedirect";
-    }
-    else if (buttonCaption == "complete" && !isPageRedirect) {
-        callbackfunction= "ConfirmSubmitNoRedirect";
-    }
-    else {
-        callbackfunction= "ConfirmSubmitNoRedirect";
-    }
+
     if (listDataArray != null) {
         listDataArray["__metadata"] = {
             "type": itemType
@@ -1183,8 +1118,19 @@ function SaveData(listname, listDataArray, sectionName,ele) {
                             SaveTranListData(itemID);
                         }
                         HideWaitDialog();
-                       
-                        AlertModal("Success", "Data saved successfully", false, callbackfunction);
+                        data.ItemID = itemID;
+                        data.IsSucceed = true;
+                        data.Messages = "Data saved successfully";
+                        if (buttonCaption == "save as draft" || buttonCaption == "resume") {
+                            OnSuccessNoRedirect(data);                           
+                        }                     
+                        else if (buttonCaption == "complete" && !isPageRedirect) {
+                            OnSuccessConfirmSubmitNoRedirect(data);
+                        }
+                        else {
+                            OnSuccess(data);
+                        }
+
                     }, function (sender, args) {
                         HideWaitDialog();
                         console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
@@ -1199,9 +1145,21 @@ function SaveData(listname, listDataArray, sectionName,ele) {
     }
 }
 
-function OnSuccessNoRedirect(data, status, xhr) {
+function ParseMessage(msg) {
+    if (msg.length == 1) {
+        return msg[0];
+    } else {
+        var finalMSg = "<ul>";
+        $(msg).each(function (i, item) {
+            finalMSg += "<li>" + item + "</li>";
+        });
+        finalMSg += "</ul>";
+        return finalMSg;
+    }
+}
+
+function OnSuccess(data) {
     try {
-        debugger;
         if (data.IsSucceed) {
             if (data.IsFile) {
                 DownloadUploadedFile("<a data-url='" + data.ExtraData + "'/>", function () {
@@ -1211,7 +1169,79 @@ function OnSuccessNoRedirect(data, status, xhr) {
                     }, 2000)
                 });
             } else {
-                AlertModal('Success', ParseMessage(data.Messages), false, function () {
+                var msg = '';
+                if (data.ExtraData != null) {
+                    msg = "<b>" + data.ExtraData + "</b>" + "<br>" + data.Messages;
+                }
+                else {
+                    if ($("#ReferenceNo").length != 0) {
+                        msg = $("#ReferenceNo").html() + "<br>" + data.Messages;
+                    }
+                    else {
+                        msg = data.Messages;
+                    }
+                    ////msg = $("#ReferenceNo").html() + "<br>" + ParseMessage(data.Messages);
+                }
+                //AlertModal('Success', ParseMessage(data.Messages), true);
+                AlertModal('Success', msg, true);
+            }
+        } else {
+            AlertModal('Error', data.Messages);
+        }
+    }
+    catch (e) { window.location.reload(); }
+}
+
+function OnFailure(xhr, status, error) {
+    try {
+        if (xhr.status.toString().substr(0, 1) == "4" || xhr.status == 504) {
+            AlertModal('SessionTimeout', "Session Time Out!!!!");
+        }
+        else {
+            AlertModal('Error', "Error Occured");
+        }
+    }
+    catch (e) { window.location.reload(); }
+}
+
+
+function OnDelete(ele) {
+    var Id = $('#ListDetails_0__ItemId').val();
+    console.log("Id = " + Id);
+    ConfirmationDailog({
+        title: "Delete Request", message: "Are you sure to 'Delete'?", id: Id, url: "/NewArtwork/DeleteArwork", okCallback: function (id, data) {
+            ShowWaitDialog();
+            if (data.IsSucceed) {
+                AlertModal("Success", data.Messages, true);
+            }
+            else {
+                AlertModal("Error", data.Messages, true)
+            }
+
+
+        }
+    });
+}
+
+function OnSuccessConfirmSubmitNoRedirect(data) {
+    try {
+        if (data.IsSucceed) {
+            if (data.IsFile) {
+                DownloadUploadedFile("<a data-url='" + data.ExtraData + "'/>", function () {
+                    ShowWaitDialog();
+                    setTimeout(function () {
+                        window.location = window.location.href + (window.location.href.indexOf('?') >= 0 ? "&" : "?");
+                    }, 2000)
+                });
+            } else {
+                var msg = '';
+                if (data.ExtraData != null) {
+                    msg = "<b>" + data.ExtraData + "</b>" + "<br>" + data.Messages;
+                }
+                else {
+                    msg = data.Messages;
+                }
+                AlertModal('Success', msg, false, function () {
                     if (window.location.href.indexOf('&id=' + data.ItemID + "&") >= 0) {
                         ShowWaitDialog();
                         window.location = window.location.href;
@@ -1223,7 +1253,36 @@ function OnSuccessNoRedirect(data, status, xhr) {
             }
         }
         else {
-            AlertModal('Error', ParseMessage(data.Messages));
+            AlertModal('Error', data.Messages);
+        }
+    }
+    catch (e) { window.location.reload(); }
+}
+
+function OnSuccessNoRedirect(data) {
+    try {       
+        if (data.IsSucceed) {
+            if (data.IsFile) {
+                DownloadUploadedFile("<a data-url='" + data.ExtraData + "'/>", function () {
+                    ShowWaitDialog();
+                    setTimeout(function () {
+                        window.location = window.location.href + (window.location.href.indexOf('?') >= 0 ? "&" : "?");
+                    }, 2000)
+                });
+            } else {
+                AlertModal('Success', data.Messages, false, function () {
+                    if (window.location.href.indexOf('&id=' + data.ItemID + "&") >= 0) {
+                        ShowWaitDialog();
+                        window.location = window.location.href;
+                    } else {
+                        ShowWaitDialog();
+                        window.location = window.location.href.replace("&id={ItemId}&", "&id=" + data.ItemID + "&").replace("&id=", "&id=" + data.ItemID + "&");
+                    }
+                });
+            }
+        }
+        else {
+            AlertModal('Error', data.Messages);
         }
     }
     catch (e) { window.location.reload(); }

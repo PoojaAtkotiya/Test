@@ -1,6 +1,7 @@
 const CommonConstant = {
     SPSITEURL : _spPageContextInfo.webAbsoluteUrl,
     ROOTURL : "https://bajajelect.sharepoint.com/sites/WFRootDev/",
+    SPHOST :"https://bajajelect.sharepoint.com/npddev/",
     HOSTWEBURL : "https://bajajelect.sharepoint.com/sites/MTDEV",
     APPLICATIONSHORTNAME : "ICDM",
     APPLICATIONNAME : "Item Code Creation Preprocess",
