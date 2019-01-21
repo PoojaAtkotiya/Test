@@ -71,7 +71,12 @@ function GetLocalApprovalMatrixData(id, mainListName) {
                 localApprovalMatrixdata = data.d.results;
                 SetSectionWiseRoles(id);
                 SetApprovalMatrix(id, mainListName);
-                //setCustomApprovers(tempApproverMatrix);
+
+                // ////set approver's values in html controls
+                // if (!IsNullOrUndefined(tempApproverMatrix) && tempApproverMatrix.length > 0) {
+
+                // }
+
             }
         });
 
@@ -1206,12 +1211,16 @@ function SetSectionWiseRoles(id) {
         if (!IsNullOrUndefined(localApprovalMatrixdata) && localApprovalMatrixdata.length > 0) {
             ////Compare by Section Name
             localApprovalMatrixdata.filter(function (l) {
-                $(formName).find('div').each(function () {
+                $('#' + formNames).find('div').each(function () {
                     var divSection = $(this).attr('section');
                     if (!IsNullOrUndefined(divSection) && !IsNullOrUndefined(l.SectionName) && l.SectionName == divSection) {
                         //// if section name are same, get Role and FillByRole
                         $(this).attr('sectionOwner', l.Role);
                         $(this).attr('FillByRole', l.FillByRole);
+                        var divId = $(this).attr('id');
+                        if (!IsNullOrUndefined(l.Comments) && !IsStrNullOrEmpty(l.Comments)) {
+                            $('#' +divId + '_Comments').val(l.Comments);
+                        }
                     }
                 });
             });
