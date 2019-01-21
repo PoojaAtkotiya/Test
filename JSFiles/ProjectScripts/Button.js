@@ -6,7 +6,7 @@ function GetButtons(id, currentUserRole, formStatus) {
     GetFormDigest().then(function (data) {
         AjaxCall(
             {
-                url: "https://bajajelect.sharepoint.com/sites/WFRootDev" + "/_api/web/lists/getbytitle('" + buttonListName + "')/GetItems(query=@v1)?@v1={\"ViewXml\":\"<View><Query><Where><And><Eq><FieldRef Name='ApplicationName' /><Value Type='TaxonomyFieldType'>" + applicationName + "</Value></Eq><Eq><FieldRef Name='FormName' /><Value Type='Text'>" + formName + "</Value></Eq></And></Where></Query></View>\"}",
+                url: "https://bajajelect.sharepoint.com/sites/WFRootDev" + "/_api/web/lists/getbytitle('" + ListNames.BUTTONLIST + "')/GetItems(query=@v1)?@v1={\"ViewXml\":\"<View><Query><Where><And><Eq><FieldRef Name='ApplicationName' /><Value Type='TaxonomyFieldType'>" + CommonConstant.APPLICATIONNAME + "</Value></Eq><Eq><FieldRef Name='FormName' /><Value Type='Text'>" + CommonConstant.FORMNAME + "</Value></Eq></And></Where></Query></View>\"}",
                 httpmethod: 'POST',
                 calldatatype: 'JSON',
                 isAsync: false,
@@ -22,7 +22,7 @@ function GetButtons(id, currentUserRole, formStatus) {
                 }
             });
         // $.ajax({
-        //     url: "https://bajajelect.sharepoint.com/sites/WFRootDev" + "/_api/web/lists/getbytitle('" + buttonListName + "')/GetItems(query=@v1)?@v1={\"ViewXml\":\"<View><Query><Where><And><Eq><FieldRef Name='ApplicationName' /><Value Type='TaxonomyFieldType'>" + applicationName + "</Value></Eq><Eq><FieldRef Name='FormName' /><Value Type='Text'>" + formName + "</Value></Eq></And></Where></Query></View>\"}",
+        //     url: "https://bajajelect.sharepoint.com/sites/WFRootDev" + "/_api/web/lists/getbytitle('" + ListNames.BUTTONLIST  + "')/GetItems(query=@v1)?@v1={\"ViewXml\":\"<View><Query><Where><And><Eq><FieldRef Name='ApplicationName' /><Value Type='TaxonomyFieldType'>" + CommonConstant.FORMNAME + "</Value></Eq><Eq><FieldRef Name='FormName' /><Value Type='Text'>" + CommonConstant.APPLICATIONNAME + "</Value></Eq></And></Where></Query></View>\"}",
         //     type: "POST",
         //     headers:
         //         {
@@ -53,18 +53,18 @@ function GetButtonsByRole(id, currentUserRole, formStatus) {
 
     currentRoleButtons = [];
     for (i = 0; i <= allButtons.length - 1; i++) {
-        if (allButtons[i].FormName.results[0].Label == formName && allButtons[i].Role.includes(currentUserRole) && allButtons[i].FormStatus.includes(formStatus)) {
+        if (allButtons[i].FormName.results[0].Label == CommonConstant.FORMNAME && allButtons[i].Role.includes(currentUserRole) && allButtons[i].FormStatus.includes(formStatus)) {
             currentRoleButtons.push(allButtons[i]);
         }
     }
 
     for (i = 0; i <= currentRoleButtons.length - 1; i++) {
-        var jsFuncName = Object.keys(jsFunctionValue).find(k => jsFunctionValue[k] === currentRoleButtons[i].JsFunctionNameId);
+        var jsFuncName = Object.keys(JsFunctionValue).find(k => JsFunctionValue[k] === currentRoleButtons[i].JsFunctionNameId);
         var jsFunc = "onClick=" + jsFuncName + "(this);";
-        var dataactionid = buttonActionStatus[Object.keys(buttonActionStatus).find(k => buttonActionStatus[k] === currentRoleButtons[i].ButtonActionValueId)];
-        var status = Object.keys(buttonActionStatus).find(k => buttonActionStatus[k] === currentRoleButtons[i].ButtonActionValueId);
+        var dataactionid = ButtonActionStatus[Object.keys(ButtonActionStatus).find(k => ButtonActionStatus[k] === currentRoleButtons[i].ButtonActionValueId)];
+        var status = Object.keys(ButtonActionStatus).find(k => ButtonActionStatus[k] === currentRoleButtons[i].ButtonActionValueId);
         var isVisible = currentRoleButtons[i].IsVisible ? "" : "class=hide";
-        btnli = btnli + '<li class="pull-left"><a id="btn' + (buttonCount++) + '" ' + isVisible + ' onClick="' + ApplicationShortName + '_SaveData(this);"' + ' data-action="' + dataactionid + '" data-sendbackto="' + currentRoleButtons[i].SendBackTo + '" data-sendtorole="' + currentRoleButtons[i].SendToRole + '" class="btn btn-default" title="' + currentRoleButtons[i].ToolTip + '" data-placement="bottom"><i class="' + currentRoleButtons[i].Icon + '"></i>&nbsp;' + currentRoleButtons[i].Title + '</a></li>'
+        btnli = btnli + '<li class="pull-left"><a id="btn' + (buttonCount++) + '" ' + isVisible + ' onClick="' + CommonConstant.APPLICATIONSHORTNAME + '_SaveData(this);"' + ' data-action="' + dataactionid + '" data-sendbackto="' + currentRoleButtons[i].SendBackTo + '" data-sendtorole="' + currentRoleButtons[i].SendToRole + '" class="btn btn-default" title="' + currentRoleButtons[i].ToolTip + '" data-placement="bottom"><i class="' + currentRoleButtons[i].Icon + '"></i>&nbsp;' + currentRoleButtons[i].Title + '</a></li>'
     }
 
 

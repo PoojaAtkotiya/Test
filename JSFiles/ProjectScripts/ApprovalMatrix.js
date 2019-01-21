@@ -12,7 +12,7 @@ function GetGlobalApprovalMatrix(id) {
     GetFormDigest().then(function (data) {
         AjaxCall(
             {
-                url: "https://bajajelect.sharepoint.com/sites/WFRootDev" + "/_api/web/lists/getbytitle('" + globalApprovalMatrixName + "')/GetItems(query=@v1)?@v1={\"ViewXml\":\"<View><Query><Where><And><Eq><FieldRef Name='ApplicationName' /><Value Type='TaxonomyFieldType'>" + applicationName + "</Value></Eq><Eq><FieldRef Name='FormName' /><Value Type='Text'>" + formName + "</Value></Eq></And></Where></Query></View>\"}",
+                url: "https://bajajelect.sharepoint.com/sites/WFRootDev" + "/_api/web/lists/getbytitle('" + ListNames.GLOBALAPPROVALMATRIXLIST + "')/GetItems(query=@v1)?@v1={\"ViewXml\":\"<View><Query><Where><And><Eq><FieldRef Name='ApplicationName' /><Value Type='TaxonomyFieldType'>" + CommonConstant.APPLICATIONNAME + "</Value></Eq><Eq><FieldRef Name='FormName' /><Value Type='Text'>" + CommonConstant.FORMNAME + "</Value></Eq></And></Where></Query></View>\"}",
                 httpmethod: 'POST',
                 calldatatype: 'JSON',
                 headers:
@@ -31,7 +31,7 @@ function GetGlobalApprovalMatrix(id) {
             });
 
         // $.ajax({
-        //     url: "https://bajajelect.sharepoint.com/sites/WFRootDev" + "/_api/web/lists/getbytitle('" + globalApprovalMatrixName + "')/GetItems(query=@v1)?@v1={\"ViewXml\":\"<View><Query><Where><And><Eq><FieldRef Name='ApplicationName' /><Value Type='TaxonomyFieldType'>" + applicationName + "</Value></Eq><Eq><FieldRef Name='FormName' /><Value Type='Text'>" + formName + "</Value></Eq></And></Where></Query></View>\"}",
+        //     url: "https://bajajelect.sharepoint.com/sites/WFRootDev" + "/_api/web/lists/getbytitle('" + ListNames.GLOBALAPPROVALMATRIXLIST + "')/GetItems(query=@v1)?@v1={\"ViewXml\":\"<View><Query><Where><And><Eq><FieldRef Name='ApplicationName' /><Value Type='TaxonomyFieldType'>" + CommonConstant.APPLICATIONNAME + "</Value></Eq><Eq><FieldRef Name='FormName' /><Value Type='Text'>" +  CommonConstant.FORMNAME + "</Value></Eq></And></Where></Query></View>\"}",
         //     type: "POST",
         //     headers:
         //         {
@@ -57,7 +57,7 @@ function GetLocalApprovalMatrixData(id, mainListName) {
 
     AjaxCall(
         {
-            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ItemCodeApprovalMatrixListName + "')/Items?$select=*,Approver/EMail,Approver/UserName&$expand=Approver&$filter=RequestID eq '" + id + "'&$orderby= Levels asc",
+            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ListNames.ICDMAPPROVALMATRIXLIST + "')/Items?$select=*,Approver/EMail,Approver/UserName&$expand=Approver&$filter=RequestID eq '" + id + "'&$orderby= Levels asc",
             httpmethod: 'GET',
             calldatatype: 'JSON',
             isAsync: false,
@@ -76,7 +76,7 @@ function GetLocalApprovalMatrixData(id, mainListName) {
         });
 
     // $.ajax({
-    //     url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ItemCodeApprovalMatrixListName + "')/Items?$select=*,Approver/EMail,Approver/UserName&$expand=Approver&$filter=RequestID eq '" + id + "'&$orderby= Levels asc",
+    //     url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ListNames.ICDMAPPROVALMATRIXLIST + "')/Items?$select=*,Approver/EMail,Approver/UserName&$expand=Approver&$filter=RequestID eq '" + id + "'&$orderby= Levels asc",
     //     type: "GET",
     //     async: false,
     //     headers:
@@ -108,7 +108,7 @@ function SetApprovalMatrix(id, mainListName) {
             console.log("Execute  second after the retrieve list items  failed");
         });
     } else {
-        currentUserRole = "Creator";
+        currentUserRole = Roles.CREATOR;
         //get active/inactive section name from globalApprovalMatrix
         GetEnableSectionNames(id = 0);
         tempApproverMatrix = globalApprovalMatrix;
@@ -131,7 +131,7 @@ function SetApprovalMatrix(id, mainListName) {
 }
 
 function SetApproversInApprovalMatrix(id) {
-    GetMasterData(ApproverMasterListName);
+    GetMasterData(ListNames.APPROVERMASTERLIST);
     var approverMaster = masterDataArray;
     //set status(of all levels) and approver(current)
     if (!IsNullOrUndefined(tempApproverMatrix) && tempApproverMatrix.length > 0) {
@@ -181,7 +181,7 @@ function GetCurrentUserRole(id, mainListName) {
         }
         else if (oListItem.get_effectiveBasePermissions().has(SP.PermissionKind.viewListItems)) {
             console.log("user has Read permission");
-            currentUserRole = "Viewer";
+            currentUserRole = Roles.VIEWER;
             GetButtons(id, currentUserRole, oListItem.get_item('Status'));
         }
         else {
@@ -198,7 +198,7 @@ function GetCurrentUserRole(id, mainListName) {
 
 function GetRoleFromApprovalMatrix(tcurrentLevel, requestId, currUserId) {
     localApprovalMatrixdata.filter(function (i) {
-        if (i.ApplicationName == applicationName && i.FormName == formName && i.Levels == tcurrentLevel && i.RequestIDId == requestId && (!IsNullOrUndefined(i.ApproverId) && !IsNullOrUndefined(i.ApproverId.results) && i.ApproverId.results.some(item => item == currUserId))) {
+        if (i.ApplicationName == CommonConstant.APPLICATIONNAME && i.FormName == CommonConstant.FORMNAME && i.Levels == tcurrentLevel && i.RequestIDId == requestId && (!IsNullOrUndefined(i.ApproverId) && !IsNullOrUndefined(i.ApproverId.results) && i.ApproverId.results.some(item => item == currUserId))) {
             currentUserRole = i.Role;
         }
     });
@@ -209,7 +209,7 @@ function GetEnableSectionNames(id) {
     if (id == 0) {
         //get active section name
         var activeSectionItem = globalApprovalMatrix.filter(function (i) {
-            return (i.ApplicationName.Label == applicationName && i.FormName.Label == formName && i.Role == currentUserRole);
+            return (i.ApplicationName.Label == CommonConstant.APPLICATIONNAME && i.FormName.Label == CommonConstant.FORMNAME && i.Role == currentUserRole);
         })[0];
 
         activeSectionName = (!IsNullOrUndefined(activeSectionItem.SectionName) && !IsNullOrUndefined(activeSectionItem.SectionName.results) && !IsNullOrUndefined(activeSectionItem.SectionName.results.length > 0) && !IsNullOrUndefined(activeSectionItem.SectionName.results[0])) ? activeSectionItem.SectionName.results[0].Label : '';
@@ -233,7 +233,7 @@ function GetEnableSectionNames(id) {
     else if (id > 0) {
         //get active section name
         var activeSectionItem = localApprovalMatrixdata.filter(function (l) {
-            return (l.ApplicationName == applicationName && l.FormName == formName && l.Levels == tcurrentLevel && l.Role == currentUserRole);
+            return (l.ApplicationName == CommonConstant.APPLICATIONNAME && l.FormName == CommonConstant.FORMNAME && l.Levels == tcurrentLevel && l.Role == currentUserRole);
         })[0];
 
         activeSectionName = !IsNullOrUndefined(activeSectionItem) ? activeSectionItem.SectionName : '';
@@ -269,25 +269,25 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
     var actionStatus = $("#ActionStatus").val();
     var sendToRole = $("#SendToRole").val();
     var sendBackTo = $("#SendBackTo").val();
-    //var keys = Object.keys(buttonActionStatus).filter(k => buttonActionStatus[k] == actionStatus);
+    //var keys = Object.keys(ButtonActionStatus).filter(k => ButtonActionStatus[k] == actionStatus);
     //actionPerformed = keys.toString();
     actionPerformed = parseInt(actionStatus);
 
     ///Pending -- temporary
     var param = {};
-    param[constantKeys.SENDTOLEVEL] = 0;                 // constantKeys.SENDTOLEVEL
-    param[constantKeys.SENDTOROLE] = sendToRole;
-    param[constantKeys.SENDBACKTO] = sendBackTo;
-    param[constantKeys.ACTIONPERFORMED] = actionPerformed;
+    param[ConstantKeys.SENDTOLEVEL] = 0;                 // ConstantKeys.SENDTOLEVEL
+    param[ConstantKeys.SENDTOROLE] = sendToRole;
+    param[ConstantKeys.SENDBACKTO] = sendBackTo;
+    param[ConstantKeys.ACTIONPERFORMED] = actionPerformed;
 
-    var sendToLevel = ((constantKeys.SENDTOLEVEL in param) && !IsNullOrUndefined(param[constantKeys.SENDTOLEVEL])) ? param[constantKeys.SENDTOLEVEL] : null;
+    var sendToLevel = ((ConstantKeys.SENDTOLEVEL in param) && !IsNullOrUndefined(param[ConstantKeys.SENDTOLEVEL])) ? param[ConstantKeys.SENDTOLEVEL] : null;
 
     if (isNewItem) {
         // var sectionOwner = currentUserRole;
         formFieldValues["ProposedBy"] = currentUser.Id;
         ////Save CurrentApprover as Creator in tempApprovalMatrix
         tempApproverMatrix.filter(function (temp) {
-            if (temp.Role == "Creator") {
+            if (temp.Role == Roles.CREATOR) {
                 temp.ApproverId = currentUser.Id;
                 temp.RequestIDId = requestId;
             }
@@ -305,7 +305,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
         tempApproverMatrix.forEach(t => {
             t.RequestIDId = requestId;
         });
-        if (actionPerformed != buttonActionStatus.SendBack && actionPerformed != buttonActionStatus.Forward && tempApproverMatrix.some(t => t.Levels != currentLevel)) {
+        if (actionPerformed != ButtonActionStatus.SendBack && actionPerformed != ButtonActionStatus.Forward && tempApproverMatrix.some(t => t.Levels != currentLevel)) {
             ////Get Next Level
             var nextLevelRow = tempApproverMatrix.sort(t => t.Levels).filter(function (temp) {
                 return (temp.Status != "Not Required" && !IsNullOrUndefined(temp.ApproverId) && temp.Levels > currentLevel);
@@ -346,7 +346,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
             });
         }
         else {
-            if (actionPerformed == buttonActionStatus.NextApproval || actionPerformed == buttonActionStatus.Delegate) {
+            if (actionPerformed == ButtonActionStatus.NextApproval || actionPerformed == ButtonActionStatus.Delegate) {
                 var approvers = tempApproverMatrix.sort(a => a.Levels).filter(a => a.Levels > currentLevel && !IsNullOrUndefined(a.ApproverId) && a.Status != "Not Required")[0];
                 if (!IsNullOrUndefined(approvers)) {
                     var listofNextApprovers = tempApproverMatrix.filter(temp => (temp.Levels == nextLevel && temp.Status == "Pending"));
@@ -379,7 +379,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
                 currentLevel = previousLevel;
             }
         }
-        if (actionPerformed == buttonActionStatus.SendBack && !IsNullOrUndefined(sendToLevel)) {
+        if (actionPerformed == ButtonActionStatus.SendBack && !IsNullOrUndefined(sendToLevel)) {
             nextLevel = sendToLevel;
             var listofNextApprovers = tempApproverMatrix.filter(temp => (temp.Levels == nextLevel && temp.Status == "Pending"));
             nextApprover = '';
@@ -407,7 +407,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
 
             });
         }
-        if (actionPerformed == buttonActionStatus.SendForward && !IsNullOrUndefined(sendToLevel)) {
+        if (actionPerformed == ButtonActionStatus.SendForward && !IsNullOrUndefined(sendToLevel)) {
             nextLevel = sendToLevel;
             var approvers = tempApproverMatrix.sort(a => a.Levels).filter(a => a.Levels >= nextLevel && !IsNullOrUndefined(a.ApproverId))[0];
             if (!IsNullOrUndefined(approvers)) {
@@ -437,58 +437,58 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
     var makeAllUsersViewer = false;
     var isTaskAssignMailSend = false;
     switch (actionPerformed) {
-        case buttonActionStatus.SaveAsDraft:
+        case ButtonActionStatus.SaveAsDraft:
             nextLevel = currentLevel;
             currentLevel = previousLevel;
             formFieldValues['Status'] = "Draft";
             formFieldValues['NextApprover'] = currentUser.Id;
             break;
-        case buttonActionStatus.SaveAndStatusUpdate:
-        case buttonActionStatus.SaveAndStatusUpdateWithEmail:
-        case buttonActionStatus.ConfirmSave:
+        case ButtonActionStatus.SaveAndStatusUpdate:
+        case ButtonActionStatus.SaveAndStatusUpdateWithEmail:
+        case ButtonActionStatus.ConfirmSave:
             formFieldValues['Status'] = "Save";
             break;
-        case buttonActionStatus.Save:
+        case ButtonActionStatus.Save:
             formFieldValues['Status'] = "Save";
             makeAllUsersViewer = true;
             break;
-        case buttonActionStatus.Submit:
+        case ButtonActionStatus.Submit:
             nextLevel = currentLevel;
             currentLevel = previousLevel;
             formFieldValues['Status'] = "Submitted";
             makeAllUsersViewer = true;
             break;
-        case buttonActionStatus.Hold:
+        case ButtonActionStatus.Hold:
             formFieldValues['Status'] = "Hold";
             formFieldValues['HoldDate'] = new Date().toLocaleDateString();
             formFieldValues['LastActionBy'] = currentUser.Id;
             formFieldValues['LastActionByRole'] = currentUserRole;
             formFieldValues['PendingWith'] = currentUserRole;
             break;
-        case buttonActionStatus.Resume:
+        case ButtonActionStatus.Resume:
             formFieldValues['Status'] = "Submitted";
             formFieldValues['LastActionBy'] = currentUser.Id;
             formFieldValues['LastActionByRole'] = currentUserRole;
             formFieldValues['PendingWith'] = currentUserRole;
             break;
-        case buttonActionStatus.UpdateAndRepublish:
+        case ButtonActionStatus.UpdateAndRepublish:
             nextLevel = currentLevel;
             currentLevel = previousLevel;
             formFieldValues['Status'] = "Update & Republish";
             break;
-        case buttonActionStatus.Reschedule:
+        case ButtonActionStatus.Reschedule:
             nextLevel = currentLevel;
             currentLevel = previousLevel;
             formFieldValues['Status'] = "Re-Scheduled";
             formFieldValues['IsReschedule'] = false;
             break;
-        case buttonActionStatus.ReadyToPublish:
+        case ButtonActionStatus.ReadyToPublish:
             nextLevel = currentLevel;
             currentLevel = previousLevel;
             formFieldValues['Status'] = "Ready to Publish";
             break;
-        case buttonActionStatus.Delegate:
-        case buttonActionStatus.NextApproval:
+        case ButtonActionStatus.Delegate:
+        case ButtonActionStatus.NextApproval:
             formFieldValues['LastactionPerformed'] = actionPerformed;
             formFieldValues['LastActionBy'] = currentUser.Id;
             formFieldValues['LastActionByRole'] = currentUserRole;
@@ -509,7 +509,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
                 isTaskAssignMailSend = true;
             }
             break;
-        case buttonActionStatus.BackToCreator:
+        case ButtonActionStatus.BackToCreator:
             formFieldValues['LastactionPerformed'] = actionPerformed;
             formFieldValues['LastActionBy'] = currentUser.Id;
             formFieldValues['LastActionByRole'] = currentUserRole;
@@ -518,7 +518,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
             formFieldValues['FormLevel'] = currentLevel + "|" + nextLevel;
             formFieldValues['Status'] = "Sent Back";
             break;
-        case buttonActionStatus.Cancel:
+        case ButtonActionStatus.Cancel:
             nextLevel = currentLevel;
             currentLevel = previousLevel;
             makeAllUsersViewer = true;
@@ -526,7 +526,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
             formFieldValues['PendingWith'] = '';
             formFieldValues['Status'] = "Cancelled";
             break;
-        case buttonActionStatus.Rejected:
+        case ButtonActionStatus.Rejected:
             nextLevel = currentLevel;
             currentLevel = previousLevel;
             makeAllUsersViewer = true;
@@ -534,7 +534,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
             formFieldValues['NextApprover'] = '';
             formFieldValues['PendingWith'] = '';
             break;
-        case buttonActionStatus.Complete:
+        case ButtonActionStatus.Complete:
             formFieldValues['ApprovalStatus'] = "Completed";
             formFieldValues['Status'] = "Completed";
             formFieldValues['FormLevel'] = currentLevel + "|" + currentLevel;
@@ -543,7 +543,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
             makeAllUsersViewer = true;
             isTaskAssignMailSend = true;
             break;
-        case buttonActionStatus.SendBack:
+        case ButtonActionStatus.SendBack:
             formFieldValues['LastactionPerformed'] = actionPerformed;
             if (!IsNullOrUndefined(sendToLevel)) {
                 formFieldValues['NextApprover'] = nextApprover;
@@ -554,7 +554,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
                 formFieldValues['Status'] = "Sent Back";
             }
             break;
-        case buttonActionStatus.RestartToUpdate:
+        case ButtonActionStatus.RestartToUpdate:
             // Since it is restart case so we need to reset currlevel = 0 ;
             currentLevel = 0;
             formFieldValues['LastactionPerformed'] = actionPerformed;
@@ -565,7 +565,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
             formFieldValues['FormLevel'] = currentLevel + "|" + nextLevel;
             formFieldValues['Status'] = "Submitted";
             break;
-        case buttonActionStatus.SendForward:
+        case ButtonActionStatus.SendForward:
             formFieldValues = { 'LastactionPerformed': actionPerformed };
             if (!IsNullOrUndefined(sendToLevel)) {
                 nextLevel = sendToLevel;
@@ -621,7 +621,7 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
 
     ////set permission 
     var userWithRoles = GetPermissionDictionary(tempApproverMatrix, nextLevel, makeAllUsersViewer, isNewItem);
-    SetItemPermission(requestId, ItemCodeProProcessListName, userWithRoles);
+    SetItemPermission(requestId, ListNames.ICDMMAINLIST, userWithRoles);
 
     console.log("Save Approver matrix");
     ////save approval matrix in list
@@ -635,9 +635,9 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
 
 }
 
-function SetItemPermission(requestId, ItemCodeProProcessListName, userWithRoles) {
-    breakRoleInheritanceOfList(ItemCodeProProcessListName, requestId, userWithRoles);
-    // BreakRoleInheritance(requestId, ItemCodeProProcessListName).done(function () {
+function SetItemPermission(requestId, listName, userWithRoles) {
+    breakRoleInheritanceOfList(listName, requestId, userWithRoles);
+    // BreakRoleInheritance(requestId, listName).done(function () {
     //     var roleDefBindingColl = null;
     //     var users = [];
     //     userWithRoles.forEach((element) => {
@@ -699,13 +699,13 @@ function SetItemPermission(requestId, ItemCodeProProcessListName, userWithRoles)
 }
 
 // Break role inheritance on the list.
-function breakRoleInheritanceOfList(ItemCodeProProcessListName, requestId, userWithRoles) {
-    var resetUrl = '/_api/web/lists/getbytitle(\'' + ItemCodeProProcessListName + '\')/items(' + requestId + ')/resetroleinheritance';
-    var breakRoleUrl = '/_api/web/lists/getbytitle(\'' + ItemCodeProProcessListName + '\')/items(' + requestId + ')/breakroleinheritance(copyRoleAssignments=false, clearsubscopes=false)';
+function breakRoleInheritanceOfList(listName, requestId, userWithRoles) {
+    var resetUrl = '/_api/web/lists/getbytitle(\'' + listName + '\')/items(' + requestId + ')/resetroleinheritance';
+    var breakRoleUrl = '/_api/web/lists/getbytitle(\'' + listName + '\')/items(' + requestId + ')/breakroleinheritance(copyRoleAssignments=false, clearsubscopes=false)';
     var digest = jQuery("#__REQUESTDIGEST").val();
     var resetDataTemplate = { "resetUrl": resetUrl, "breakRoleUrl": breakRoleUrl, "digest": digest.toString() };
     $.ajax({
-        url: "https://prod-01.centralindia.logic.azure.com:443/workflows/bd5c7b59e0a245a5866865a147ce48f1/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=DQwBHAeVbuK9CUlGJNABP7iG2ZSOE3ApijO8S0gWZM8",//_spPageContextInfo.webAbsoluteUrl + '/_api/web/lists/getbytitle(\'' + ItemCodeProProcessListName + '\')/items(' + requestId + ')/breakroleinheritance(copyRoleAssignments=false, clearsubscopes=true)',
+        url: "https://prod-01.centralindia.logic.azure.com:443/workflows/bd5c7b59e0a245a5866865a147ce48f1/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=DQwBHAeVbuK9CUlGJNABP7iG2ZSOE3ApijO8S0gWZM8",//_spPageContextInfo.webAbsoluteUrl + '/_api/web/lists/getbytitle(\'' + listName + '\')/items(' + requestId + ')/breakroleinheritance(copyRoleAssignments=false, clearsubscopes=true)',
         type: 'POST',
         headers: {
             "content-type": "application/json",
@@ -769,7 +769,7 @@ function breakRoleInheritanceOfList(ItemCodeProProcessListName, requestId, userW
 
                     users.forEach(user => {
                         if (!isNaN(user)) {
-                            var endPointUrlRoleAssignment = "/_api/web/lists/getByTitle('" + ItemCodeProProcessListName + "')/items(" + requestId + ")/roleassignments/addroleassignment(principalid=" + user + ",roleDefId=" + permId + ")";
+                            var endPointUrlRoleAssignment = "/_api/web/lists/getByTitle('" + listName + "')/items(" + requestId + ")/roleassignments/addroleassignment(principalid=" + user + ",roleDefId=" + permId + ")";
                             var dataTemplate = { "url": endPointUrlRoleAssignment, "digest": digest.toString() };
                             var httpPostUrl = "https://prod-05.centralindia.logic.azure.com:443/workflows/94440494d1bc4839b196891de76d4d5f/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=-uan_RC5TIGT5AYnvbqT3CcjsJ2gapWn-KSQrUIE60E";
                             var call = jQuery.ajax(
@@ -818,7 +818,7 @@ function FormatRow() {
     }
 }
 
-function SetCustomPermission(userWithRoles, requestId, ItemCodeProProcessListName) {
+function SetCustomPermission(userWithRoles, requestId, listName) {
     console.log("Inheritance Broken Successfully!");
     console.log(userWithRoles);
     // userWithRoles.forEach(ele => {
@@ -832,7 +832,7 @@ function SetCustomPermission(userWithRoles, requestId, ItemCodeProProcessListNam
     //1073741827 - contribute
     // 1073741829, Full Control
     // 1073741826, Read
-    var endPointUrlRoleAssignment = hostweburl + "/_api/web/lists/getByTitle('" + ItemCodeProProcessListName + "')/items(" + requestId + ")/roleassignments/addroleassignment(principalid=20,roleDefId=1073741827)";
+    var endPointUrlRoleAssignment = CommonConstant.HOSTWEBURL  + "/_api/web/lists/getByTitle('" + listName + "')/items(" + requestId + ")/roleassignments/addroleassignment(principalid=20,roleDefId=1073741827)";
     var call = jQuery.ajax(
         {
             url: endPointUrlRoleAssignment,
@@ -854,10 +854,10 @@ function onFailbreakRoleInheritance(sender, args) {
     console.log('onFailbreakRoleInheritance : Request failed. ' + args.get_message() + '\n' + args.get_stackTrace());
 }
 
-function BreakRoleInheritance(requestId, ItemCodeProProcessListName) {
+function BreakRoleInheritance(requestId, listName) {
     var deferred = $.Deferred();
     web = currentContext.get_web();
-    var oList = web.get_lists().getByTitle(ItemCodeProProcessListName);
+    var oList = web.get_lists().getByTitle(listName);
     permItem = oList.getItemById(requestId);
     permItem.breakRoleInheritance(false, true); // break role inheritance first!
     currentContext.load(web);
@@ -1091,7 +1091,7 @@ function SaveFormFields(formFieldValues, requestId) {
     }
     var mainlistDataArray = {};
     mainlistDataArray["__metadata"] = {
-        "type": GetItemTypeForListName(ItemCodeProProcessListName)
+        "type": GetItemTypeForListName(ListNames.ICDMMAINLIST)
     };
     if (!IsNullOrUndefined(formFieldValues['ProposedBy'])) {
         mainlistDataArray['ProposedById'] = formFieldValues['ProposedBy'];
@@ -1123,7 +1123,7 @@ function SaveFormFields(formFieldValues, requestId) {
 
     AjaxCall(
         {
-            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ItemCodeProProcessListName + "')/items(" + requestId + ")",
+            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ListNames.ICDMMAINLIST + "')/items(" + requestId + ")",
             httpmethod: 'POST',
             calldatatype: 'JSON',
             postData: JSON.stringify(mainlistDataArray),
@@ -1141,7 +1141,7 @@ function SaveFormFields(formFieldValues, requestId) {
         });
 
     // $.ajax({
-    //     url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ItemCodeProProcessListName + "')/items(" + requestId + ")",
+    //     url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ListNames.ICDMMAINLIST + "')/items(" + requestId + ")",
     //     type: "POST",
     //     data: JSON.stringify(mainlistDataArray),
     //     headers:
@@ -1225,17 +1225,17 @@ function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previous
             var currentUserId = currentUser.Id;
             var nextLevel = currentLevel;
             switch (actionPerformed) {
-                case buttonActionStatus.SaveAndStatusUpdate:
-                case buttonActionStatus.SaveAndStatusUpdateWithEmail:
-                case buttonActionStatus.SaveAndNoStatusUpdate:
-                case buttonActionStatus.SaveAndNoStatusUpdateWithEmail:
-                case buttonActionStatus.Submit:
-                case buttonActionStatus.Reschedule:
-                case buttonActionStatus.UpdateAndRepublish:
-                case buttonActionStatus.ReadyToPublish:
-                case buttonActionStatus.Save:
-                case buttonActionStatus.SaveAsDraft:
-                case buttonActionStatus.None:
+                case ButtonActionStatus.SaveAndStatusUpdate:
+                case ButtonActionStatus.SaveAndStatusUpdateWithEmail:
+                case ButtonActionStatus.SaveAndNoStatusUpdate:
+                case ButtonActionStatus.SaveAndNoStatusUpdateWithEmail:
+                case ButtonActionStatus.Submit:
+                case ButtonActionStatus.Reschedule:
+                case ButtonActionStatus.UpdateAndRepublish:
+                case ButtonActionStatus.ReadyToPublish:
+                case ButtonActionStatus.Save:
+                case ButtonActionStatus.SaveAsDraft:
+                case ButtonActionStatus.None:
                     console.log("Save as draft condition => any approver=" + tempApproverMatrix.some(t => t.Levels == currentLevel));
                     if (tempApproverMatrix.some(t => t.Levels == currentLevel)) {
                         tempApproverMatrix.filter(function (temp) {
@@ -1247,8 +1247,8 @@ function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previous
                         });
                     }
                     break;
-                case buttonActionStatus.Delegate:
-                case buttonActionStatus.NextApproval:
+                case ButtonActionStatus.Delegate:
+                case ButtonActionStatus.NextApproval:
                     tempApproverMatrix.filter(function (temp) {
                         ////right now searched by user Id, it may requires to check by name 
                         if (!IsNullOrUndefined(temp.ApproverId) && temp.Levels == currentLevel && ((!IsNullOrUndefined(temp.ApproverId.results) && temp.ApproverId.results.length > 0) ? temp.ApproverId.results.some(item => item == currentUserId) : (temp.ApproverId.toString().indexOf(currentUserId) != -1))) {
@@ -1280,15 +1280,15 @@ function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previous
                         }
                     });
                     break;
-                case buttonActionStatus.BackToCreator:
-                case buttonActionStatus.SendBack:
+                case ButtonActionStatus.BackToCreator:
+                case ButtonActionStatus.SendBack:
                     var sendtoRole = '';
                     debugger;
-                    if ((constantKeys.SENDTOLEVEL in param) && !IsNullOrUndefined(param[constantKeys.SENDTOLEVEL])) {
-                        nextLevel = parseInt(param[constantKeys.SENDTOLEVEL]);
+                    if ((ConstantKeys.SENDTOLEVEL in param) && !IsNullOrUndefined(param[ConstantKeys.SENDTOLEVEL])) {
+                        nextLevel = parseInt(param[ConstantKeys.SENDTOLEVEL]);
                     }
-                    if ((constantKeys.SENDTOROLE in param) && !IsStrNullOrEmpty(param[constantKeys.SENDTOROLE])) {
-                        sendtoRole = param[constantKeys.SENDTOROLE];
+                    if ((ConstantKeys.SENDTOROLE in param) && !IsStrNullOrEmpty(param[ConstantKeys.SENDTOROLE])) {
+                        sendtoRole = param[ConstantKeys.SENDTOROLE];
                     }
                     tempApproverMatrix.forEach(temp => {
                         if (!IsNullOrUndefined(temp.ApproverId) && temp.Levels == currentLevel && ((!IsNullOrUndefined(temp.ApproverId.results) && temp.ApproverId.results.length > 0) ? temp.ApproverId.results.some(item => item == currentUserId) : (temp.ApproverId.toString().indexOf(currentUserId) != -1))) {
@@ -1308,10 +1308,10 @@ function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previous
                         }
                     });
                     break;
-                case buttonActionStatus.SendForward:
+                case ButtonActionStatus.SendForward:
                     debugger
-                    if ((constantKeys.SENDTOLEVEL in param) && !IsNullOrUndefined(param[constantKeys.SENDTOLEVEL])) {
-                        nextLevel = parseInt(param[constantKeys.SENDTOLEVEL]);
+                    if ((ConstantKeys.SENDTOLEVEL in param) && !IsNullOrUndefined(param[ConstantKeys.SENDTOLEVEL])) {
+                        nextLevel = parseInt(param[ConstantKeys.SENDTOLEVEL]);
                         ////Get Next Level
                         var nextLevelRow = tempApproverMatrix.sort(t => t.Levels).filter(function (temp) {
                             return (!IsNullOrUndefined(temp.ApproverId) && temp.Levels >= nextLevel);
@@ -1337,9 +1337,9 @@ function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previous
                         }
                     });
                     break;
-                case buttonActionStatus.Cancel:
+                case ButtonActionStatus.Cancel:
                     break;
-                case buttonActionStatus.Rejected:
+                case ButtonActionStatus.Rejected:
                     debugger
                     if (tempApproverMatrix.some(temp => temp.Levels == currentLevel) && !IsNullOrUndefined(temp.ApproverId) && ((!IsNullOrUndefined(temp.ApproverId.results) && temp.ApproverId.results.length > 0) ? temp.ApproverId.results.some(item => item == currentUserId) : (temp.ApproverId.toString().indexOf(currentUserId) != -1))) {
                         var approvers = tempApproverMatrix.filter(temp => {
@@ -1350,7 +1350,7 @@ function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previous
                         approvers.ApproveById = currentUserId;
                     }
                     break;
-                case buttonActionStatus.Complete:
+                case ButtonActionStatus.Complete:
                     debugger
                     if (tempApproverMatrix.some(temp => temp.Levels == currentLevel) && !IsNullOrUndefined(temp.ApproverId) && ((!IsNullOrUndefined(temp.ApproverId.results) && temp.ApproverId.results.length > 0) ? temp.ApproverId.results.some(item => item == currentUserId) : (temp.ApproverId.toString().indexOf(currentUserId) != -1))) {
                         var approvers = tempApproverMatrix.filter(temp => {
@@ -1361,8 +1361,8 @@ function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previous
                         approvers.ApproveById = currentUserId;
                     }
                     break;
-                case buttonActionStatus.MeetingConducted:
-                case buttonActionStatus.MeetingNotConducted:
+                case ButtonActionStatus.MeetingConducted:
+                case ButtonActionStatus.MeetingNotConducted:
                 default:
                     break;
             }

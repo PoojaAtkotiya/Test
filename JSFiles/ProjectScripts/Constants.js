@@ -1,28 +1,33 @@
-var spSiteUrl = _spPageContextInfo.webAbsoluteUrl;
-var rootUrl = "https://bajajelect.sharepoint.com/sites/WFRootDev/";
-var hostWebURL = "https://bajajelect.sharepoint.com/sites/MTDEV";
-var ApplicationShortName = "ICDM";
-var applicationName = "Item Code Creation Preprocess";
-var formName = "Item Code Preprocess Form";
-var globalApprovalMatrixName = 'ApprovalMatrix';
-// var approverMatrixListName = 'WorkflowTestApprovalMatrix';
-var ItemCodeProProcessListName = "ItemCodeProProcess";
-var ICDMActivityLogListName = "ItemCodeActivityLog";
-var ItemCodeApprovalMatrixListName = "ItemCodeApprovalMatrix";
-var ItemCodeActivityLogListName = "ItemCodeActivityLog";
-var ApproverMasterListName = "ApproverMaster";
-var buttonListName = 'Buttons';
+const CommonConstant = {
+    SPSITEURL : _spPageContextInfo.webAbsoluteUrl,
+    ROOTURL : "https://bajajelect.sharepoint.com/sites/WFRootDev/",
+    HOSTWEBURL : "https://bajajelect.sharepoint.com/sites/MTDEV",
+    APPLICATIONSHORTNAME : "ICDM",
+    APPLICATIONNAME : "Item Code Creation Preprocess",
+    FORMNAME : "Item Code Preprocess Form"
+}
+Object.freeze(CommonConstant);
 
-const constantKeys = {
+const ListNames = {
+    ICDMMAINLIST: "ItemCodeProProcess",
+    ICDMACTIVITYLOGLIST: "ItemCodeActivityLog",
+    ICDMAPPROVALMATRIXLIST: "ItemCodeApprovalMatrix",
+    APPROVERMASTERLIST: "ApproverMaster",
+    GLOBALAPPROVALMATRIXLIST: "ApprovalMatrix",
+    BUTTONLIST: "Buttons"
+}
+Object.freeze(ListNames);
+
+const ConstantKeys = {
     SENDTOLEVEL: 'SendToLevel',
     SENDTOROLE: 'SendToRole',
     SENDBACKTO: 'SendBackTo',
     ACTIONPERFORMED: 'ActionPerformed',
-};
-Object.freeze(constantKeys);
+}
+Object.freeze(ConstantKeys);
 
 ////here button action status is set as per ID(list item id) not 'value' column as we are getting lookup id from buttons
-const buttonActionStatus = {
+const ButtonActionStatus = {
     None: 1,
     SaveAsDraft: 2,
     Save: 3,
@@ -68,11 +73,10 @@ const buttonActionStatus = {
     Hold: 43,
     Resume: 44,
     RestartToUpdate: 45
-};
+}
+Object.freeze(ButtonActionStatus);
 
-Object.freeze(buttonActionStatus);
-
-var jsFunctionValue = {
+const JsFunctionValue = {
     Submit: 1,
     Guideline: 2,
     ConfirmSubmit: 3,
@@ -104,8 +108,7 @@ var jsFunctionValue = {
     OnDelete: 30,
     ConfirmSubmitNoRedirect: 31
 }
-Object.freeze(jsFunctionValue);
-
+Object.freeze(JsFunctionValue);
 
 const ApproverStatus = {
     NOTASSIGNED: "Not Assigned",
@@ -129,13 +132,11 @@ const DayOfWeek = {
 }
 Object.freeze(DayOfWeek);
 
-
 const SharePointPermission = {
     READER: "Read",
     CONTRIBUTOR: "Contribute"
 }
 Object.freeze(SharePointPermission);
-
 
 const CurrentApprover = {
     APPROVERID: "ApproverId",
@@ -143,6 +144,52 @@ const CurrentApprover = {
     ASSIGNDATE: "AssignDate",
     DUEDATE: "DueDate",
     APPROVEBYID: "ApproveById",
-    STATUS : "Status"
+    STATUS: "Status"
 }
 Object.freeze(CurrentApprover);
+
+
+const Roles = {
+    CREATOR: "Creator",
+    VIEWER: "Viewer",
+    EDITOR: "Editor",
+    ICCPADMIN: "ICCP Admin",
+    LUMMARKETINGINCHARGE: "LUM Marketing Incharge",
+    LUMMARKETINGDELEGATE: "LUM Marketing Delegate",
+    SCMLUMDESIGNINCHARGE: "LUM Design Incharge",
+    SCMLUMDESIGNDELEGATE: "LUM Design Delegate",
+    SMSINCHARGE: "SMS Incharge",
+    SMSDELEGATE: "SMS Delegate",
+    QAINCHARGE: "QA Incharge",
+    QADELEGATE: "QA Delegate",
+    FINALSMSINCHARGE: "Final SMS Incharge",
+    FINALSMSDELEGATE: "Final SMS Delegate",
+    COSTINGINCHARGE: "Costing Incharge",
+    COSTINGDELEGATE1: "Costing Delegate1",
+    COSTINGDELEGATE2: "Costing Delegate2",
+    TDSINCHARGE: "TDS Incharge",
+    TDSDELEGATE: "TDS Delegate"
+}
+Object.freeze(Roles);
+
+
+const SectionNames =
+    {
+        LUMMKTINCHARGESECTION: "LUM Marketing Incharge Section",
+        LUMMKTDELEGATEESECTION: "LUM Marketing Delegate Section",
+        SCMLUMDESIGNINCHARGESECTION: "SCM LUM Design Incharge Section",
+        SCMLUMDESIGNDELEGATESECTION: "SCM LUM Design Delegate Section",
+        SMSINCHARGESECTION: "SMS Incharge Section",
+        SMSDELEGATESECTION: "SMS Delegate Section",
+        QAINCHARGESECTION: "QA Incharge Section",
+        QADELEGATESECTION: "QA Delegate Section",
+        FINALSMSINCHARGESECTION: "Final SMS Incharge Section",
+        FINALSMSDELEGATESECTION: "Final SMS Delegate Section",
+        COSTINGINCHARGESECTION: "Costing Incharge Section",
+        COSTINGDELEGATE1SECTION: "Costing Delegate1 Section",
+        COSTINGDELEGATE2SECTION: "Costing Delegate2 Section",
+        TDSINCHARGESECTION: "TDS Incharge Section",
+        TDSDELEGATESECTION: "TDS Delegate Section",
+        ACTIVITYLOG: "Activity Log"
+    }
+Object.freeze(SectionNames);

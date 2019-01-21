@@ -1,20 +1,19 @@
-var listName = ItemCodeProProcessListName;
-var appName = applicationName;
-var formName = "Item Code Preprocess Form";
+var listName = ListNames.ICDMMAINLIST;
+var appName = CommonConstant.APPLICATIONNAME;
+var formName = CommonConstant.FORMNAME;
 var masterDataArray;
 var formData = {};
 var mainListData = {};
 var sendToLevel = 0;
 var collListItem = null;
 
-
 $(document).ready(function () {
-    GetUsersForDDL("LUM Marketing Delegate", "LUMMarketingDelegateId");
-    GetUsersForDDL("LUM Design Delegate", "SCMLUMDesignDelegateId");
+    GetUsersForDDL(Roles.LUMMARKETINGDELEGATE, "LUMMarketingDelegateId");
+    GetUsersForDDL(Roles.SCMLUMDESIGNDELEGATE, "SCMLUMDesignDelegateId");
     $(document).on('click', 'a[id*="btnActivityLog_"]', function () {
-        var iterationId=jQuery(this).attr('id').split('_')[1];
-        var activityChanges=jQuery(this).attr('data-val');
-        DisplayActvityLogChanges(iterationId,activityChanges);
+        var iterationId = jQuery(this).attr('id').split('_')[1];
+        var activityChanges = jQuery(this).attr('data-val');
+        DisplayActvityLogChanges(iterationId, activityChanges);
     });
 });
 
@@ -48,8 +47,8 @@ function onGetSetFormDataSuccess(data) {
         });
     }
     GetLocalApprovalMatrixData(listItemId, mainListName);
-   
-    GetActivityLog(ICDMActivityLogListName, listItemId, activitylogTableId);
+
+    GetActivityLog(ListNames.ICDMACTIVITYLOGLIST, listItemId, activitylogTableId);
 }
 
 function setCustomApprovers(tempApproverMatrix) {
@@ -99,7 +98,7 @@ function FormBusinessLogic(activeSection) {
         if (!IsNullOrUndefined(listDataArray.SCMLUMDesignDelegateId)) {
             var array = [];
             array.push(parseInt(listDataArray.SCMLUMDesignDelegateId));
-            listDataArray["SCMLUMDesignDelegateId"] = { "results": array };            
+            listDataArray["SCMLUMDesignDelegateId"] = { "results": array };
         }
     }
     catch (Exception) {
@@ -120,13 +119,13 @@ function SaveForm(activeSection) {
 
 function AddAllAttachments(listname, itemID) {
     $('#divItemCodeForm').find('div[section]').not(".disabled").each(function (i, e) {
-     
+
         $(e).find('input[type="file"]').each(function () {
             var elementId = $(this).attr('id');
             var controlType = $(this).attr('controlType');
             // if (controlType == "file") {
             if (!IsNullOrUndefined(fileInfos)) {
-            SaveItemWiseAttachments(listname, itemID);
+                SaveItemWiseAttachments(listname, itemID);
             }
             // }
 
@@ -158,7 +157,7 @@ function GetAttachmentValue(elementId, fileListArray) {
 function SaveItemWiseAttachments(listname, itemID) {
     var item = $pnp.sp.web.lists.getByTitle(listname).items.getById(itemID);
     item.attachmentFiles.addMultiple(fileInfos).then(v => {
-      console.log("files saved successfully in list = " + listname + "for listItemId = " + itemID);
+        console.log("files saved successfully in list = " + listname + "for listItemId = " + itemID);
     }).catch(function (err) {
         console.log(err);
         console.log("error while save attachment ib list = " + listname + "for listItemId = " + itemID)
@@ -166,7 +165,7 @@ function SaveItemWiseAttachments(listname, itemID) {
 }
 
 // function SendBack() {
-//     buttonActionStatus = "SendBack";
+//     ButtonActionStatus = "SendBack";
 //     SaveFormData();
 // }
 

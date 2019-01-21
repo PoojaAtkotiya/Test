@@ -98,7 +98,7 @@ function SaveTranListData(lookupId) {
     }
 }
 function SetTranDataValues(tranlistname, lookupId) {
-    if (tranlistname != ItemCodeApprovalMatrixListName)    ////avoid for localapprovalmatrix
+    if (tranlistname != ListNames.ICDMAPPROVALMATRIXLIST)    ////avoid for localapprovalmatrix
     {
         if (tranlistname != undefined && tranlistname != '' && tranlistname != null) {
             $('input[listname*=' + tranlistname + '],select[listname*=' + tranlistname + '],radio[listname*=' + tranlistname + '],textarea[listname*=' + tranlistname + ']').each(function () {

@@ -3,7 +3,7 @@ var currentUser;
 var approverMaster;
 var securityToken;
 var currentContext;
-var hostweburl;
+//var hostweburl;
 var listDataArray = {};
 var listActivityLogDataArray = [];
 var actionPerformed;
@@ -15,8 +15,8 @@ jQuery(document).ready(function () {
     // BindDatePicker("");
     KeyPressNumericValidation();
     // LoadWaitDialog();
-    hostweburl = "https://bajajelect.sharepoint.com/sites/MTDEV";
-    var scriptbase = hostweburl + "/_layouts/15/";
+   // hostweburl =  CommonConstant.hostWebURL ;
+    var scriptbase = CommonConstant.HOSTWEBURL  + "/_layouts/15/";
     // Load the js files and continue to
     // the execOperation function.
     $.getScript(scriptbase + "SP.Runtime.js",
@@ -941,7 +941,7 @@ function GetFormControlsValueAndType(id, elementType, elementProperty, listActiv
 function GetApproverMaster() {
     AjaxCall(
         {
-            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('" + ApproverMasterListName + "')/items",
+            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('" +  ListNames.APPROVERMASTERLIST + "')/items",
             httpmethod: 'GET',
             calldatatype: 'JSON',
             isAsync: false,
@@ -1164,8 +1164,8 @@ function SaveData(listname, listDataArray, sectionName) {
                     clientContext.load(oListItem, 'FormLevel', 'ProposedBy');
                     clientContext.load(web);
                     clientContext.executeQueryAsync(function () {
-                        SaveLocalApprovalMatrix(sectionName, itemID, listname, isNewItem, oListItem, ItemCodeApprovalMatrixListName);
-                        SaveActivityLog(sectionName, itemID, ICDMActivityLogListName, listDataArray, isNewItem);
+                        SaveLocalApprovalMatrix(sectionName, itemID, listname, isNewItem, oListItem, ListNames.ICDMAPPROVALMATRIXLIST);
+                        SaveActivityLog(sectionName, itemID, ListNames.ICDMACTIVITYLOGLIST, listDataArray, isNewItem);
                         if (data != undefined && data != null && data.d != null) {
                             SaveTranListData(itemID);
                         }
@@ -1217,15 +1217,13 @@ function OnSuccessNoRedirect(data, status, xhr) {
     catch (e) { window.location.reload(); }
 }
 
-function SaveActivityLog(sectionName, itemID, ItemCodeActivityLogListName, listDataArray, isNewItem) {
+function SaveActivityLog(sectionName, itemID, ActivityLogListName, listDataArray, isNewItem) {
     var stringActivity;
-    var itemType = GetItemTypeForListName(ItemCodeActivityLogListName);
-    var today = new Date().format("yyyy-MM-ddTHH:mm:ssZ");
-    var actionStatus = $("#ActionStatus").val();
-    var keys = Object.keys(buttonActionStatus).filter(k => buttonActionStatus[k] == actionStatus);
-    actionPerformed = keys.toString();
+    var itemType = GetItemTypeForListName(ActivityLogListName);
+    var today = new Date().format("yyyy-MM-ddTHH:mm:ssZ");  
+    var actionPerformed = Object.keys(ButtonActionStatus).filter(k => ButtonActionStatus[k] ==  $("#ActionStatus").val()).toString();
     stringActivity = GetActivityString(listActivityLogDataArray, isNewItem);
-    url = _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ItemCodeActivityLogListName + "')/items";
+    url = _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ActivityLogListName + "')/items";
     headers = {
         "Accept": "application/json;odata=verbose",
         "Content-Type": "application/json;odata=verbose",
