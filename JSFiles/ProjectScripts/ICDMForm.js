@@ -27,7 +27,7 @@ function GetSetFormData() {
             calldatatype: 'JSON',
             isAsync: false,
             sucesscallbackfunction: function (data) { onGetSetFormDataSuccess(data) }
-        })
+        });
 }
 
 function onGetSetFormDataSuccess(data) {
