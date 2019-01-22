@@ -8,13 +8,22 @@ var sendToLevel = 0;
 var collListItem = null;
 
 $(document).ready(function () {
+    var includes = $('[data-include]');
+    jQuery.each(includes, function(){
+      var file = _spPageContextInfo.webAbsoluteUrl + "/SiteAssets/ItemCodeCreation/HTMLFiles/" + $(this).data('include') + '.html';
+      $(this).load(file);
+    });
     GetUsersForDDL(Roles.LUMMARKETINGDELEGATE, "LUMMarketingDelegateId");
     GetUsersForDDL(Roles.SCMLUMDESIGNDELEGATE, "SCMLUMDesignDelegateId");
+    $(document).on("change", "#UploadArtworkAttachment", function () {
+        BindAttachmentFiles();
+    });
     $(document).on('click', 'a[id*="btnActivityLog_"]', function () {
         var iterationId = jQuery(this).attr('id').split('_')[1];
         var activityChanges = jQuery(this).attr('data-val');
         DisplayActvityLogChanges(iterationId, activityChanges);
     });
+   // $('#activityLogContent').load(_spPageContextInfo.webAbsoluteUrl + "/SiteAssets/ItemCodeCreation/HTMLFiles/ActivityLog.html");
 });
 
 function GetSetFormData() {

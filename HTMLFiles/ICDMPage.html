@@ -69,14 +69,14 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sp-pnp-js/3.0.10/pnp.min.js" type="text/javascript"></script>
     <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/Constants.js"></script>
-    <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/Common.js"></script>    
+    <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/Common.js"></script>
     <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/ApprovalMatrix.js"></script>
     <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/Button.js"></script>
 
     <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/master.js"></script>
     <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/tran.js"></script>
     <script type="text/javascript" src="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/JSFiles/ProjectScripts/ICDMForm.js"></script>
-
+    <!-- <link rel="import" href="https://bajajelect.sharepoint.com/sites/MTDEV/SiteAssets/ItemCodeCreation/HTMLFiles/ActivityLog.html"> -->
 
     <style>
         .disabled {
@@ -90,11 +90,6 @@
     <script type="text/javascript">
         var formData = {};
         $(document).ready(function () {
-
-            $(document).on("change", "#UploadArtworkAttachment", function () {
-                BindAttachmentFiles();
-            });
-
 
             $('.form-control').change(function () {
                 var type = $(this).attr('controlType');
@@ -622,40 +617,9 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <div id="divapplicationstatus" class="card">
-                                <div class="card-head">
-                                    <b>
-                                        Application Request status
-                                    </b>
-                                    <div class="btn collapse-btn collapsed" data-toggle="collapse" data-target="#applicationstatusbody">
-                                        <i class="fa fa-chevron-down"></i>
-                                    </div>
-                                </div>
-                                <div id="applicationstatusbody" class="card-body in">
-                                    <div class="panel-body grid-view">
-                                        <div class="table-responsive noscroll">
-                                            <table class="table table-hover table-bordered someTable" id="tblApplicationStatus">
-                                                <thead>
-                                                    <tr>
-                                                        <th width='20%'>Role</th>
-                                                        <th width='20%'>Person</th>
-                                                        <th width='10%'>Status</th>
-                                                        <th width='10%'>Assigned Date</th>
-                                                        <th width='10%'>Due Date</th>
-                                                        <th width='10%'>Approved Date</th>
-                                                        <th width='20%'>Comments</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="clearfix"></div>
-                            </div>
-                            <div id="divActivityLogs" activityloglistname="ItemCodeActivityLog" class="card">
+                            <div data-include="ApplicationStatus"></div>
+                            <div data-include="ActivityLog"></div>
+                            <!-- <div id="divActivityLogs" activityloglistname="ItemCodeActivityLog" class="card">
                                 <div class="card-head">
                                     <b>
                                         Activity Log
@@ -717,7 +681,7 @@
                                     </div>
                                 </div>
                                 <div class="clearfix"></div>
-                            </div>
+                            </div> -->
                             <!-- <div class="row">
                                 <div class="form-group">
                                     <div class="col-md-4"></div>
