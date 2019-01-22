@@ -22,8 +22,9 @@ $(document).ready(function () {
         var iterationId = jQuery(this).attr('id').split('_')[1];
         var activityChanges = jQuery(this).attr('data-val');
         DisplayActvityLogChanges(iterationId, activityChanges);
-    });
-   // $('#activityLogContent').load(_spPageContextInfo.webAbsoluteUrl + "/SiteAssets/ItemCodeCreation/HTMLFiles/ActivityLog.html");
+    });   
+  //  var myformtag = $('div[section]').not(".disabled").parent().prop("tagName").toLowerCase();
+    $('myform').renameTag('form');
 });
 
 function GetSetFormData() {

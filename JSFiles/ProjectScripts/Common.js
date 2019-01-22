@@ -577,7 +577,7 @@ function AlertModal(title, msg, isExit, callback) {
             callback();
         }
         if (typeof (isExit) !== 'undefined' && isExit == true) {
-             Exit();
+            Exit();
         }
         if (callback == null) {
             $("div[id='PopupDialog']").hide();
@@ -588,8 +588,8 @@ function AlertModal(title, msg, isExit, callback) {
 }
 function Exit() {
     try {
-        parent.postMessage(CommonConstant.HOSTWEBURL,CommonConstant.SPHOST);
-    } 
+        parent.postMessage(CommonConstant.HOSTWEBURL, CommonConstant.SPHOST);
+    }
     catch (e) {
         parent.postMessage($("#hdnSPHOSTURL").val(), $("#hdnSPHOST").val());
     }
@@ -622,11 +622,38 @@ function resetFormValidator(formId) {
     $.validator.unobtrusive.parse(formId);
 }
 
+// function replace(thisWith, that) {
+//     $(thisWith).replaceWith(function () {
+//         var replacement = $('<' + that + '>').html($(this).html());
+//         for (var i = 0; i < this.attributes.length; i++) {
+//             replacement.attr(this.attributes[i].name, this.attributes[i].value);
+//         }
+//         return replacement;
+//     });
+//     // if ($(thisWith).length>0) {
+//     //     replace(thisWith, that);
+//     // }
+// }
+
+//Replace '<myform>' tag to '<form>'
+$.fn.renameTag = function (replaceWithTag) {
+    this.each(function () {
+        var outerHtml = this.outerHTML;
+        var tagName = $(this).prop("tagName");
+        var regexStart = new RegExp("^<" + tagName, "i");
+        var regexEnd = new RegExp("</" + tagName + ">$", "i")
+        outerHtml = outerHtml.replace(regexStart, "<" + replaceWithTag)
+        outerHtml = outerHtml.replace(regexEnd, "</" + replaceWithTag + ">");
+        $(this).replaceWith(outerHtml);
+    });
+    return this;
+}
+
 function ValidateForm(ele, saveCallBack) {
     //Get Active Section
+  
     var activeSection = $('div[section]').not(".disabled");
-    //  var formList = $(activeSection).parent();
-    var formList = $(activeSection);
+    var formList = $('div[section]').not(".disabled").parent();
     var isValid = true;
     var dataAction = $(ele).attr("data-action");
     var isPageRedirect = true;
@@ -641,7 +668,8 @@ function ValidateForm(ele, saveCallBack) {
     }
 
     if (buttonCaption != "print") {
-        formList.each(function () {
+
+        $(formList).each(function () {
             if ($(this).find("input[id='ButtonCaption']").length == 0) {
                 var input = $("<input id='ButtonCaption' name='ButtonCaption' type='hidden'/>");
                 input.val($(ele).text());
@@ -701,32 +729,23 @@ function ValidateForm(ele, saveCallBack) {
                     $(".valid").removeClass("error");
                 }
             }
-            // if (buttonCaption == "save as draft" || buttonCaption == "resume") {
-            //     $(this).attr("data-ajax-success", "OnSuccessNoRedirect");
-            // }
-            // else if (buttonCaption == "complete" && !isPageRedirect) {
-            //     $(this).attr("data-ajax-success", "ConfirmSubmitNoRedirect");
-            // }
-            // else {
-            //     $(this).attr("data-ajax-success", $(this).attr("data-ajax-old-success"));
-            // }
 
-            // if (!$(this).valid()) {
-            //     isValid = false;
-            //     try {
-            //         var validator = $(this).validate();
-            //         $(validator.errorList).each(function (i, errorItem) {
-            //             //  AlertModal("Validation", errorItem.element.id + "' : '" + errorItem.message);
-            //             $("#" + errorItem.element.id).addClass("error");
-            //             $("#" + errorItem.element.id).removeClass("valid");
-            //             $("#" + errorItem.element.id).next().remove();
-            //             console.log("{ '" + errorItem.element.id + "' : '" + errorItem.message + "'}");
-            //         });
-            //     }
-            //     catch (e1) {
-            //         console.log(e1.message);
-            //     }
-            // }
+            if (!$(this).valid()) {
+                isValid = false;
+                try {
+                    var validator = $(this).validate();
+                    $(validator.errorList).each(function (i, errorItem) {
+                        //  AlertModal("Validation", errorItem.element.id + "' : '" + errorItem.message);
+                        $("#" + errorItem.element.id).addClass("error");
+                        $("#" + errorItem.element.id).removeClass("valid");
+                        $("#" + errorItem.element.id).next().remove();
+                        console.log("{ '" + errorItem.element.id + "' : '" + errorItem.message + "'}");
+                    });
+                }
+                catch (e1) {
+                    console.log(e1.message);
+                }
+            }
         });
     }
     if (isValid) {
@@ -1118,12 +1137,21 @@ function SaveData(listname, listDataArray, sectionName, ele) {
                             SaveTranListData(itemID);
                         }
                         HideWaitDialog();
-                        data.ItemID = itemID;
-                        data.IsSucceed = true;
-                        data.Messages = "Data saved successfully";
+                        if (IsNullOrUndefined(data)) {
+                            // data = {
+                            //     ItemID = itemID,
+                            //     IsSucceed = true,
+                            //     Messages = "Data saved successfully"
+                            // }
+                        }
+                        else {
+                            data.ItemID = itemID;
+                            data.IsSucceed = true;
+                            data.Messages = "Data saved successfully";
+                        }
                         if (buttonCaption == "save as draft" || buttonCaption == "resume") {
-                            OnSuccessNoRedirect(data);                           
-                        }                     
+                            OnSuccessNoRedirect(data);
+                        }
                         else if (buttonCaption == "complete" && !isPageRedirect) {
                             OnSuccessConfirmSubmitNoRedirect(data);
                         }
@@ -1260,7 +1288,7 @@ function OnSuccessConfirmSubmitNoRedirect(data) {
 }
 
 function OnSuccessNoRedirect(data) {
-    try {       
+    try {
         if (data.IsSucceed) {
             if (data.IsFile) {
                 DownloadUploadedFile("<a data-url='" + data.ExtraData + "'/>", function () {
