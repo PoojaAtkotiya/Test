@@ -13,9 +13,13 @@ var fileIdCounter = 0;
 var currentApproverDetails = {};
 jQuery(document).ready(function () {
     // BindDatePicker("");
+    var includes = $('[data-include]');
+    jQuery.each(includes, function(){
+      var file = CommonConstant.HTMLFILSEPATH + $(this).data('include') + '.html';
+      $(this).load(file);
+    });
+    $('myform').renameTag('form');
     KeyPressNumericValidation();
-    // LoadWaitDialog();
-    // hostweburl =  CommonConstant.hostWebURL ;
     var scriptbase = CommonConstant.HOSTWEBURL + "/_layouts/15/";
     // Load the js files and continue to
     // the execOperation function.
@@ -651,7 +655,6 @@ $.fn.renameTag = function (replaceWithTag) {
 
 function ValidateForm(ele, saveCallBack) {
     //Get Active Section
-  
     var activeSection = $('div[section]').not(".disabled");
     var formList = $('div[section]').not(".disabled").parent();
     var isValid = true;
@@ -699,6 +702,11 @@ function ValidateForm(ele, saveCallBack) {
 
             if (dataAction == "2" || dataAction == "34") {
                 $(this).validate().settings.ignore = "*";
+                if (dataAction == "2" || dataAction == "34") {
+                    $(".error").addClass("valid");
+                    $(".valid").removeClass("error");
+                    $(this).validate().settings.ignore = ":not(.requiredOnDraft)";
+                }
                 if (buttonCaption == "submit" || buttonCaption == "complete") {
                     $(".error").addClass("valid");
                     $(".valid").removeClass("error");
@@ -753,7 +761,7 @@ function ValidateForm(ele, saveCallBack) {
         $("input[id='SendBackTo']").val($(ele).attr("data-sendbackto"));
         $("input[id='SendToRole']").val($(ele).attr("data-sendtorole"));
         ShowWaitDialog();
-        if (buttonCaption != "save as draft") {
+        //if (buttonCaption != "save as draft") {
             //confirm file Attachment need attach or not
             var attachmsg = "Are you sure to '" + $.trim($(ele).text()) + "'?";
             if ($(formList).find("div[data-appname]").length != 0 && $(formList).find("div[data-appname]").find("ul li").length == 0 && dataAction == "11") {
@@ -764,12 +772,13 @@ function ValidateForm(ele, saveCallBack) {
                     saveCallBack(activeSection);
                 }
             });
-        }
-        else {
-            saveCallBack(activeSection);
-        }
-        HideWaitDialog();
+       // }
+       // else {
+
+        //    saveCallBack(activeSection);
+       // }
     }
+    HideWaitDialog();
 }
 
 function onQuerySucceeded(sender, args) {
@@ -780,7 +789,7 @@ function onQueryFailed(sender, args) {
     console.log('Request failed. ' + args.get_message() + '\n' + args.get_stackTrace());
 }
 
-function GetFormControlsValue(id, elementType, listDataArray) {
+function GetFormControlsValue(id, elementType, listDataArray, elementvaluetype = undefined) {
     var obj = '#' + id;
     switch (elementType) {
         case "text":
@@ -801,6 +810,11 @@ function GetFormControlsValue(id, elementType, listDataArray) {
             listDataArray[id] = metaObject;
             break;
         case "combo":
+            if (elementvaluetype == "int") {
+                if (IsNullOrUndefined($(obj).val()) || IsStrNullOrEmpty($(obj).val())) {
+                    $(obj).val(0);
+                }
+            }
             listDataArray[id] = $(obj).val();
             break;
         case "multitext":
@@ -858,7 +872,6 @@ function GetFormControlsValueAndType(id, elementType, elementProperty, listActiv
 
             break;
         case "combo":
-
             if (elementProperty == 'peoplepicker') {
                 listActivityLogDataArray.push({ id: id, value: $(obj).val(), type: 'peoplepicker' });
             }
@@ -1060,7 +1073,9 @@ function SaveFormData(activeSection, ele) {
             var elementId = $(this).attr('id');
             var elementType = $(this).attr('controlType');
             var elementProperty = $(this).attr('controlProperty');
-            listDataArray = GetFormControlsValue(elementId, elementType, listDataArray);
+            var elementvaluetype = $(this).attr('controlvaluetype');
+
+            listDataArray = GetFormControlsValue(elementId, elementType, listDataArray, elementvaluetype);
             listActivityLogDataArray = GetFormControlsValueAndType(elementId, elementType, elementProperty, listActivityLogDataArray);
         });
         $(activeSection).find('.approver-control').each(function () {
@@ -1087,7 +1102,7 @@ function SaveData(listname, listDataArray, sectionName, ele) {
     var itemType = GetItemTypeForListName(listname);
     var isNewItem = true;
     var callbackfunction;
-    var buttonCaption = $(ele).text().toLowerCase().trim();
+    var buttonCaption = $(ele).text().trim();
 
     if (listDataArray != null) {
         listDataArray["__metadata"] = {
@@ -1129,7 +1144,7 @@ function SaveData(listname, listDataArray, sectionName, ele) {
                     clientContext.load(web);
                     clientContext.executeQueryAsync(function () {
                         SaveLocalApprovalMatrix(sectionName, itemID, listname, isNewItem, oListItem, ListNames.ICDMAPPROVALMATRIXLIST);
-                        SaveActivityLog(sectionName, itemID, ListNames.ICDMACTIVITYLOGLIST, listDataArray, isNewItem);
+                        SaveActivityLog(sectionName, itemID, ListNames.ICDMACTIVITYLOGLIST, listDataArray, isNewItem,buttonCaption);
                         if (data != undefined && data != null && data.d != null) {
                             SaveTranListData(itemID);
                         }
@@ -1138,27 +1153,27 @@ function SaveData(listname, listDataArray, sectionName, ele) {
                         }
                         HideWaitDialog();
                         if (IsNullOrUndefined(data)) {
-                            // data = {
-                            //     ItemID = itemID,
-                            //     IsSucceed = true,
-                            //     Messages = "Data saved successfully"
-                            // }
+                            data = {};
+                            data = {
+                                ItemID: itemID,
+                                IsSucceed: true,
+                                Messages: "Data saved successfully"
+                            }
                         }
                         else {
                             data.ItemID = itemID;
                             data.IsSucceed = true;
                             data.Messages = "Data saved successfully";
                         }
-                        if (buttonCaption == "save as draft" || buttonCaption == "resume") {
+                        if (buttonCaption.toLowerCase() == "save as draft" || buttonCaption.toLowerCase() == "resume") {
                             OnSuccessNoRedirect(data);
                         }
-                        else if (buttonCaption == "complete" && !isPageRedirect) {
+                        else if (buttonCaption.toLowerCase() == "complete" && !isPageRedirect) {
                             OnSuccessConfirmSubmitNoRedirect(data);
                         }
                         else {
                             OnSuccess(data);
                         }
-
                     }, function (sender, args) {
                         HideWaitDialog();
                         console.log('request failed ' + args.get_message() + '\n' + args.get_stackTrace());
@@ -1316,11 +1331,11 @@ function OnSuccessNoRedirect(data) {
     catch (e) { window.location.reload(); }
 }
 
-function SaveActivityLog(sectionName, itemID, ActivityLogListName, listDataArray, isNewItem) {
+function SaveActivityLog(sectionName, itemID, ActivityLogListName, listDataArray, isNewItem,buttonCaption) {
     var stringActivity;
     var itemType = GetItemTypeForListName(ActivityLogListName);
     var today = new Date().format("yyyy-MM-ddTHH:mm:ssZ");
-    var actionPerformed = Object.keys(ButtonActionStatus).filter(k => ButtonActionStatus[k] == $("#ActionStatus").val()).toString();
+  //  var actionPerformed = Object.keys(ButtonActionStatus).filter(k => ButtonActionStatus[k] == $("#ActionStatus").val()).toString();
     stringActivity = GetActivityString(listActivityLogDataArray, isNewItem);
     url = _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ActivityLogListName + "')/items";
     headers = {
@@ -1328,28 +1343,7 @@ function SaveActivityLog(sectionName, itemID, ActivityLogListName, listDataArray
         "Content-Type": "application/json;odata=verbose",
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
         "X-HTTP-Method": "POST"
-    };
-    // AjaxCall(
-    //     {
-    //         url: url,
-    //         httpmethod: 'POST',
-    //         calldatatype: 'JSON',
-    //         isAsync: false,
-    //         headers: headers,
-    //         data: JSON.stringify
-    //             ({
-    //                 __metadata: {
-    //                     "type": itemType
-    //                 },
-    //                 Activity: actionPerformed,
-    //                 Changes: stringActivity,
-    //                 ActivityDate: today,
-    //                 ActivityById: currentUser.Id,
-    //                 RequestIDId: itemID,
-    //                 SectionName: sectionName
-    //             }),
-    //         sucesscallbackfunction: function (data) { console.log("SaveActivityLogInList - Item saved Successfully"); },
-    //     });
+    };   
 
     $.ajax({
         url: url,
@@ -1361,7 +1355,8 @@ function SaveActivityLog(sectionName, itemID, ActivityLogListName, listDataArray
                 __metadata: {
                     "type": itemType
                 },
-                Activity: actionPerformed,
+               // Activity: actionPerformed,
+                Activity :buttonCaption,
                 Changes: stringActivity,
                 ActivityDate: today,
                 ActivityById: currentUser.Id,
@@ -1386,23 +1381,23 @@ function GetActivityString(listActivityLogDataArray, isCurrentApproverField) {
             if (stringActivity != null && stringActivity != '') {
                 stringActivity = stringActivity + '~';
                 stringActivity = stringActivity + element.id;
-                stringActivity = stringActivity + '';
+                stringActivity = stringActivity + '\t';
                 stringActivity = stringActivity + element.value;
             }
             else {
                 stringActivity = element.id;
-                stringActivity = stringActivity + '';
+                stringActivity = stringActivity + '\t';
                 stringActivity = stringActivity + element.value;
             }
         });
     }
     if (!isCurrentApproverField) {
         var today = new Date().format("yyyy-MM-ddTHH:mm:ssZ");
-        var approverActivityLog = "Assigned date" + "" + currentApproverDetails.AssignDate;
-        approverActivityLog += "\nApproved/Updated date" + "" + today;
-        approverActivityLog += "\n" + "Approver Comment" + "" + currentApproverDetails.COMMENTS;
+        var approverActivityLog = "Assigned date" + "\t" + currentApproverDetails.AssignDate;
+        approverActivityLog += "\nApproved/Updated date" + "\t" + today;
+        approverActivityLog += "\n" + "Approver Comment" + "\t" + currentApproverDetails.COMMENTS;
         if (stringActivity != null && stringActivity != '') {
-            stringActivity = stringActivity + '\n';
+            stringActivity = stringActivity + '~';
             stringActivity = stringActivity + approverActivityLog;
         }
         else {

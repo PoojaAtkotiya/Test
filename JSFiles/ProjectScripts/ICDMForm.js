@@ -7,12 +7,7 @@ var mainListData = {};
 var sendToLevel = 0;
 var collListItem = null;
 
-$(document).ready(function () {
-    var includes = $('[data-include]');
-    jQuery.each(includes, function(){
-      var file = _spPageContextInfo.webAbsoluteUrl + "/SiteAssets/ItemCodeCreation/HTMLFiles/" + $(this).data('include') + '.html';
-      $(this).load(file);
-    });
+$(document).ready(function () {   
     GetUsersForDDL(Roles.LUMMARKETINGDELEGATE, "LUMMarketingDelegateId");
     GetUsersForDDL(Roles.SCMLUMDESIGNDELEGATE, "SCMLUMDesignDelegateId");
     $(document).on("change", "#UploadArtworkAttachment", function () {
@@ -23,8 +18,6 @@ $(document).ready(function () {
         var activityChanges = jQuery(this).attr('data-val');
         DisplayActvityLogChanges(iterationId, activityChanges);
     });   
-  //  var myformtag = $('div[section]').not(".disabled").parent().prop("tagName").toLowerCase();
-    $('myform').renameTag('form');
 });
 
 function GetSetFormData() {

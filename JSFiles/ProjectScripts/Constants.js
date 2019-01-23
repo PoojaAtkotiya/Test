@@ -5,7 +5,8 @@ const CommonConstant = {
     HOSTWEBURL : "https://bajajelect.sharepoint.com/sites/MTDEV",
     APPLICATIONSHORTNAME : "ICDM",
     APPLICATIONNAME : "Item Code Creation Preprocess",
-    FORMNAME : "Item Code Preprocess Form"
+    FORMNAME : "Item Code Preprocess Form",
+    HTMLFILSEPATH:_spPageContextInfo.webAbsoluteUrl + "/SiteAssets/ItemCodeCreation/HTMLFiles/"
 }
 Object.freeze(CommonConstant);
 
