@@ -221,7 +221,8 @@
                                                             <div class="col-md-8">
                                                                 <select class="form-control dynamic-control requiredOnDraft" name="LUMMarketingDelegateId" required="true" data-val-msg="Please select User."
                                                                     data-selected="LUMMarketingDelegateId" reflisttype="main"
-                                                                    id="LUMMarketingDelegateId" controlvaluetype="int" controlType="combo" controlProperty="peoplepicker"></select>
+                                                                    id="LUMMarketingDelegateId" controlvaluetype="int" controlType="combo"
+                                                                    controlProperty="peoplepicker"></select>
                                                             </div>
                                                         </div>
                                                         <div class="col-md-6">
@@ -279,7 +280,7 @@
                                                             <div class="col-md-8">
                                                                 <select class="form-control dynamic-control" name="ProductGroup" listtype="master" required="required" reflisttype="main"
                                                                     listname="ProductGroupMaster" data-selected="ProductGroup"
-                                                                    valuebindingcolumn="Title"  textbindingcolumnn="Title" id="ProductGroup"
+                                                                    valuebindingcolumn="Title" textbindingcolumnn="Title" id="ProductGroup"
                                                                     controlType="combo"></select>
                                                             </div>
                                                         </div>
@@ -294,7 +295,7 @@
                                                                 <select class="form-control dynamic-control" name="ConfirmedOrderFromCustomer" required="true" id="ConfirmedOrderFromCustomer"
                                                                     reflisttype="main" data-selected="ConfirmedOrderFromCustomer"
                                                                     valuebindingcolumn="Title" textbindingcolumnn="Title" listname="ConfirmedOrderMaster"
-                                                                    listtype="master"  controlType="combo"></select>
+                                                                    listtype="master" controlType="combo"></select>
                                                             </div>
                                                         </div>
                                                         <div class="col-md-6">
@@ -303,7 +304,7 @@
                                                             <div class="col-md-8">
                                                                 <select class="form-control dynamic-control" name="TypeOfPackaging" required="true" data-selected="TypeOfPackaging" reflisttype="main"
                                                                     valuebindingcolumn="Title" textbindingcolumnn="Title" listtype="master"
-                                                                    listname="TypeOfPackagingMaster"  id="TypeOfPackaging" controlType="combo"></select>
+                                                                    listname="TypeOfPackagingMaster" id="TypeOfPackaging" controlType="combo"></select>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -365,7 +366,7 @@
                                         </div>
                                     </myform>
                                 </div>
-                                
+
                             </div>
                             <!-- <div class="card-head" data-toggle="collapse" data-target="#LUMMKTDELEGATEESECTION">
                                     <b> LUM Marketing Delegate Section</b>
@@ -477,29 +478,31 @@
                                         <i class="fa fa-chevron-down"></i>
                                     </div>
                                 </div>
-                                <div id="SCMLUMDESIGNINCHARGESECTION" section="SCM LUM Design Incharge Section" sectionOwner="" FillByRole="" class="card-body disabled">
-                                    <div class="form-horizontal">
-                                        <div class="row">
-                                            <div class="form-group">
-                                                <div class="col-md-6">
-                                                    <div class="col-md-4 control-label">LUM Design Delegate User:</div>
-                                                    <div class="col-md-8">
-                                                        <select class="form-control dynamic-control" name="SCMLUMDesignDelegateId" data-selected="SCMLUMDesignDelegateId" reflisttype="main"
-                                                            id="SCMLUMDesignDelegateId" controlvaluetype="int" controlType="combo"></select>
+                                <myform enctype="multipart/form-data" id="form_SCMLUMDESIGNINCHARGESECTION" method="post" novalidate="novalidate" autocomplete="off">
+                                    <div id="SCMLUMDESIGNINCHARGESECTION" section="SCM LUM Design Incharge Section" sectionOwner="" FillByRole="" class="card-body disabled">
+                                        <div class="form-horizontal">
+                                            <div class="row">
+                                                <div class="form-group">
+                                                    <div class="col-md-6">
+                                                        <div class="col-md-4 control-label">LUM Design Delegate User:</div>
+                                                        <div class="col-md-8">
+                                                            <select class="form-control dynamic-control" name="SCMLUMDesignDelegateId" data-selected="SCMLUMDesignDelegateId" reflisttype="main"
+                                                                id="SCMLUMDesignDelegateId" controlvaluetype="int" controlType="combo"></select>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="col-md-4 control-label">Comment :</div>
-                                                    <div class="col-md-8">
-                                                        <!--Current Approver Comment-->
-                                                        <textarea class="form-control approver-control" maxlength="1000" required="true" cols="40" rows="6" controlType="multitext"
-                                                            listname="ItemCodeApprovalMatrix" name="Comments" id="SCMLUMDESIGNINCHARGESECTION_Comments"></textarea>
+                                                    <div class="col-md-6">
+                                                        <div class="col-md-4 control-label">Comment :</div>
+                                                        <div class="col-md-8">
+                                                            <!--Current Approver Comment-->
+                                                            <textarea class="form-control approver-control" maxlength="1000" required="true" cols="40" rows="6" controlType="multitext"
+                                                                listname="ItemCodeApprovalMatrix" name="Comments" id="SCMLUMDESIGNINCHARGESECTION_Comments"></textarea>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </myform>
                             </div>
                             <div class="card">
                                 <div class="card-head" data-toggle="collapse" data-target="#SCMLUMDESIGNDELEGATESECTION">
@@ -508,90 +511,92 @@
                                         <i class="fa fa-chevron-down"></i>
                                     </div>
                                 </div>
-                                <div id="SCMLUMDESIGNDELEGATESECTION" section="SCM LUM Design Delegate Section" sectionOwner="" FillByRole="" class="card-body disabled">
-                                    <div class="form-horizontal">
-                                        <div class="row">
-                                            <div class="form-group">
-                                                <div class="col-md-6">
-                                                    <div class="col-md-4 control-label">
-                                                        <span class="text-danger text-default-light">*</span>
-                                                        BIS Registration Applicable:
-                                                    </div>
-                                                    <div class="col-md-8">
-                                                        <div class="form-control noborder">
-                                                            <input id="BISRegistrationApplicableYes" class="dynamic-control" listtype="main" class="form-control dynamic-control" name="BISRegistrationApplicable"
-                                                                type="radio" value="True" />
-                                                            <label for="BISRegistrationApplicableYes">Yes</label>
-                                                            <input id="BISRegistrationApplicableNo" value="False" class="dynamic-control" listtype="main" name="BISRegistrationApplicable"
-                                                                type="radio" />
-                                                            <label for="BISRegistrationApplicableNo">No</label>
-                                                            <input id="BISRegistrationApplicable" required="true" name="BISRegistrationApplicable" type="hidden">
+                                <myform enctype="multipart/form-data" id="form_SCMLUMDESIGNDELEGATESECTION" method="post" novalidate="novalidate" autocomplete="off">
+                                    <div id="SCMLUMDESIGNDELEGATESECTION" section="SCM LUM Design Delegate Section" sectionOwner="" FillByRole="" class="card-body disabled">
+                                        <div class="form-horizontal">
+                                            <div class="row">
+                                                <div class="form-group">
+                                                    <div class="col-md-6">
+                                                        <div class="col-md-4 control-label">
+                                                            <span class="text-danger text-default-light">*</span>
+                                                            BIS Registration Applicable:
                                                         </div>
-                                                    </div>
+                                                        <div class="col-md-8">
+                                                            <div class="form-control noborder">
+                                                                <input id="BISRegistrationApplicableYes" class="dynamic-control" listtype="main" class="form-control dynamic-control" name="BISRegistrationApplicable"
+                                                                    type="radio" value="True" />
+                                                                <label for="BISRegistrationApplicableYes">Yes</label>
+                                                                <input id="BISRegistrationApplicableNo" value="False" class="dynamic-control" listtype="main" name="BISRegistrationApplicable"
+                                                                    type="radio" />
+                                                                <label for="BISRegistrationApplicableNo">No</label>
+                                                                <input id="BISRegistrationApplicable" required="true" name="BISRegistrationApplicable" type="hidden">
+                                                            </div>
+                                                        </div>
 
-                                                </div>
-                                                <div class="col-sm-6">
-                                                    <label class="col-md-4 control-label">
-                                                        <span class="text-danger text-default-light">*</span>
-                                                        RNumber :
-                                                    </label>
-                                                    <div class="col-md-8">
-                                                        <input class="form-control dynamic-control" required="true" maxlength="255" listtype="main" type="text" controlType="text"
-                                                            id="RNumber" />
                                                     </div>
+                                                    <div class="col-sm-6">
+                                                        <label class="col-md-4 control-label">
+                                                            <span class="text-danger text-default-light">*</span>
+                                                            RNumber :
+                                                        </label>
+                                                        <div class="col-md-8">
+                                                            <input class="form-control dynamic-control" required="true" maxlength="255" listtype="main" type="text" controlType="text"
+                                                                id="RNumber" />
+                                                        </div>
 
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-sm-6">
-                                                <div class="form-group">
-                                                    <label class="col-md-4 control-label">
-                                                        Upload Artwork Attachment
-                                                    </label>
-                                                    <div class="col-md-8 ">
-                                                        <!-- <div id="divUploadArtworkAttachment">
+                                            <div class="row">
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <label class="col-md-4 control-label">
+                                                            Upload Artwork Attachment
+                                                        </label>
+                                                        <div class="col-md-8 ">
+                                                            <!-- <div id="divUploadArtworkAttachment">
                                                             </div>
                                                             <input class="form-control dynamic-control notvisible" listtype="main" type="text" controlType="text" id="UploadArtworkAttachment"
                                                             /> -->
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label class="col-md-4 control-label">
-                                                        <span class="text-danger text-default-light">*</span>
-                                                        Vendors
-                                                    </label>
-                                                    <div class="col-md-8 ">
-                                                        <div class="form-control noborder">
-                                                            <!-- <input class="form-control dynamic-control  user-tags disable paste required" required="true" min-chars="2" maxlength="255"
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label class="col-md-4 control-label">
+                                                            <span class="text-danger text-default-light">*</span>
+                                                            Vendors
+                                                        </label>
+                                                        <div class="col-md-8 ">
+                                                            <div class="form-control noborder">
+                                                                <!-- <input class="form-control dynamic-control  user-tags disable paste required" required="true" min-chars="2" maxlength="255"
                                                                     listtype="main" type="text" data-val="true" data-hint="Type and Select Vendor Name(s)"
                                                                     data-val-required="Please Select Vendor(s)" controlType="text"
                                                                     id="tblVendors" />
                                                                 <input id="hdnVendors" name="Vendors" type="hidden" /> -->
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="form-group">
-                                                <div class="col-md-6">
+                                            <div class="row">
+                                                <div class="form-group">
+                                                    <div class="col-md-6">
 
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="col-md-4 control-label">Comment :</div>
-                                                    <div class="col-md-8">
-                                                        <!--Current Approver Comment-->
-                                                        <textarea class="form-control approver-control" maxlength="1000" required="true" cols="40" rows="6" controlType="multitext"
-                                                            listname="ItemCodeApprovalMatrix" name="Comments" id="SCMLUMDESIGNDELEGATESECTION_Comments"></textarea>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="col-md-4 control-label">Comment :</div>
+                                                        <div class="col-md-8">
+                                                            <!--Current Approver Comment-->
+                                                            <textarea class="form-control approver-control" maxlength="1000" required="true" cols="40" rows="6" controlType="multitext"
+                                                                listname="ItemCodeApprovalMatrix" name="Comments" id="SCMLUMDESIGNDELEGATESECTION_Comments"></textarea>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </myform>
                             </div>
                             <div class="card">
                                 <div class="card-head" data-toggle="collapse" data-target="#TDSINCHARGESECTION">
@@ -600,26 +605,31 @@
                                         <i class="fa fa-chevron-down"></i>
                                     </div>
                                 </div>
-                                <div id="TDSINCHARGESECTION" section="TDS Incharge Section" sectionOwner="" FillByRole="" class="card-body disabled">
-                                    <div class="form-horizontal">
-                                        <div class="row">
-                                            <div class="form-group">
-                                                <div class="col-md-6">
-                                                    <div class="col-md-4 control-label">TDS Delegate:</div>
-                                                    <div class="col-md-8">
-                                                        <select class="form-control dynamic-control" controlvaluetype="int" data-selected="TDSDelegate" reflisttype="main" id="TDSDelegate" controlType="combo"></select>
+                                <myform enctype="multipart/form-data" id="form_TDSINCHARGESECTION" method="post" novalidate="novalidate" autocomplete="off">
+                                    <div id="TDSINCHARGESECTION" section="TDS Incharge Section" sectionOwner="" FillByRole="" class="card-body disabled">
+                                        <div class="form-horizontal">
+                                            <div class="row">
+                                                <div class="form-group">
+                                                    <div class="col-md-6">
+                                                        <div class="col-md-4 control-label">TDS Delegate:</div>
+                                                        <div class="col-md-8">
+                                                            <select class="form-control dynamic-control" controlvaluetype="int" data-selected="TDSDelegate" reflisttype="main" id="TDSDelegate"
+                                                                controlType="combo"></select>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="col-md-4 control-label">Comments:</div>
-                                                    <div class="col-md-8">
-                                                        <!-- <textarea cols="40" rows="6" class="form-control dynamic-control" id="Comment" listtype="ItemCodeApprovalMatrix" controlType="multitext"></textarea> -->
+                                                    <div class="col-md-6">
+                                                        <div class="col-md-4 control-label">Comments:</div>
+                                                        <div class="col-md-8">
+                                                            <textarea class="form-control approver-control" maxlength="1000" required="true" cols="40" rows="6" controlType="multitext"
+                                                                listname="ItemCodeApprovalMatrix" name="Comments" id="TDSINCHARGESECTION_Comments"></textarea>
+                                                            <!-- <textarea cols="40" rows="6" class="form-control dynamic-control" id="Comment" listtype="ItemCodeApprovalMatrix" controlType="multitext"></textarea> -->
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </myform>
                             </div>
                         </div>
                         <div data-include="ApplicationStatus"></div>
