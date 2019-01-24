@@ -1549,3 +1549,16 @@ function removeDuplicateFromArray(arr) {
     let unique_array = Array.from(new Set(arr))
     return unique_array;
 }
+
+function getTermFromManagedColumn(managedColumn) {
+    var resultValue = '';
+    if (!IsNullOrUndefined(managedColumn)) {
+        if (!IsNullOrUndefined(managedColumn.Label)) {
+            resultValue = managedColumn.Label;
+        }
+        else if (!IsNullOrUndefined(managedColumn.results) && !IsNullOrUndefined(managedColumn.results.length > 0) && !IsNullOrUndefined(managedColumn.results[0]) && !IsNullOrUndefined(managedColumn.results[0].Label)) {
+            resultValue = managedColumn.results[0].Label;
+        }
+    }
+    return resultValue;
+}
