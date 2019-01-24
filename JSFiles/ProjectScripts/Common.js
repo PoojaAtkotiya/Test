@@ -14,9 +14,9 @@ var currentApproverDetails = {};
 jQuery(document).ready(function () {
     // BindDatePicker("");
     var includes = $('[data-include]');
-    jQuery.each(includes, function(){
-      var file = CommonConstant.HTMLFILSEPATH + $(this).data('include') + '.html';
-      $(this).load(file);
+    jQuery.each(includes, function () {
+        var file = CommonConstant.HTMLFILSEPATH + $(this).data('include') + '.html';
+        $(this).load(file);
     });
     $('myform').renameTag('form');
     KeyPressNumericValidation();
@@ -761,7 +761,7 @@ function ValidateForm(ele, saveCallBack) {
         $("input[id='SendBackTo']").val($(ele).attr("data-sendbackto"));
         $("input[id='SendToRole']").val($(ele).attr("data-sendtorole"));
         ShowWaitDialog();
-        //if (buttonCaption != "save as draft") {
+        if (buttonCaption != "save as draft") {
             //confirm file Attachment need attach or not
             var attachmsg = "Are you sure to '" + $.trim($(ele).text()) + "'?";
             if ($(formList).find("div[data-appname]").length != 0 && $(formList).find("div[data-appname]").find("ul li").length == 0 && dataAction == "11") {
@@ -772,13 +772,12 @@ function ValidateForm(ele, saveCallBack) {
                     saveCallBack(activeSection);
                 }
             });
-       // }
-       // else {
-
-        //    saveCallBack(activeSection);
-       // }
+        }
+        else {
+            saveCallBack(activeSection);
+        }
+        HideWaitDialog();
     }
-    HideWaitDialog();
 }
 
 function onQuerySucceeded(sender, args) {
@@ -1144,7 +1143,7 @@ function SaveData(listname, listDataArray, sectionName, ele) {
                     clientContext.load(web);
                     clientContext.executeQueryAsync(function () {
                         SaveLocalApprovalMatrix(sectionName, itemID, listname, isNewItem, oListItem, ListNames.ICDMAPPROVALMATRIXLIST);
-                        SaveActivityLog(sectionName, itemID, ListNames.ICDMACTIVITYLOGLIST, listDataArray, isNewItem,buttonCaption);
+                        SaveActivityLog(sectionName, itemID, ListNames.ICDMACTIVITYLOGLIST, listDataArray, isNewItem, buttonCaption);
                         if (data != undefined && data != null && data.d != null) {
                             SaveTranListData(itemID);
                         }
@@ -1331,11 +1330,11 @@ function OnSuccessNoRedirect(data) {
     catch (e) { window.location.reload(); }
 }
 
-function SaveActivityLog(sectionName, itemID, ActivityLogListName, listDataArray, isNewItem,buttonCaption) {
+function SaveActivityLog(sectionName, itemID, ActivityLogListName, listDataArray, isNewItem, buttonCaption) {
     var stringActivity;
     var itemType = GetItemTypeForListName(ActivityLogListName);
     var today = new Date().format("yyyy-MM-ddTHH:mm:ssZ");
-  //  var actionPerformed = Object.keys(ButtonActionStatus).filter(k => ButtonActionStatus[k] == $("#ActionStatus").val()).toString();
+    //  var actionPerformed = Object.keys(ButtonActionStatus).filter(k => ButtonActionStatus[k] == $("#ActionStatus").val()).toString();
     stringActivity = GetActivityString(listActivityLogDataArray, isNewItem);
     url = _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ActivityLogListName + "')/items";
     headers = {
@@ -1343,7 +1342,7 @@ function SaveActivityLog(sectionName, itemID, ActivityLogListName, listDataArray
         "Content-Type": "application/json;odata=verbose",
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
         "X-HTTP-Method": "POST"
-    };   
+    };
 
     $.ajax({
         url: url,
@@ -1355,8 +1354,8 @@ function SaveActivityLog(sectionName, itemID, ActivityLogListName, listDataArray
                 __metadata: {
                     "type": itemType
                 },
-               // Activity: actionPerformed,
-                Activity :buttonCaption,
+                // Activity: actionPerformed,
+                Activity: buttonCaption,
                 Changes: stringActivity,
                 ActivityDate: today,
                 ActivityById: currentUser.Id,
@@ -1381,21 +1380,21 @@ function GetActivityString(listActivityLogDataArray, isCurrentApproverField) {
             if (stringActivity != null && stringActivity != '') {
                 stringActivity = stringActivity + '~';
                 stringActivity = stringActivity + element.id;
-                stringActivity = stringActivity + '\t';
+                stringActivity = stringActivity + '';
                 stringActivity = stringActivity + element.value;
             }
             else {
                 stringActivity = element.id;
-                stringActivity = stringActivity + '\t';
+                stringActivity = stringActivity + '';
                 stringActivity = stringActivity + element.value;
             }
         });
     }
     if (!isCurrentApproverField) {
         var today = new Date().format("yyyy-MM-ddTHH:mm:ssZ");
-        var approverActivityLog = "Assigned date" + "\t" + currentApproverDetails.AssignDate;
-        approverActivityLog += "\nApproved/Updated date" + "\t" + today;
-        approverActivityLog += "\n" + "Approver Comment" + "\t" + currentApproverDetails.COMMENTS;
+        var approverActivityLog = "Assigned date" + "" + currentApproverDetails.AssignDate;
+        approverActivityLog += "\nApproved/Updated date" + "" + today;
+        approverActivityLog += "\n" + "Approver Comment" + "" + currentApproverDetails.COMMENTS;
         if (stringActivity != null && stringActivity != '') {
             stringActivity = stringActivity + '~';
             stringActivity = stringActivity + approverActivityLog;
@@ -1577,4 +1576,17 @@ function ShowError(ModelStateErrors) {
 function removeDuplicateFromArray(arr) {
     let unique_array = Array.from(new Set(arr))
     return unique_array;
+}
+
+function getTermFromManagedColumn(managedColumn) {
+    var resultValue = '';
+    if (!IsNullOrUndefined(managedColumn)) {
+        if (!IsNullOrUndefined(managedColumn.Label)) {
+            resultValue = managedColumn.Label;
+        }
+        else if (!IsNullOrUndefined(managedColumn.results) && !IsNullOrUndefined(managedColumn.results.length > 0) && !IsNullOrUndefined(managedColumn.results[0]) && !IsNullOrUndefined(managedColumn.results[0].Label)) {
+            resultValue = managedColumn.results[0].Label;
+        }
+    }
+    return resultValue;
 }
