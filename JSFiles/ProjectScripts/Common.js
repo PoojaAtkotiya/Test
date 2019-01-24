@@ -3,7 +3,6 @@ var currentUser;
 var approverMaster;
 var securityToken;
 var currentContext;
-//var hostweburl;
 var listDataArray = {};
 var listActivityLogDataArray = [];
 var actionPerformed;
@@ -11,14 +10,16 @@ var fileInfos = [];
 var scriptbase; //= spSiteUrl + "/_layouts/15/";     ////_spPageContextInfo.layoutsUrl
 var fileIdCounter = 0;
 var currentApproverDetails = {};
+
 jQuery(document).ready(function () {
     // BindDatePicker("");
     var includes = $('[data-include]');
-    jQuery.each(includes, function(){
-      var file = CommonConstant.HTMLFILSEPATH + $(this).data('include') + '.html';
-      $(this).load(file);
+    jQuery.each(includes, function () {
+        var file = CommonConstant.HTMLFILSEPATH + $(this).data('include') + '.html';
+        $(this).load(file);
     });
-    $('myform').renameTag('form');
+    if ($('myform').length > 0)
+        $('myform').renameTag('form');
     KeyPressNumericValidation();
     var scriptbase = CommonConstant.HOSTWEBURL + "/_layouts/15/";
     // Load the js files and continue to
@@ -86,7 +87,6 @@ function loadConstants() {
 }
 
 function onloadConstantsSuccess(sender, args) {
-
     currentContext = SP.ClientContext.get_current();
     listItemId = getUrlParameter("ID");
     returnUrl = getUrlParameter("Source");
@@ -135,7 +135,7 @@ function GetUsersForDDL(roleName, eleID) {
     //sync call to avoid conflicts in deriving role wise users
     AjaxCall(
         {
-            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('ApproverMaster')/items?$select=Role,UserSelection,UserName/Id,UserName/Title&$expand=UserName/Id&$expand=UserName/Id&$filter= (Role eq '" + roleName + "') and (UserSelection eq 1)",
+            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ListNames.APPROVERMASTERLIST + "')/items?$select=Role,UserSelection,UserName/Id,UserName/Title&$expand=UserName/Id&$expand=UserName/Id&$filter= (Role eq '" + roleName + "') and (UserSelection eq 1)",
             httpmethod: 'GET',
             calldatatype: 'JSON',
             isAsync: false,
@@ -509,7 +509,6 @@ function ConfirmationDailog(options) {
     $(confirmDlg).appendTo("body");
     $("#ConfirmDialog #btnYesPopup").on("click", function () {
         if (typeof (options.okCallback) !== "undefined" && options.okCallback != null) {
-            //options.okCallback();
             ConfirmPopupYes(options.url, options.id, options.okCallback);
         }
     });
@@ -618,26 +617,6 @@ function onAjaxError(xhr) {
         }
     }
 }
-function resetFormValidator(formId) {
-    $(formId).removeData('validator');
-    $(formId).removeData('unobtrusiveValidation');
-    $(formId).data('validator');
-    $(formId).data('unobtrusiveValidation');
-    $.validator.unobtrusive.parse(formId);
-}
-
-// function replace(thisWith, that) {
-//     $(thisWith).replaceWith(function () {
-//         var replacement = $('<' + that + '>').html($(this).html());
-//         for (var i = 0; i < this.attributes.length; i++) {
-//             replacement.attr(this.attributes[i].name, this.attributes[i].value);
-//         }
-//         return replacement;
-//     });
-//     // if ($(thisWith).length>0) {
-//     //     replace(thisWith, that);
-//     // }
-// }
 
 //Replace '<myform>' tag to '<form>'
 $.fn.renameTag = function (replaceWithTag) {
@@ -671,7 +650,6 @@ function ValidateForm(ele, saveCallBack) {
     }
 
     if (buttonCaption != "print") {
-
         $(formList).each(function () {
             if ($(this).find("input[id='ButtonCaption']").length == 0) {
                 var input = $("<input id='ButtonCaption' name='ButtonCaption' type='hidden'/>");
@@ -762,21 +740,21 @@ function ValidateForm(ele, saveCallBack) {
         $("input[id='SendToRole']").val($(ele).attr("data-sendtorole"));
         ShowWaitDialog();
         //if (buttonCaption != "save as draft") {
-            //confirm file Attachment need attach or not
-            var attachmsg = "Are you sure to '" + $.trim($(ele).text()) + "'?";
-            if ($(formList).find("div[data-appname]").length != 0 && $(formList).find("div[data-appname]").find("ul li").length == 0 && dataAction == "11") {
-                attachmsg = "Are you sure to '" + $.trim($(ele).text()) + "' without attachment?";
+        //confirm file Attachment need attach or not
+        var attachmsg = "Are you sure to '" + $.trim($(ele).text()) + "'?";
+        if ($(formList).find("div[data-appname]").length != 0 && $(formList).find("div[data-appname]").find("ul li").length == 0 && dataAction == "11") {
+            attachmsg = "Are you sure to '" + $.trim($(ele).text()) + "' without attachment?";
+        }
+        ConfirmationDailog({
+            title: "Confirm", message: attachmsg, okCallback: function (data) {
+                saveCallBack(activeSection);
             }
-            ConfirmationDailog({
-                title: "Confirm", message: attachmsg, okCallback: function (data) {
-                    saveCallBack(activeSection);
-                }
-            });
-       // }
-       // else {
+        });
+        // }
+        // else {
 
         //    saveCallBack(activeSection);
-       // }
+        // }
     }
     HideWaitDialog();
 }
@@ -861,7 +839,6 @@ function GetFormControlsValueAndType(id, elementType, elementProperty, listActiv
                 listActivityLogDataArray.push({ id: id, value: $(obj).val(), type: 'text' });
             }
             break;
-
         case "terms":
             var metaObject = {
                 __metadata: { "type": "SP.Taxonomy.TaxonomyFieldValue" },
@@ -869,7 +846,6 @@ function GetFormControlsValueAndType(id, elementType, elementProperty, listActiv
                 TermGuid: $(obj).val(),
                 WssId: -1
             }
-
             break;
         case "combo":
             if (elementProperty == 'peoplepicker') {
@@ -889,7 +865,6 @@ function GetFormControlsValueAndType(id, elementType, elementProperty, listActiv
             }
             break;
         case "checkbox":
-
             listActivityLogDataArray.push({ id: id, value: $(obj)[0]['checked'], type: 'checked' });
             break;
         case "multicheckbox":
@@ -1144,7 +1119,7 @@ function SaveData(listname, listDataArray, sectionName, ele) {
                     clientContext.load(web);
                     clientContext.executeQueryAsync(function () {
                         SaveLocalApprovalMatrix(sectionName, itemID, listname, isNewItem, oListItem, ListNames.ICDMAPPROVALMATRIXLIST);
-                        SaveActivityLog(sectionName, itemID, ListNames.ICDMACTIVITYLOGLIST, listDataArray, isNewItem,buttonCaption);
+                        SaveActivityLog(sectionName, itemID, ListNames.ICDMACTIVITYLOGLIST, listDataArray, isNewItem, buttonCaption);
                         if (data != undefined && data != null && data.d != null) {
                             SaveTranListData(itemID);
                         }
@@ -1331,11 +1306,11 @@ function OnSuccessNoRedirect(data) {
     catch (e) { window.location.reload(); }
 }
 
-function SaveActivityLog(sectionName, itemID, ActivityLogListName, listDataArray, isNewItem,buttonCaption) {
+function SaveActivityLog(sectionName, itemID, ActivityLogListName, listDataArray, isNewItem, buttonCaption) {
     var stringActivity;
     var itemType = GetItemTypeForListName(ActivityLogListName);
     var today = new Date().format("yyyy-MM-ddTHH:mm:ssZ");
-  //  var actionPerformed = Object.keys(ButtonActionStatus).filter(k => ButtonActionStatus[k] == $("#ActionStatus").val()).toString();
+    //  var actionPerformed = Object.keys(ButtonActionStatus).filter(k => ButtonActionStatus[k] == $("#ActionStatus").val()).toString();
     stringActivity = GetActivityString(listActivityLogDataArray, isNewItem);
     url = _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ActivityLogListName + "')/items";
     headers = {
@@ -1343,7 +1318,7 @@ function SaveActivityLog(sectionName, itemID, ActivityLogListName, listDataArray
         "Content-Type": "application/json;odata=verbose",
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
         "X-HTTP-Method": "POST"
-    };   
+    };
 
     $.ajax({
         url: url,
@@ -1355,8 +1330,8 @@ function SaveActivityLog(sectionName, itemID, ActivityLogListName, listDataArray
                 __metadata: {
                     "type": itemType
                 },
-               // Activity: actionPerformed,
-                Activity :buttonCaption,
+                // Activity: actionPerformed,
+                Activity: buttonCaption,
                 Changes: stringActivity,
                 ActivityDate: today,
                 ActivityById: currentUser.Id,
@@ -1557,10 +1532,6 @@ function AjaxCall(options) {
 
         }
     });
-}
-
-function UserAborted(xhr) {
-    return !xhr.getAllResponseHeaders();
 }
 
 function ShowError(ModelStateErrors) {

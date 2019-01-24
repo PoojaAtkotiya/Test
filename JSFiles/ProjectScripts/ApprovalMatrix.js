@@ -29,32 +29,10 @@ function GetGlobalApprovalMatrix(id) {
                     GetButtons(id, currentUserRole, 'New');
                 }
             });
-
-        // $.ajax({
-        //     url: "https://bajajelect.sharepoint.com/sites/WFRootDev" + "/_api/web/lists/getbytitle('" + ListNames.GLOBALAPPROVALMATRIXLIST + "')/GetItems(query=@v1)?@v1={\"ViewXml\":\"<View><Query><Where><And><Eq><FieldRef Name='ApplicationName' /><Value Type='TaxonomyFieldType'>" + CommonConstant.APPLICATIONNAME + "</Value></Eq><Eq><FieldRef Name='FormName' /><Value Type='Text'>" +  CommonConstant.FORMNAME + "</Value></Eq></And></Where></Query></View>\"}",
-        //     type: "POST",
-        //     headers:
-        //         {
-        //             "Accept": "application/json;odata=verbose",
-        //             "Content-Type": "application/json; odata=verbose",
-        //             "X-RequestDigest": data.d.GetContextWebInformation.FormDigestValue
-        //         },
-        //     success: function (data) {
-        //         globalApprovalMatrix = data.d.results;
-        //         SetSectionWiseRoles(id = 0);
-        //         SetApprovalMatrix(id, '');
-        //         //setCustomApprovers(tempApproverMatrix);
-        //         GetButtons(id, currentUserRole, 'New');
-        //     },
-        //     error: function (data) {
-        //         console.log(data.responseJSON.error);
-        //     }
-        // });
     });
 }
 
 function GetLocalApprovalMatrixData(id, mainListName) {
-
     AjaxCall(
         {
             url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ListNames.ICDMAPPROVALMATRIXLIST + "')/Items?$select=*,Approver/EMail,Approver/UserName&$expand=Approver&$filter=RequestID eq '" + id + "'&$orderby= Levels asc",
@@ -71,35 +49,12 @@ function GetLocalApprovalMatrixData(id, mainListName) {
                 localApprovalMatrixdata = data.d.results;
                 SetSectionWiseRoles(id);
                 SetApprovalMatrix(id, mainListName);
-
                 // ////set approver's values in html controls
                 // if (!IsNullOrUndefined(tempApproverMatrix) && tempApproverMatrix.length > 0) {
 
                 // }
-
             }
         });
-
-    // $.ajax({
-    //     url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('" + ListNames.ICDMAPPROVALMATRIXLIST + "')/Items?$select=*,Approver/EMail,Approver/UserName&$expand=Approver&$filter=RequestID eq '" + id + "'&$orderby= Levels asc",
-    //     type: "GET",
-    //     async: false,
-    //     headers:
-    //         {
-    //             "Accept": "application/json;odata=verbose",
-    //             "Content-Type": "application/json;odata=verbose",
-    //             "X-RequestDigest": $("#__REQUESTDIGEST").val()
-    //         },
-    //     success: function (data) {
-    //         localApprovalMatrixdata = data.d.results;
-    //         SetSectionWiseRoles(id);
-    //         SetApprovalMatrix(id, mainListName);
-    //         //setCustomApprovers(tempApproverMatrix);
-    //     },
-    //     error: function (data) {
-    //         console.log(data);
-    //     }
-    // });
 }
 
 function SetApprovalMatrix(id, mainListName) {
@@ -224,7 +179,7 @@ function GetEnableSectionNames(id) {
             if (sectionName == activeSectionName) {
                 var sectionId = $(this).attr('id');
                 $("#" + sectionId).removeClass("disabled");
-                $("#" + sectionId).find(':input').removeAttr("disabled");               
+                $("#" + sectionId).find(':input').removeAttr("disabled");
             }
         });
         $("div .disabled .form-control").attr("disabled", "disabled");
@@ -285,8 +240,6 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
             }
         });
     }
-
-
 
     ////Update status of all approvers in tempapprovalmatrix
     UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previousLevel, actionPerformed, param);
@@ -351,8 +304,6 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
                             }
                             else {
                                 if (nextApprover.indexOf(next.ApproverId) == -1) {
-
-                                    debugger;
                                     if (nextApproverRole.lastIndexOf(',') != -1) {
                                         nextApproverRole = nextApproverRole.trim().substring(0, nextApproverRole.lastIndexOf(','))
                                     }
@@ -383,7 +334,6 @@ function SaveLocalApprovalMatrix(sectionName, requestId, mainListName, isNewItem
                     }
                     else {
                         if (nextApprover.indexOf(next.ApproverId) == -1) {
-                            debugger;
                             if (nextApproverRole.lastIndexOf(',') != -1) {
                                 nextApproverRole = nextApproverRole.trim().substring(0, nextApproverRole.lastIndexOf(','))
                             }
@@ -669,7 +619,6 @@ function SetItemPermission(requestId, listName, userWithRoles) {
     //                         currentContext.executeQueryAsync(function () {
     //                             console.log("set permission : success User");
     //                         }, function (error) {
-    //                             debugger
     //                             console.log(error);
     //                             console.log("set permission : failed");
     //                         }
@@ -678,7 +627,6 @@ function SetItemPermission(requestId, listName, userWithRoles) {
     //                 });
     //             }
     //         } catch (exc) {
-    //             debugger
     //             console.log("catch : error while set permission");
     //             console.log(exc);
     //         }
@@ -696,8 +644,117 @@ function breakRoleInheritanceOfList(listName, requestId, userWithRoles) {
     var breakRoleUrl = '/_api/web/lists/getbytitle(\'' + listName + '\')/items(' + requestId + ')/breakroleinheritance(copyRoleAssignments=false, clearsubscopes=false)';
     var digest = jQuery("#__REQUESTDIGEST").val();
     var resetDataTemplate = { "resetUrl": resetUrl, "breakRoleUrl": breakRoleUrl, "digest": digest.toString() };
+
+    // AjaxCall(
+    //     {
+    //         url: CommonConstant.BREAKROLEINHERITANCEWF,
+    //         httpmethod: 'POST',
+    //         calldatatype: 'JSON',
+    //         isAsync: false,
+    //         headers: {
+    //             "content-type": "application/json",
+    //             "cache-control": "no-cache"
+    //         },
+    //         data: JSON.stringify(resetDataTemplate),
+    //         sucesscallbackfunction: function (data) {
+    //             console.log("Inheritance Broken Successfully!");
+    //             var roleDefBindingColl = null;
+    //             console.log(userWithRoles);
+    //             // var headers = {
+    //             //     "Accept": "application/json;odata=verbose",
+    //             //     "content-Type": "application/json;odata=verbose",
+    //             //     "X-RequestDigest": jQuery("#__REQUESTDIGEST").val()
+    //             // }
+    //             // });
+    //             //Add Role Permissions   
+    //             //1073741827 - contribute
+    //             // 1073741829, Full Control
+    //             // 1073741826, Read
+
+    //             userWithRoles.forEach((element) => {
+
+    //                 var userIds = element.user;
+    //                 var permission = element.permission;
+    //                 var permId;
+    //                 if (permission == "Contribute") {
+    //                     permId = 1073741827;
+    //                 }
+    //                 else if (permission == "Read") {
+    //                     permId = 1073741826;
+    //                 }
+    //                 if (!IsNullOrUndefined(userIds) && !IsStrNullOrEmpty(userIds) && !IsNullOrUndefined(permission) && !IsStrNullOrEmpty(permission)) {
+    //                     var users = [];
+    //                     //split users and remove ,
+    //                     if (userIds.toString().indexOf(',') == 0) {
+    //                         userIds = userIds.substring(1);
+    //                         if (userIds.toString().indexOf(',') != -1 && userIds.toString().lastIndexOf(',') == userIds.toString().length - 1) {
+    //                             userIds = userIds.substring(userIds.toString().lastIndexOf(','))[0];
+    //                         }
+    //                     }
+    //                     if (!IsNullOrUndefined(userIds) && !IsStrNullOrEmpty(userIds)) {
+    //                         var a = (userIds.toString().indexOf(',') != -1) ? userIds.split(',') : parseInt(userIds);
+    //                         if (!IsNullOrUndefined(a)) {
+    //                             if (a.length == undefined) {
+    //                                 users.push(a);
+    //                             } else {
+    //                                 a.forEach(element => {
+    //                                     users.push(parseInt(element));
+    //                                 });
+    //                             }
+    //                         }
+    //                     }
+
+    //                     ////remove duplicates from array
+    //                     users = removeDuplicateFromArray(users);
+
+    //                     users.forEach(user => {
+    //                         if (!isNaN(user)) {
+    //                             var endPointUrlRoleAssignment = "/_api/web/lists/getByTitle('" + listName + "')/items(" + requestId + ")/roleassignments/addroleassignment(principalid=" + user + ",roleDefId=" + permId + ")";
+    //                             var dataTemplate = { "url": endPointUrlRoleAssignment, "digest": digest.toString() };
+
+    //                             // AjaxCall(
+    //                             //     {
+    //                             //         url: CommonConstant.SETPERMISSIONWF,///endPointUrlRoleAssignment
+    //                             //         httpmethod: 'POST',
+    //                             //         calldatatype: 'JSON',
+    //                             //         isAsync: false,
+    //                             //         headers: {
+    //                             //             "content-type": "application/json",
+    //                             //             "cache-control": "no-cache"
+    //                             //         },
+    //                             //         data: JSON.stringify(dataTemplate),
+    //                             //         sucesscallbackfunction: function (data) {
+    //                             //             console.log('Role Permission Added successfully!');
+    //                             //         }
+    //                             //     });
+
+    //                             jQuery.ajax(
+    //                                 {
+    //                                     url: CommonConstant.SETPERMISSIONWF,   ///endPointUrlRoleAssignment
+    //                                     type: "POST",
+    //                                     data: JSON.stringify(dataTemplate),
+    //                                     headers: {
+    //                                         "content-type": "application/json",
+    //                                         "cache-control": "no-cache"
+    //                                     },
+    //                                     async: false,
+    //                                     success: function (data) {
+    //                                         console.log('Role Permission Added successfully!');
+    //                                     },
+    //                                     error: function (error) {
+    //                                         console.log(JSON.stringify(error));
+    //                                     }
+    //                                 });
+    //                         }
+    //                     });
+    //                 }
+    //             });
+    //         }
+    //     });
+
+
     $.ajax({
-        url: "https://prod-01.centralindia.logic.azure.com:443/workflows/bd5c7b59e0a245a5866865a147ce48f1/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=DQwBHAeVbuK9CUlGJNABP7iG2ZSOE3ApijO8S0gWZM8",//_spPageContextInfo.webAbsoluteUrl + '/_api/web/lists/getbytitle(\'' + listName + '\')/items(' + requestId + ')/breakroleinheritance(copyRoleAssignments=false, clearsubscopes=true)',
+        url: CommonConstant.BREAKROLEINHERITANCEWF,
         type: 'POST',
         headers: {
             "content-type": "application/json",
@@ -706,7 +763,6 @@ function breakRoleInheritanceOfList(listName, requestId, userWithRoles) {
         data: JSON.stringify(resetDataTemplate),
         async: false,
         success: function (data) {
-
             console.log("Inheritance Broken Successfully!");
             var roleDefBindingColl = null;
             console.log(userWithRoles);
@@ -733,7 +789,6 @@ function breakRoleInheritanceOfList(listName, requestId, userWithRoles) {
                     permId = 1073741826;
                 }
                 if (!IsNullOrUndefined(userIds) && !IsStrNullOrEmpty(userIds) && !IsNullOrUndefined(permission) && !IsStrNullOrEmpty(permission)) {
-
                     var users = [];
                     //split users and remove ,
                     if (userIds.toString().indexOf(',') == 0) {
@@ -758,13 +813,12 @@ function breakRoleInheritanceOfList(listName, requestId, userWithRoles) {
                     ////remove duplicates from array
                     users = removeDuplicateFromArray(users);
 
-
                     users.forEach(user => {
                         if (!isNaN(user)) {
                             var endPointUrlRoleAssignment = "/_api/web/lists/getByTitle('" + listName + "')/items(" + requestId + ")/roleassignments/addroleassignment(principalid=" + user + ",roleDefId=" + permId + ")";
                             var dataTemplate = { "url": endPointUrlRoleAssignment, "digest": digest.toString() };
-                            var httpPostUrl = "https://prod-05.centralindia.logic.azure.com:443/workflows/94440494d1bc4839b196891de76d4d5f/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=-uan_RC5TIGT5AYnvbqT3CcjsJ2gapWn-KSQrUIE60E";
-                            var call = jQuery.ajax(
+                            var httpPostUrl = CommonConstant.SETPERMISSIONWF;
+                            jQuery.ajax(
                                 {
                                     url: httpPostUrl,   ///endPointUrlRoleAssignment
                                     type: "POST",
@@ -778,17 +832,14 @@ function breakRoleInheritanceOfList(listName, requestId, userWithRoles) {
                                         console.log('Role Permission Added successfully!');
                                     },
                                     error: function (error) {
-                                        debugger
                                         console.log(JSON.stringify(error));
                                     }
-                                });
-                        }
+                                });                        }
                     });
                 }
             });
         },
         error: function (error) {
-            debugger
             console.log(error);
         }
     });
@@ -824,7 +875,7 @@ function SetCustomPermission(userWithRoles, requestId, listName) {
     //1073741827 - contribute
     // 1073741829, Full Control
     // 1073741826, Read
-    var endPointUrlRoleAssignment = CommonConstant.HOSTWEBURL  + "/_api/web/lists/getByTitle('" + listName + "')/items(" + requestId + ")/roleassignments/addroleassignment(principalid=20,roleDefId=1073741827)";
+    var endPointUrlRoleAssignment = CommonConstant.HOSTWEBURL + "/_api/web/lists/getByTitle('" + listName + "')/items(" + requestId + ")/roleassignments/addroleassignment(principalid=20,roleDefId=1073741827)";
     var call = jQuery.ajax(
         {
             url: endPointUrlRoleAssignment,
@@ -864,7 +915,6 @@ function BreakRoleInheritance(requestId, listName) {
 }
 
 function onSetItemPermissionFailed(sender, args) {
-    debugger
     console.log('onSetItemPermissionSucceeded : Request failed. ' + args.get_message() + '\n' + args.get_stackTrace());
 }
 
@@ -885,7 +935,6 @@ function GetPermissionDictionary(tempApproverMatrix, nextLevel, isAllUserViewer,
                             strContributer = strContributer.trim() + "," + temp.ApproverId;
                         }
                     } else {
-                        debugger
                         if (!IsNullOrUndefined(temp.ApproverId.results) && temp.ApproverId.results.length > 0 && strContributer.indexOf(temp.ApproverId.results) == -1) {
                             strContributer = strContributer.trim() + "," + temp.ApproverId.results;
                         }
@@ -1149,7 +1198,6 @@ function SaveFormFields(formFieldValues, requestId) {
     //         console.log("Item saved Successfully");
     //     },
     //     error: function (data, status, error) {
-    //         debugger
     //         console.log(data);
     //     }
     // });
@@ -1206,7 +1254,7 @@ function SetSectionWiseRoles(id) {
                         $(this).attr('FillByRole', l.FillByRole);
                         var divId = $(this).attr('id');
                         if (!IsNullOrUndefined(l.Comments) && !IsStrNullOrEmpty(l.Comments)) {
-                            $('#' +divId + '_Comments').val(l.Comments);
+                            $('#' + divId + '_Comments').val(l.Comments);
                         }
                     }
                 });
@@ -1279,7 +1327,6 @@ function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previous
                 case ButtonActionStatus.BackToCreator:
                 case ButtonActionStatus.SendBack:
                     var sendtoRole = '';
-                    debugger;
                     if ((ConstantKeys.SENDTOLEVEL in param) && !IsNullOrUndefined(param[ConstantKeys.SENDTOLEVEL])) {
                         nextLevel = parseInt(param[ConstantKeys.SENDTOLEVEL]);
                     }
@@ -1305,7 +1352,7 @@ function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previous
                     });
                     break;
                 case ButtonActionStatus.SendForward:
-                    debugger
+
                     if ((ConstantKeys.SENDTOLEVEL in param) && !IsNullOrUndefined(param[ConstantKeys.SENDTOLEVEL])) {
                         nextLevel = parseInt(param[ConstantKeys.SENDTOLEVEL]);
                         ////Get Next Level
@@ -1336,7 +1383,6 @@ function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previous
                 case ButtonActionStatus.Cancel:
                     break;
                 case ButtonActionStatus.Rejected:
-                    debugger
                     if (tempApproverMatrix.some(temp => temp.Levels == currentLevel) && !IsNullOrUndefined(temp.ApproverId) && ((!IsNullOrUndefined(temp.ApproverId.results) && temp.ApproverId.results.length > 0) ? temp.ApproverId.results.some(item => item == currentUserId) : (temp.ApproverId.toString().indexOf(currentUserId) != -1))) {
                         var approvers = tempApproverMatrix.filter(temp => {
                             return (temp.Levels == currentLevel && !IsNullOrUndefined(temp.ApproverId) && ((!IsNullOrUndefined(temp.ApproverId.results) && temp.ApproverId.results.length > 0) ? temp.ApproverId.results.some(item => item == currentUserId) : (temp.ApproverId.toString().indexOf(currentUserId) != -1)));
@@ -1347,7 +1393,6 @@ function UpdateStatusofApprovalMatrix(tempApproverMatrix, currentLevel, previous
                     }
                     break;
                 case ButtonActionStatus.Complete:
-                    debugger
                     if (tempApproverMatrix.some(temp => temp.Levels == currentLevel) && !IsNullOrUndefined(temp.ApproverId) && ((!IsNullOrUndefined(temp.ApproverId.results) && temp.ApproverId.results.length > 0) ? temp.ApproverId.results.some(item => item == currentUserId) : (temp.ApproverId.toString().indexOf(currentUserId) != -1))) {
                         var approvers = tempApproverMatrix.filter(temp => {
                             return (temp.Levels == currentLevel && !IsNullOrUndefined(temp.ApproverId) && ((!IsNullOrUndefined(temp.ApproverId.results) && temp.ApproverId.results.length > 0) ? temp.ApproverId.results.some(item => item == currentUserId) : (temp.ApproverId.toString().indexOf(currentUserId) != -1)));
