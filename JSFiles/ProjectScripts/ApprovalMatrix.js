@@ -179,16 +179,17 @@ function GetEnableSectionNames(id) {
             if (sectionName == activeSectionName) {
                 var sectionId = $(this).attr('id');
                 $("#" + sectionId).removeClass("disabled");
-                $("#" + sectionId).find(':input').removeAttr("disabled");
+                $("#" + sectionId).find('input,select,textarea').removeAttr("disabled");
             }
         });
         $("div .disabled .form-control").attr("disabled", "disabled");
+        $("div .disabled").find('input,select,textarea').attr("disabled", "disabled");
     }
     else if (id > 0) {
         //get active section name
         var activeSectionItem = localApprovalMatrixdata.filter(function (l) {
             return (l.ApplicationName == CommonConstant.APPLICATIONNAME && l.FormName == CommonConstant.FORMNAME && l.Levels == tcurrentLevel && l.Role == currentUserRole);
-        })[0];
+        })[0]; 
 
         activeSectionName = !IsNullOrUndefined(activeSectionItem) ? activeSectionItem.SectionName : '';
         if (activeSectionName) {
@@ -197,11 +198,12 @@ function GetEnableSectionNames(id) {
                 if (sectionName == activeSectionName) {
                     var sectionId = $(this).attr('id');
                     $("#" + sectionId).removeClass("disabled");
-                    $("#" + sectionId).find(':input').removeAttr("disabled");
+                    $("#" + sectionId).find('input,select,textarea').removeAttr("disabled");
                 }
             });
         }
         $("div .disabled .form-control").attr("disabled", "disabled");
+        $("div .disabled").find('input,select,textarea').attr("disabled", "disabled");
     }
 }
 

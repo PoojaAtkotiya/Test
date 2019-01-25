@@ -7,9 +7,11 @@ var mainListData = {};
 var sendToLevel = 0;
 var collListItem = null;
 
-$(document).ready(function () {   
+$(document).ready(function () {      
+    DatePickerControl('#divItemCodeForm');
     GetUsersForDDL(Roles.LUMMARKETINGDELEGATE, "LUMMarketingDelegateId");
     GetUsersForDDL(Roles.SCMLUMDESIGNDELEGATE, "SCMLUMDesignDelegateId");
+
     $(document).on("change", "#UploadArtworkAttachment", function () {
         BindAttachmentFiles();
     });
@@ -50,7 +52,6 @@ function onGetSetFormDataSuccess(data) {
         });
     }
     GetLocalApprovalMatrixData(listItemId, mainListName);
-
     GetActivityLog(ListNames.ICDMACTIVITYLOGLIST, listItemId, activitylogTableId);
 }
 

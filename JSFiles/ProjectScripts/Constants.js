@@ -9,6 +9,7 @@ const CommonConstant = {
     HTMLFILSEPATH:_spPageContextInfo.webAbsoluteUrl + "/SiteAssets/ItemCodeCreation/HTMLFiles/",
    BREAKROLEINHERITANCEWF :"https://prod-01.centralindia.logic.azure.com:443/workflows/bd5c7b59e0a245a5866865a147ce48f1/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=DQwBHAeVbuK9CUlGJNABP7iG2ZSOE3ApijO8S0gWZM8",
    SETPERMISSIONWF:"https://prod-05.centralindia.logic.azure.com:443/workflows/94440494d1bc4839b196891de76d4d5f/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=-uan_RC5TIGT5AYnvbqT3CcjsJ2gapWn-KSQrUIE60E",
+   GLOBALDATEFORMAT :'mm-dd-yyyy'
 }
 Object.freeze(CommonConstant);
 

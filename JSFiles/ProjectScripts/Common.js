@@ -122,14 +122,52 @@ function HideWaitDialog() {
 }
 
 function DatePickerControl(ele) {
-    $(ele).find('.datepicker').each(function () {
-        $(this).datepicker({
-            format: 'mm-dd-yyyy',
-            todayHighlight: true,
-            autoclose: true
-        });
+    $(ele).find('.datepicker').each(function () {   
+        var options = {};
+        options ={
+            textObject :$(this),
+            datePickerType : $(this).attr('datePickerType'),
+            dateFormat : CommonConstant.GLOBALDATEFORMAT
+        }
+        BindDatePickerControls(options);        
     });
 }
+
+function BindDatePickerControls(options) {
+    var textControl = options.textObject;
+    var dateFormat = options.dateFormat == undefined ? CommonConstant.GLOBALDATEFORMAT : options.dateFormat;
+    var datePickerType = options.datePickerType == undefined ? "" : options.datePickerType;
+    if (datePickerType == "PASTDATE") {
+        jQuery(textControl).datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: dateFormat,
+            showAnim: 'slideDown',
+            maxDate: new Date(),
+            todayHighlight: true
+        });
+    }
+    else if (datePickerType == "FUTUREDATE") {
+        jQuery(textControl).datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: dateFormat,
+            showAnim: 'slideDown',
+            minDate: new Date(),
+            todayHighlight: true
+        });
+    }
+    else {
+        jQuery(textControl).datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: dateFormat,
+            showAnim: 'slideDown',
+            todayHighlight: true
+        });
+    }
+}
+
 
 function GetUsersForDDL(roleName, eleID) {
     //sync call to avoid conflicts in deriving role wise users

@@ -143,10 +143,10 @@
 
             });
 
-            DatePickerControl('#divItemCodeForm');
+          //  DatePickerControl('#divItemCodeForm');
             //BindDatePicker("#dates");
 
-            DatePickerControl($('input[name="ItemPhasedOutWithEffectFrom"]'));
+           // DatePickerControl($('input[name="ItemPhasedOutWithEffectFrom"]'));
         });
 
 
@@ -336,7 +336,7 @@
                                                         <div class="col-md-6">
                                                             <div class="col-md-4 control-label">Item To Be Phased Out With Effect From :</div>
                                                             <div class="col-md-8">
-                                                                <div id="dates" class="input-group date datepicker pastDisabled">
+                                                                <div id="dates" class="input-group date datepicker"  datePickerType="FUTUREDATE">
                                                                     <input type="text" class="form-control dynamic-control" listtype="main" id="ItemPhasedOutWithEffectFrom" controlType="date"
                                                                         name="ItemPhasedOutWithEffectFrom">
                                                                     <span class="input-group-addon">
